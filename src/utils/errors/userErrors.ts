@@ -17,3 +17,9 @@ export class VideoNotFoundError extends UserError {
         super(message || `Video not found`, 404);
     }
 }
+
+export class VideoValidationFailedError extends UserError {
+    constructor(field?: string) {
+        super(`Video validation failed ${!!field ? 'for field ' + field : ''}`, 400);
+    }
+}
