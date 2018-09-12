@@ -1,11 +1,33 @@
 import { Types } from 'mongoose';
+import { IVideo } from '../video.interface';
 
 export class VideoValidatons {
-    static isPropertyValid(property: string): boolean {
-        return (!!property && property.length < 10);
+    private static readonly maxTitleLength = 256;
+    private static readonly userRegex = /\w+@\w+/i;
+    private static readonly urlRegex = /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/i;
+
+    static isValid(video: IVideo): boolean {
+        return !!video &&
+            VideoValidatons.isTitleValid(video.title) &&
+            VideoValidatons.isOwnerValid(video.owner) &&
+            VideoValidatons.isUrlValid(video.contentUrl) &&
+            VideoValidatons.isUrlValid(video.thumbnailUrl);
     }
 
     static isIdValid(id: string): boolean {
-        return (!!id && Types.ObjectId.isValid(id));
+        return Types.ObjectId.isValid(id);
+    }
+
+    static isTitleValid(title: string): boolean {
+        const trimmed = title ? title.trim() : null;
+        return !!trimmed && trimmed.length < VideoValidatons.maxTitleLength;
+    }
+
+    static isOwnerValid(owner: string): boolean {
+        return VideoValidatons.userRegex.test(owner);
+    }
+
+    static isUrlValid(url: string): boolean {
+        return VideoValidatons.urlRegex.test(url);
     }
 }

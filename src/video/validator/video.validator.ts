@@ -1,30 +1,18 @@
-import { Request, Response, NextFunction } from 'express';
-import { VideoValidatons } from './video.validations';
-import { PropertyInvalidError, IdInvalidError } from '../../utils/errors/userErrors';
+import { NextFunction, Request, Response } from 'express';
+import { IdInvalidError, VideoValidationFailedError } from '../../utils/errors/userErrors';
 import { IVideo } from '../video.interface';
+import { VideoValidatons } from './video.validations';
 
 export class VideoValidator {
 
     static canCreate(req: Request, res: Response, next: NextFunction) {
-        next(VideoValidator.validateProperty(req.body.video.property));
-    }
-
-    static canCreateMany(req: Request, res: Response, next: NextFunction) {
-        const propertiesValidations: (Error | undefined)[] = req.body.videos.map((video: IVideo) => {
-            return VideoValidator.validateProperty(video.property);
-        });
-
-        next(VideoValidator.getNextValueFromArray(propertiesValidations));
+        next(VideoValidator.validateVideo(req.body.video));
     }
 
     static canUpdateById(req: Request, res: Response, next: NextFunction) {
         next(
             VideoValidator.validateId(req.params.id) ||
-            VideoValidator.validateProperty(req.body.video.property));
-    }
-
-    static canUpdateMany(req: Request, res: Response, next: NextFunction) {
-        next(VideoValidator.validateProperty(req.body.video.property));
+            VideoValidator.validatePartialVideo(req.body.video));
     }
 
     static canDeleteById(req: Request, res: Response, next: NextFunction) {
@@ -47,10 +35,20 @@ export class VideoValidator {
         next();
     }
 
-    private static validateProperty(property: string) {
-        if (!VideoValidatons.isPropertyValid(property)) {
-            return new PropertyInvalidError();
-        }
+    private static validateVideo(video: IVideo) {
+        if (!VideoValidatons.isTitleValid(video.title)) return new VideoValidationFailedError('title');
+        if (!VideoValidatons.isOwnerValid(video.owner)) return new VideoValidationFailedError('owner');
+        if (!VideoValidatons.isUrlValid(video.thumbnailUrl)) return new VideoValidationFailedError('thumbnailUrl');
+        if (!VideoValidatons.isUrlValid(video.contentUrl)) return new VideoValidationFailedError('contentUrl');
+
+        return undefined;
+    }
+
+    private static validatePartialVideo(video: Partial<IVideo>) {
+        if (video.contentUrl && !VideoValidatons.isUrlValid(video.contentUrl)) return new VideoValidationFailedError('contentUrl');
+        if (video.thumbnailUrl && !VideoValidatons.isUrlValid(video.thumbnailUrl)) return new VideoValidationFailedError('thumbnailUrl');
+        if (video.title && !VideoValidatons.isTitleValid(video.title)) return new VideoValidationFailedError('title');
+        if (video.owner && !VideoValidatons.isUrlValid(video.owner)) return new VideoValidationFailedError('owner');
 
         return undefined;
     }
@@ -61,17 +59,5 @@ export class VideoValidator {
         }
 
         return undefined;
-    }
-
-    private static getNextValueFromArray(validationsArray: (Error | undefined)[]) {
-        let nextValue: Error | undefined;
-
-        for (let index = 0; index < validationsArray.length; index++) {
-            if (validationsArray[index] !== undefined) {
-                nextValue = validationsArray[index];
-            }
-        }
-
-        return nextValue;
     }
 }
