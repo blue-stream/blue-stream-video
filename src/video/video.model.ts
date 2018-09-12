@@ -3,7 +3,30 @@ import { IVideo } from './video.interface';
 
 const videoSchema: mongoose.Schema = new mongoose.Schema(
     {
-        property: { type: String, required: true },
+        title: {
+            type: String,
+            required: true,
+        },
+        description: String,
+        views: Number,
+        owner: {
+            type: String,
+            required: true,
+        },
+        contentUrl: {
+            type: String,
+            required: true,
+        },
+        thumbnailUrl: {
+            type: String,
+            required: true,
+        },
+        status: {
+            type: String,
+            enum: [
+
+            ],
+        },
     },
     {
         autoIndex: false,
