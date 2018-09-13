@@ -32,6 +32,12 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
         autoIndex: false,
         timestamps: true,
         id: true,
+        toJSON: {
+            virtuals: true,
+        },
+        toObject: {
+            virtuals: true,
+        },
     });
 
 export const VideoModel = mongoose.model<IVideo & mongoose.Document>('Video', videoSchema);
