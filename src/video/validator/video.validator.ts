@@ -48,7 +48,7 @@ export class VideoValidator {
         if (video.contentUrl && !VideoValidatons.isUrlValid(video.contentUrl)) return new VideoValidationFailedError('contentUrl');
         if (video.thumbnailUrl && !VideoValidatons.isUrlValid(video.thumbnailUrl)) return new VideoValidationFailedError('thumbnailUrl');
         if (video.title && !VideoValidatons.isTitleValid(video.title)) return new VideoValidationFailedError('title');
-        if (video.owner && !VideoValidatons.isUrlValid(video.owner)) return new VideoValidationFailedError('owner');
+        if (video.owner && !VideoValidatons.isOwnerValid(video.owner)) return new VideoValidationFailedError('owner');
 
         return undefined;
     }
