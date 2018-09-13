@@ -8,7 +8,6 @@ import { IdInvalidError, VideoNotFoundError, VideoValidationFailedError } from '
 import { IVideo } from './video.interface';
 import { VideoManager } from './video.manager';
 
-
 describe('Video Module', function () {
     let server: Server;
     const validProppertyString: string = '12345';
@@ -50,20 +49,17 @@ describe('Video Module', function () {
         thumbnailUrl: 'https://yt3.ggpht.com/a-/AN66SAxZyTsOYDydiDuDzlWvf4cXAxDCoFYij5nkNg=s48-mo-c-c0xffffffff-rj-k-no',
     };
 
-    const unexistingVideo: IVideo = {
+    const unexistingVideo: Partial<IVideo> = {
         title: 'a',
-    } as IVideo;
+    };
 
-    const updateVideo = {
+    const updateVideo: Partial<IVideo> = {
         title: 'updated value',
         owner: 'updater@test',
-    } as IVideo;
+    };
 
     const videos: IVideo[] =
         [video, video2, video3, video3];
-
-    const invalidVideos: IVideo[] =
-        [video, invalidVideo, video3];
 
     before(async function () {
         await mongoose.connect(`mongodb://${config.db.host}:${config.db.port}/${config.db.name}`, { useNewUrlParser: true });
