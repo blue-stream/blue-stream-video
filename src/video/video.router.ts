@@ -14,4 +14,3 @@ VideoRouter.get('/amount', VideoValidator.canGetAmount, Wrapper.wrapAsync(VideoC
 VideoRouter.get('/:id', VideoValidator.canGetById, Wrapper.wrapAsync(VideoController.getById));
 
 export { VideoRouter };
-
