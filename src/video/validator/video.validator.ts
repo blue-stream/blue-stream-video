@@ -6,13 +6,13 @@ import { VideoValidatons } from './video.validations';
 export class VideoValidator {
 
     static canCreate(req: Request, res: Response, next: NextFunction) {
-        next(VideoValidator.validateVideo(req.body.video));
+        next(VideoValidator.validateVideo(req.body));
     }
 
     static canUpdateById(req: Request, res: Response, next: NextFunction) {
         next(
             VideoValidator.validateId(req.params.id) ||
-            VideoValidator.validatePartialVideo(req.body.video));
+            VideoValidator.validatePartialVideo(req.body));
     }
 
     static canDeleteById(req: Request, res: Response, next: NextFunction) {

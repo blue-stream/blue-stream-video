@@ -44,34 +44,7 @@ export class ValidRequestMocks {
             authorization: this.authorizationHeader,
         },
         body: {
-            video: this.videos[0],
-        },
-    });
-
-    createMany = createRequest({
-        method: 'POST',
-        url: '/api/video/many/',
-        headers: {
-            authorization: this.authorizationHeader,
-        },
-        body: {
-            videos: this.videos,
-        },
-    });
-
-    updateMany = createRequest({
-        method: 'PUT',
-        url: '/api/video/many',
-        headers: {
-            authorization: this.authorizationHeader,
-        },
-        body: {
-            videoFilter: {
-                owner: 'john@lenon',
-            },
-            video: {
-                title: 'John Lenon',
-            },
+            ...this.videos[0],
         },
     });
 
@@ -85,9 +58,7 @@ export class ValidRequestMocks {
             id: new Types.ObjectId(),
         },
         body: {
-            video: {
-                title: 'New title',
-            },
+            title: 'New title',
         },
     });
 

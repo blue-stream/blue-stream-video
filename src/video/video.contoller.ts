@@ -6,11 +6,11 @@ import { UpdateWriteOpResult } from 'mongodb';
 type UpdateResponse = UpdateWriteOpResult['result'];
 export class VideoController {
     static async create(req: Request, res: Response) {
-        res.json(await VideoManager.create(req.body.video));
+        res.json(await VideoManager.create(req.body));
     }
 
     static async updateById(req: Request, res: Response) {
-        const updated = await VideoManager.updateById(req.params.id, req.body.video);
+        const updated = await VideoManager.updateById(req.params.id, req.body);
         if (!updated) {
             throw new VideoNotFoundError();
         }
