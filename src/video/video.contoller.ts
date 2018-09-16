@@ -9,24 +9,9 @@ export class VideoController {
         res.json(await VideoManager.create(req.body.video));
     }
 
-    static async createMany(req: Request, res: Response) {
-        res.json(await VideoManager.createMany(req.body.videos));
-    }
-
     static async updateById(req: Request, res: Response) {
         const updated = await VideoManager.updateById(req.params.id, req.body.video);
         if (!updated) {
-            throw new VideoNotFoundError();
-        }
-
-        res.json(updated);
-    }
-
-    static async updateMany(req: Request, res: Response) {
-
-        const updated: UpdateResponse = await VideoManager.updateMany(req.body.videoFilter, req.body.video);
-
-        if (updated.n === 0) {
             throw new VideoNotFoundError();
         }
 

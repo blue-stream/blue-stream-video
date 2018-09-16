@@ -8,30 +8,12 @@ export class VideoRepository {
         return VideoModel.create(video);
     }
 
-    static createMany(videos: IVideo[])
-        : Promise<IVideo[]> {
-        return VideoModel.insertMany(videos);
-    }
-
     static updateById(id: string, video: Partial<IVideo>)
         : Promise<IVideo | null> {
         return VideoModel.findByIdAndUpdate(
             id,
             { $set: video },
             { new: true, runValidators: true },
-        ).exec();
-    }
-
-    static updateMany(videoFilter: Partial<IVideo>, video: Partial<IVideo>)
-        : Promise<any> {
-
-        if (Object.keys(video).length === 0) {
-            throw new ServerError('Update data is required.');
-        }
-
-        return VideoModel.updateMany(
-            videoFilter,
-            { $set: video },
         ).exec();
     }
 
