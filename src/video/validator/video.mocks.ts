@@ -86,7 +86,7 @@ export class ValidRequestMocks {
 
     getMany = createRequest({
         method: 'GET',
-        url: `/api/video/many?videoFilter={'property':'12345'}`,
+        url: `/api/video/?videoFilter={'property':'12345'}`,
         headers: {
             authorization: this.authorizationHeader,
         },
