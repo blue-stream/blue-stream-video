@@ -80,7 +80,7 @@ describe('Video Module', function () {
             it('Should return created video', function (done: MochaDone) {
                 request(server.app)
                     .post('/api/video/')
-                    .send({ video })
+                    .send({ ...video })
                     .set({ authorization: authorizationHeader })
                     .expect(200)
                     .expect('Content-Type', /json/)
@@ -109,7 +109,7 @@ describe('Video Module', function () {
             it('Should return error status when property is invalid', function (done: MochaDone) {
                 request(server.app)
                     .post('/api/video/')
-                    .send({ video: invalidVideo })
+                    .send({ ...invalidVideo })
                     .set({ authorization: authorizationHeader })
                     .expect(400)
                     .expect('Content-Type', /json/)
@@ -140,7 +140,7 @@ describe('Video Module', function () {
             it('Should return updated video', function (done: MochaDone) {
                 request(server.app)
                     .put(`/api/video/${returnedVideo.id}`)
-                    .send({ video: updateVideo })
+                    .send({ ...updateVideo })
                     .set({ authorization: authorizationHeader })
                     .expect(200)
                     .expect('Content-Type', /json/)
@@ -206,7 +206,7 @@ describe('Video Module', function () {
             it('Should return error status when property is invalid', function (done: MochaDone) {
                 request(server.app)
                     .put(`/api/video/${returnedVideo.id}`)
-                    .send({ video: invalidVideo })
+                    .send({ ...invalidVideo })
                     .set({ authorization: authorizationHeader })
                     .expect(400)
                     .expect('Content-Type', /json/)
