@@ -50,7 +50,8 @@
 
     ```javascript
     {
-      "message": "Resource not found."
+      "type": "VideoNotFoundError",
+      "message": "Video not found"
     }
     ```
 
@@ -61,7 +62,8 @@
     
     ```javascript
     {
-      "message": "Request validation failed"
+      "type": "IdInvalidError",
+      "message": "Id is invalid"
     }
     ```
 

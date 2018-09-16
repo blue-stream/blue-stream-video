@@ -28,17 +28,17 @@
 
     ```javascript 
     {
-      "_id": "5b328efa9e8acf14e80a6f23",
+      "_id": "5b9ea2f46c5a7f369211a852",
       "title": "Another chopin music",
       "description": "Subscribe for more classical music:  http://bit.ly/YouTubeHalidonMusic",
-      "dislikes": 11204,
-      "likes": 220501,
       "owner": "chopin@music",
       "views": 58744261,
-      "publishDate": "2018-06-26T19:07:38.202Z",
-      "updateDate": "2018-06-26T19:40:39.265Z",
+      "thumbnailUrl": "https://g.com",
+      "contentUrl": "https://g.com",
+      "createdAt": "2018-09-16T18:37:40.634Z",
+      "updatedAt": "2018-09-16T18:41:40.813Z",
       "__v": 0,
-      "id": "5b328efa9e8acf14e80a6f23"
+      "id": "5b9ea2f46c5a7f369211a852"
     }
     ```
  
@@ -49,7 +49,8 @@
 
     ```javascript
     {
-      "message": "Resource not found."
+      "type": "VideoNotFoundError",
+      "message": "Video not found"
     }
     ```
 
@@ -60,7 +61,8 @@
     
     ```javascript
     {
-      "message": "Request validation failed"
+      "type": "IdInvalidError",
+      "message": "Id is invalid"
     }
     ```
 

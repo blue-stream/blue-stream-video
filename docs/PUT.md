@@ -57,7 +57,8 @@
 
     ```javascript
     {
-      "message": "Resource not found."
+      "type": "VideoNotFoundError",
+      "message": "Video not found"
     }
     ```
 
@@ -68,7 +69,8 @@
     
     ```javascript
     {
-      "message": "Request validation failed"
+      "type": "VideoValidationFailedError",
+      "message": "Video validation failed for field thumbnailUrl"
     }
     ```
 

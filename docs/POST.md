@@ -21,11 +21,13 @@
   ```javascript
   {
 	  "title": "The Best of Chopin",
-	  "description": "Subscribe for more classical music:  http://bit.ly/YouTubeHalidonMusic",
+    "description": "Subscribe for more classical music:  http://bit.ly/YouTubeHalidonMusic",
     "dislikes": 11204,
     "likes": 220501,
     "owner": "chopin@music",
-    "views": 58744261
+    "views": 58744261,
+    "thumbnailUrl": "https://g.com",
+    "contentUrl": "https://g.com"
   }
   ```
 
@@ -36,22 +38,20 @@
 
     ```javascript 
     {
-      "video": {
-        "_id": "5b32927c9e8acf14e80a6f24",
-        "title": "The Best of Chopin",
-        "description": "Subscribe for more classical music:  http://bit.ly/YouTubeHalidonMusic",
-        "dislikes": 11204,
-        "likes": 220501,
-        "owner": "chopin@music",
-        "views": 58744261,
-        "publishDate": "2018-06-26T19:22:36.740Z",
-        "updateDate": "2018-06-26T19:22:36.740Z",
-        "__v": 0,
-        "id": "5b32927c9e8acf14e80a6f24"
-      }
+      "_id": "5b9ea9e26c5a7f369211a853",
+      "title": "The Best of Chopin",
+      "description": "Subscribe for more classical music:  http://bit.ly/YouTubeHalidonMusic",
+      "owner": "chopin@music",
+      "views": 58744261,
+      "thumbnailUrl": "https://g.com",
+      "contentUrl": "https://g.com",
+      "createdAt": "2018-09-16T19:07:14.052Z",
+      "updatedAt": "2018-09-16T19:07:14.052Z",
+      "__v": 0,
+      "id": "5b9ea9e26c5a7f369211a853"
     }
     ```
- 
+
 * **Error Response:**
 
   * **Code:** 400 BAD REQUEST <br />
@@ -59,7 +59,8 @@
     
     ```javascript
     {
-      "message": "Request validation failed"
+      "type": "VideoValidationFailedError",
+      "message": "Video validation failed for field title"
     }
     ```
 
@@ -72,11 +73,13 @@
       method : "POST",
       data: {
         "title": "The Best of Chopin",
-        "description": "Subscribe for more classical music: http://bit.ly/YouTubeHalidonMusic",
+        "description": "Subscribe for more classical music:  http://bit.ly/YouTubeHalidonMusic",
         "dislikes": 11204,
         "likes": 220501,
         "owner": "chopin@music",
-        "views": 58744261
+        "views": 58744261,
+        "thumbnailUrl": "https://g.com",
+        "contentUrl": "https://g.com"
       }
       success : function(result) {
         ...
