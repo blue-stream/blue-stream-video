@@ -7,19 +7,53 @@ import { VideoRepository } from './video.repository';
 
 const validId: string = new mongoose.Types.ObjectId().toHexString();
 const invalidId: string = 'invalid id';
-const video: IVideo = {
-    property: 'prop',
+const invalidVideo: Partial<IVideo> = {
+    title: 'a'.repeat(300),
+    owner: 'owner',
+    contentUrl: '',
+    thumbnailUrl: '',
 };
-const videoArr: IVideo[] = ['prop', 'prop', 'prop', 'b', 'c', 'd'].map(item => ({ property: item }));
-const invalidVideo: any = {
-    property: { invalid: true },
-};
-const videoFilter: Partial<IVideo> = { property: 'prop' };
-const videoDataToUpdate: Partial<IVideo> = { property: 'updated' };
-const unexistingVideo: Partial<IVideo> = { property: 'unexisting' };
+
+const videoFilter: Partial<IVideo> = { owner: 'john@lenon' };
+const videoDataToUpdate: Partial<IVideo> = { title: 'updated title' };
+const unexistingVideo: Partial<IVideo> = { title: 'a' };
 const unknownProperty: Object = { unknownProperty: true };
+const video: IVideo = {
+    contentUrl: 'https://www.youtube.com/watch?v=YkgkThdzX-8',
+    description: 'John Lennon',
+    owner: 'john@lenon',
+    title: 'Imagine - John Lennon',
+    views: 157,
+    thumbnailUrl: 'https://yt3.ggpht.com/a-/ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it_oupg=s288-mo-c-c0xffffffff-rj-k-no',
+};
+
+const video2: IVideo = {
+    title: 'BOB DYLAN - Mr Tambourine Man',
+    description: `Subterranean Homesick Blues: A Tribute to Bob Dylan's 'Bringing It All Back Home'`,
+    owner: 'bob@dylan',
+    views: 38169017,
+    contentUrl: 'https://www.youtube.com/watch?v=PYF8Y47qZQY',
+    thumbnailUrl: 'http://lh3.googleusercontent.com/w8qfEEDmQ-wPQBX5SVCne2ehV-oZrpIX6WdDTamHfh8ZRrl5Y3AsdkfHtatMnxLZVV1z7LmRdh9sDYHRtQQ=s176-c-k-c0x00ffffff-no-rj',
+};
+
+const video3: IVideo = {
+    title: 'OFFICIAL Somewhere over the Rainbow - Israel "IZ" Kamakawiwoʻole',
+    description: `Israel "IZ" Kamakawiwoʻole's Platinum selling hit "Over the Rainbow" OFFICIAL video produced by Jon de Mello for The Mountain Apple Company • HAWAI`,
+    owner: 'mountain@apple',
+    views: 579264778,
+    contentUrl: 'https://www.youtube.com/watch?v=V1bFr2SWP1I',
+    thumbnailUrl: 'https://yt3.ggpht.com/a-/AN66SAxZyTsOYDydiDuDzlWvf4cXAxDCoFYij5nkNg=s48-mo-c-c0xffffffff-rj-k-no',
+};
+
+const videoArr = [video, video, video, video2, video3];
+
+Object.freeze(video);
+Object.freeze(video2);
+Object.freeze(video3);
+Object.freeze(videoArr);
 
 describe('Video Repository', function () {
+
     before(async function () {
         await mongoose.connect(`mongodb://${config.db.host}:${config.db.port}/${config.db.name}`, { useNewUrlParser: true });
     });
@@ -37,33 +71,41 @@ describe('Video Repository', function () {
             it('Should create video', async function () {
                 const createdVideo = await VideoRepository.create(video);
                 expect(createdVideo).to.exist;
-                expect(createdVideo).to.have.property('property', 'prop');
                 expect(createdVideo).to.have.property('createdAt');
                 expect(createdVideo).to.have.property('updatedAt');
-                expect(createdVideo).to.have.property('_id').which.satisfies((id: any) => {
+
+                for (const prop in video) {
+                    expect(createdVideo).to.have.property(prop, video[prop as keyof IVideo]);
+                }
+
+                expect(createdVideo).to.have.property('id').which.satisfies((id: any) => {
                     return mongoose.Types.ObjectId.isValid(id);
                 });
             });
         });
 
         context('When video is invalid', function () {
-            it('Should throw validation error when incorrect property type', async function () {
-                let hasThrown = false;
+            for (const prop in invalidVideo) {
+                it(`Should throw validation error when incorrect ${prop} entered`, async function () {
+                    let hasThrown = false;
 
-                try {
-                    await VideoRepository.create(invalidVideo);
-                } catch (err) {
-                    hasThrown = true;
-                    expect(err).to.exist;
-                    expect(err).to.have.property('name', 'ValidationError');
-                    expect(err).to.have.property('message').that.matches(/cast.+failed/i);
-                    expect(err).to.have.property('errors');
-                    expect(err.errors).to.have.property('property');
-                    expect(err.errors.property).to.have.property('name', 'CastError');
-                } finally {
-                    expect(hasThrown).to.be.true;
-                }
-            });
+                    const vid = {
+                        ...video,
+                        [prop]: invalidVideo[prop as keyof IVideo],
+                    };
+
+                    try {
+                        await VideoRepository.create(vid);
+                    } catch (err) {
+                        hasThrown = true;
+                        expect(err).to.exist;
+                        expect(err).to.have.property('name', 'ValidationError');
+                        expect(err).to.have.property('errors');
+                    } finally {
+                        expect(hasThrown).to.be.true;
+                    }
+                });
+            }
 
             it('Should throw validation error when empty video passed', async function () {
                 let hasThrown = false;
@@ -76,46 +118,6 @@ describe('Video Repository', function () {
                     expect(err).to.have.property('message').that.matches(/path.+required/i);
                 } finally {
                     expect(hasThrown);
-                }
-            });
-        });
-    });
-
-    describe('#createMany()', function () {
-        context('When data is valid', function () {
-            it('Should create many documents', async function () {
-                const createdDocuments = await VideoRepository.createMany(videoArr);
-
-                expect(createdDocuments).to.exist;
-                expect(createdDocuments).to.be.an('array');
-                expect(createdDocuments).to.have.lengthOf(6);
-            });
-
-            it('Should not create documents when empty array passed', async function () {
-                const docs = await VideoRepository.createMany([]);
-
-                expect(docs).to.exist;
-                expect(docs).to.be.an('array');
-                expect(docs).to.be.empty;
-            });
-        });
-
-        context('When data is invalid', function () {
-            it('Should throw error when 1 of the docs invalid', async function () {
-                let hasThrown = false;
-                const docs: IVideo[] = [
-                    ...videoArr,
-                    {} as IVideo,
-                ];
-
-                try {
-                    await VideoRepository.createMany(docs);
-                } catch (err) {
-                    hasThrown = true;
-                    expect(err).to.have.property('name', 'ValidationError');
-                    expect(err).to.have.property('message').that.matches(/path.+required/i);
-                } finally {
-                    expect(hasThrown).to.be.true;
                 }
             });
         });
@@ -158,108 +160,23 @@ describe('Video Repository', function () {
         });
 
         context('When data is not valid', function () {
-            it('Should throw error when updated doc is not valid', async function () {
-                let hasThrown = false;
+            for (const prop in invalidVideo) {
+                it(`Should throw error when ${prop} is invalid`, async function () {
+                    let hasThrown = false;
 
-                try {
-                    await VideoRepository.updateById(createdVideo.id as string, { property: null } as any);
-                } catch (err) {
-                    hasThrown = true;
-                    expect(err).to.exist;
-                    expect(err).to.have.property('name', 'ValidationError');
-                    expect(err).to.have.property('message').that.matches(/path.+required/i);
-                } finally {
-                    expect(hasThrown).to.be.true;
-                }
-            });
-        });
-    });
-
-    describe('#updateMany()', function () {
-
-        beforeEach(async function () {
-            await VideoRepository.createMany(videoArr);
-        });
-
-        context('When data is valid', function () {
-
-            it('Should update many documents', async function () {
-                const updated = await VideoRepository.updateMany(videoFilter, videoDataToUpdate);
-
-                const amountOfRequiredUpdates = videoArr.filter((item: IVideo) => {
-                    let match = true;
-                    for (const prop in videoFilter) {
-                        match = match && item[prop as keyof IVideo] === videoFilter[prop as keyof IVideo];
+                    try {
+                        await VideoRepository.updateById(createdVideo.id as string, { [prop]: invalidVideo[prop as keyof IVideo] } as any);
+                    } catch (err) {
+                        hasThrown = true;
+                        expect(err).to.exist;
+                        expect(err).to.have.property('name', 'ValidationError');
+                        expect(err).to.have.property('errors');
+                        expect(err.errors).to.have.property(prop);
+                    } finally {
+                        expect(hasThrown).to.be.true;
                     }
-
-                    return match;
-                }).length;
-
-                expect(updated).to.exist;
-                expect(updated).to.have.property('nModified', amountOfRequiredUpdates);
-
-                const documents = await VideoRepository.getMany(videoDataToUpdate);
-                expect(documents).to.exist;
-                expect(documents).to.be.an('array');
-                expect(documents).to.have.lengthOf(amountOfRequiredUpdates);
-            });
-
-            it('Should update all documents when no filter passed', async function () {
-                const updated = await VideoRepository.updateMany({}, videoDataToUpdate);
-                expect(updated).to.exist;
-                expect(updated).to.have.property('nModified', videoArr.length);
-
-                const documents = await VideoRepository.getMany(videoDataToUpdate);
-                expect(documents).to.exist;
-                expect(documents).to.be.an('array');
-                expect(documents).to.have.lengthOf(videoArr.length);
-            });
-
-            it('Should do nothing when criteria does not match any document', async function () {
-                const updated = await VideoRepository.updateMany(unexistingVideo, videoDataToUpdate);
-                expect(updated).to.exist;
-                expect(updated).to.have.property('nModified', 0);
-
-                const documents = await VideoRepository.getMany(videoDataToUpdate);
-                expect(documents).to.exist;
-                expect(documents).to.be.an('array');
-                expect(documents).to.have.lengthOf(0);
-            });
-
-        });
-
-        context('When data is invalid', function () {
-
-            it('Should throw error when empty data provided', async function () {
-                let hasThrown = false;
-
-                try {
-                    await VideoRepository.updateMany(videoFilter, {});
-                } catch (err) {
-                    hasThrown = true;
-                    expect(err).to.exist;
-                    expect(err instanceof ServerError).to.be.true;
-                } finally {
-                    expect(hasThrown).to.be.true;
-                }
-            });
-
-            it('Should not update documents when invalid data passed', async function () {
-                await VideoRepository.updateMany({}, unknownProperty);
-
-                const documents = await VideoRepository.getMany({});
-                expect(documents).to.exist;
-                expect(documents).to.be.an('array');
-                expect(documents).to.satisfy((documents: IVideo[]) => {
-                    documents.forEach((doc: IVideo) => {
-                        for (const prop in unknownProperty) {
-                            expect(doc).to.not.have.property(prop);
-                        }
-                    });
-
-                    return true;
                 });
-            });
+            }
         });
     });
 
@@ -365,14 +282,16 @@ describe('Video Repository', function () {
                 }
             });
 
-            it('Should return document by property', async function () {
-                const doc = await VideoRepository.getOne(videoFilter);
-                expect(doc).to.exist;
-                expect(doc).to.have.property('id', document.id);
-                for (const prop in video) {
-                    expect(doc).to.have.property(prop, video[prop as keyof IVideo]);
-                }
-            });
+            for (const prop in video) {
+                it(`Should return document by ${prop}`, async function () {
+                    const doc = await VideoRepository.getOne({ [prop]: video[prop as keyof IVideo] });
+                    expect(doc).to.exist;
+                    expect(doc).to.have.property('id', document.id);
+                    for (const prop in video) {
+                        expect(doc).to.have.property(prop, video[prop as keyof IVideo]);
+                    }
+                });
+            }
 
             it('Should return null when document not exists', async function () {
                 const doc = await VideoRepository.getOne(unexistingVideo);
@@ -407,7 +326,7 @@ describe('Video Repository', function () {
         context('When data is valid', function () {
 
             beforeEach(async function () {
-                await VideoRepository.createMany(videoArr);
+                await Promise.all(videoArr.map(video => VideoRepository.create(video)));
             });
 
             it('Should return all documents when filter is empty', async function () {
@@ -417,22 +336,19 @@ describe('Video Repository', function () {
                 expect(documents).to.have.lengthOf(videoArr.length);
             });
 
-            it('Should return only matching documents', async function () {
-                const documents = await VideoRepository.getMany(videoFilter);
-                expect(documents).to.exist;
-                expect(documents).to.be.an('array');
+            for (const prop in video) {
+                it(`Should return only matching documents by ${prop}`, async function () {
+                    const documents = await VideoRepository.getMany({ [prop]: video[prop as keyof IVideo] });
+                    expect(documents).to.exist;
+                    expect(documents).to.be.an('array');
 
-                const amountOfRequiredDocuments = videoArr.filter((item: IVideo) => {
-                    let match = true;
-                    for (const prop in videoFilter) {
-                        match = match && item[prop as keyof IVideo] === videoFilter[prop as keyof IVideo];
-                    }
+                    const amountOfRequiredDocuments = videoArr.filter((item: IVideo) => {
+                        return item[prop as keyof IVideo] === video[prop as keyof IVideo];
+                    }).length;
 
-                    return match;
-                }).length;
-
-                expect(documents).to.have.lengthOf(amountOfRequiredDocuments);
-            });
+                    expect(documents).to.have.lengthOf(amountOfRequiredDocuments);
+                });
+            }
 
             it('Should return empty array when critiria not matching any document', async function () {
                 const documents = await VideoRepository.getMany(unexistingVideo);
@@ -471,7 +387,7 @@ describe('Video Repository', function () {
         context('When data is valid', function () {
 
             beforeEach(async function () {
-                await VideoRepository.createMany(videoArr);
+                await Promise.all(videoArr.map(video => VideoRepository.create(video)));
             });
 
             it('Should return amount of all documents when no filter provided', async function () {
@@ -481,22 +397,19 @@ describe('Video Repository', function () {
                 expect(amount).to.equal(videoArr.length);
             });
 
-            it('Should return amount of filtered documents', async function () {
-                const amount = await VideoRepository.getAmount(videoFilter);
-                expect(amount).to.exist;
-                expect(amount).to.be.a('number');
+            for (const prop in video) {
+                it(`Should return amount of filtered documents by ${prop}`, async function () {
+                    const amount = await VideoRepository.getAmount({ [prop]: video[prop as keyof IVideo] });
+                    expect(amount).to.exist;
+                    expect(amount).to.be.a('number');
 
-                const amountOfRequiredDocuments = videoArr.filter((item: IVideo) => {
-                    let match = true;
-                    for (const prop in videoFilter) {
-                        match = match && item[prop as keyof IVideo] === videoFilter[prop as keyof IVideo];
-                    }
+                    const amountOfRequiredDocuments = videoArr.filter((item: IVideo) => {
+                        return item[prop as keyof IVideo] === video[prop as keyof IVideo];
+                    }).length;
 
-                    return match;
-                }).length;
-
-                expect(amount).to.equal(amountOfRequiredDocuments);
-            });
+                    expect(amount).to.equal(amountOfRequiredDocuments);
+                });
+            }
 
             it('Should return 0 when no documents matching filter', async function () {
                 const amount = await VideoRepository.getAmount(unexistingVideo);
