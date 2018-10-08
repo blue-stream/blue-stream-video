@@ -27,7 +27,7 @@ describe('Video Validator Middleware', function () {
             for (const prop in invalidProps) {
                 it(`Should throw VideoValidationFailedError when ${prop} is invalid`, function () {
                     const invalidRequestMock = new ValidRequestMocks().create;
-                    invalidRequestMock.body.video[prop] = invalidProps[prop as keyof (typeof invalidProps)];
+                    invalidRequestMock.body[prop] = invalidProps[prop as keyof (typeof invalidProps)];
 
                     VideoValidator.canCreate(invalidRequestMock, responseMock, (error: Error) => {
                         expect(error).to.exist;
@@ -40,7 +40,7 @@ describe('Video Validator Middleware', function () {
             for (const prop of nullProps) {
                 it(`Should throw VideoValidationFailedError when ${prop} is null`, function () {
                     const invalidRequestMock = new ValidRequestMocks().create;
-                    invalidRequestMock.body.video[prop] = null;
+                    invalidRequestMock.body[prop] = null;
 
                     VideoValidator.canCreate(invalidRequestMock, responseMock, (error: Error) => {
                         expect(error).to.exist;
@@ -52,7 +52,7 @@ describe('Video Validator Middleware', function () {
             for (const prop of nullProps) {
                 it(`Should throw VideoValidationFailedError when ${prop} is undefined`, function () {
                     const invalidRequestMock = new ValidRequestMocks().create;
-                    invalidRequestMock.body.video[prop] = undefined;
+                    invalidRequestMock.body[prop] = undefined;
 
                     VideoValidator.canCreate(invalidRequestMock, responseMock, (error: Error) => {
                         expect(error).to.exist;
@@ -77,7 +77,7 @@ describe('Video Validator Middleware', function () {
             for (const prop in invalidProps) {
                 it(`Should throw VideoValidationFailedError when ${prop} is invalid`, function () {
                     const invalidRequestMock = new ValidRequestMocks().updateById;
-                    invalidRequestMock.body.video[prop] = invalidProps[prop as keyof (typeof invalidProps)];
+                    invalidRequestMock.body[prop] = invalidProps[prop as keyof (typeof invalidProps)];
 
                     VideoValidator.canUpdateById(invalidRequestMock, responseMock, (error: Error) => {
                         expect(error).to.exist;
