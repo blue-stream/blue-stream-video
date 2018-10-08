@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
-import { VideoManager } from './video.manager';
 import { VideoNotFoundError } from '../utils/errors/userErrors';
-import { UpdateWriteOpResult } from 'mongodb';
+import { VideoManager } from './video.manager';
 
-type UpdateResponse = UpdateWriteOpResult['result'];
 export class VideoController {
     static async create(req: Request, res: Response) {
         res.json(await VideoManager.create(req.body));
