@@ -6,6 +6,10 @@ export class VideoManager implements VideoRepository {
         return VideoRepository.create(video);
     }
 
+    static createMany(videos: IVideo[]) {
+        return VideoRepository.createMany(videos);
+    }
+
     static updateById(id: string, video: Partial<IVideo>) {
         return VideoRepository.updateById(id, video);
     }
