@@ -326,7 +326,7 @@ describe('Video Repository', function () {
         context('When data is valid', function () {
 
             beforeEach(async function () {
-                await Promise.all(videoArr.map(video => VideoRepository.create(video)));
+                await VideoRepository.createMany(videoArr);
             });
 
             it('Should return all documents when filter is empty', async function () {
@@ -387,7 +387,7 @@ describe('Video Repository', function () {
         context('When data is valid', function () {
 
             beforeEach(async function () {
-                await Promise.all(videoArr.map(video => VideoRepository.create(video)));
+                await VideoRepository.createMany(videoArr);
             });
 
             it('Should return amount of all documents when no filter provided', async function () {

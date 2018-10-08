@@ -304,7 +304,7 @@ describe('Video Module', function () {
         context('When request is valid', function () {
             beforeEach(async function () {
                 await mongoose.connection.db.dropDatabase();
-                await Promise.all(videos.map(video => VideoManager.create(video)));
+                await VideoManager.createMany(videos);
             });
 
             it('Should return video', function (done: MochaDone) {
@@ -353,7 +353,7 @@ describe('Video Module', function () {
         context('When request is valid', function () {
             beforeEach(async function () {
                 await mongoose.connection.db.dropDatabase();
-                await Promise.all(videos.map(video => VideoManager.create(video)));
+                await VideoManager.createMany(videos);
             });
 
             it('Should return amount of videos', function (done: MochaDone) {
