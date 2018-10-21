@@ -11,12 +11,18 @@ export class VideoRepository {
         return VideoModel.insertMany(videos);
     }
 
-    static updateById(id: string, video: Partial<IVideo>): Promise<IVideo | null> {
-        return VideoModel.findByIdAndUpdate(
-            id,
-            { $set: video },
-            { new: true, runValidators: true },
-        ).exec();
+    static async updateById(id: string, video: Partial<IVideo>): Promise<IVideo | null> {
+        const videoDocument = await VideoModel.findById(id);
+
+        if (videoDocument) {
+            for (const prop in video) {
+                videoDocument[prop as keyof IVideo] = video[prop as keyof IVideo];
+            }
+
+            return await videoDocument.save({ validateBeforeSave: true });
+        }
+
+        return null;
     }
 
     static deleteById(id: string): Promise<IVideo | null> {

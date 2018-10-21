@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
-import { IVideo } from './video.interface';
 import { VideoValidatons } from './validator/video.validations';
+import { IVideo, VideoStatus } from './video.interface';
 
 const videoSchema: mongoose.Schema = new mongoose.Schema(
     {
@@ -24,7 +24,6 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
         },
         contentUrl: {
             type: String,
-            required: true,
             validate: {
                 validator: (value: string) => {
                     return VideoValidatons.isUrlValid(value);
@@ -33,7 +32,6 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
         },
         thumbnailUrl: {
             type: String,
-            required: true,
             validate: {
                 validator: (value: string) => {
                     return VideoValidatons.isUrlValid(value);
@@ -42,9 +40,8 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: [
-
-            ],
+            enum: Object.keys(VideoStatus),
+            default: VideoStatus.PENDING,
         },
     },
     {
@@ -58,5 +55,23 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
             virtuals: true,
         },
     });
+
+videoSchema.pre<IVideo & mongoose.Document>('save', function (next) {
+    if (
+        this.status &&
+        this.status === VideoStatus.READY &&
+        (!this.contentUrl || !this.thumbnailUrl)
+    ) {
+        const error = this.invalidate(
+            'status',
+            `Path 'status' cannot be 'READY' unless both 'contentUrl' and 'thumbnailUrl' are valid`,
+            this.status,
+        ) as mongoose.ValidationError;
+
+        next(error);
+    }
+
+    next();
+});
 
 export const VideoModel = mongoose.model<IVideo & mongoose.Document>('Video', videoSchema);
