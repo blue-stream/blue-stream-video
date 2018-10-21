@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as mongoose from 'mongoose';
 import { config } from '../config';
 import { ServerError } from '../utils/errors/applicationError';
-import { IVideo } from './video.interface';
+import { IVideo, VideoStatus } from './video.interface';
 import { VideoRepository } from './video.repository';
 
 const validId: string = new mongoose.Types.ObjectId().toHexString();
@@ -12,10 +12,14 @@ const invalidVideo: Partial<IVideo> = {
     owner: 'owner',
     contentUrl: '',
     thumbnailUrl: '',
+    status: 'UNKNOWN-STATUS' as any,
 };
 
 const videoFilter: Partial<IVideo> = { owner: 'john@lenon' };
-const videoDataToUpdate: Partial<IVideo> = { title: 'updated title' };
+const videoDataToUpdate: Partial<IVideo> = {
+    title: 'updated title',
+    status: VideoStatus.READY,
+};
 const unexistingVideo: Partial<IVideo> = { title: 'a' };
 const unknownProperty: Object = { unknownProperty: true };
 const video: IVideo = {
@@ -82,9 +86,45 @@ describe('Video Repository', function () {
                     return mongoose.Types.ObjectId.isValid(id);
                 });
             });
+
+            it('Should allow creating video without thumbnailUrl / contentUrl', async function () {
+                const vid = { ...video };
+                delete vid.contentUrl;
+                delete vid.thumbnailUrl;
+
+                const createdVideo = await VideoRepository.create(vid);
+
+                expect(createdVideo).to.exist;
+                expect(createdVideo).to.have.property('status', VideoStatus.PENDING);
+                expect(createdVideo.contentUrl).to.not.exist;
+                expect(createdVideo.thumbnailUrl).to.not.exist;
+            });
         });
 
         context('When video is invalid', function () {
+
+            ['contentUrl', 'thumbnailUrl'].forEach((prop) => {
+                it(`Should throw error when status is READY and ${prop} is undefined`, async function () {
+                    let hasThrown = false;
+
+                    const vid = {
+                        ...video,
+                        [prop]: '',
+                        status: VideoStatus.READY,
+                    };
+
+                    try {
+                        await VideoRepository.create(vid);
+                    } catch (err) {
+                        hasThrown = true;
+                        expect(err).to.exist;
+                        expect(err).to.have.property('name', 'ValidationError');
+                    } finally {
+                        expect(hasThrown).to.be.true;
+                    }
+                });
+            });
+
             for (const prop in invalidVideo) {
                 it(`Should throw validation error when incorrect ${prop} entered`, async function () {
                     let hasThrown = false;
@@ -157,6 +197,28 @@ describe('Video Repository', function () {
                 const updatedDoc = await VideoRepository.updateById(new mongoose.Types.ObjectId().toHexString(), {});
                 expect(updatedDoc).to.not.exist;
             });
+
+            it('Should allow to update when status is not READY and contentUrl / thumbnailUrl are undefined', async function () {
+                const updatedDoc = await VideoRepository.updateById(createdVideo.id!, {
+                    status: VideoStatus.PENDING,
+                });
+
+                expect(updatedDoc).to.exist;
+                expect(updatedDoc).to.have.property('status', VideoStatus.PENDING);
+            });
+
+            it('Should allow to update when status is given and contentUrl / thumbnailUrl are valid', async function () {
+                const updatedDoc = await VideoRepository.updateById(createdVideo.id!, {
+                    status: VideoStatus.READY,
+                    thumbnailUrl: 'http://valid.url',
+                    contentUrl: 'http://valid.url',
+                });
+
+                expect(updatedDoc).to.exist;
+                expect(updatedDoc).to.have.property('status', VideoStatus.READY);
+                expect(updatedDoc).to.have.property('thumbnailUrl', 'http://valid.url');
+                expect(updatedDoc).to.have.property('contentUrl', 'http://valid.url');
+            });
         });
 
         context('When data is not valid', function () {
@@ -177,6 +239,24 @@ describe('Video Repository', function () {
                     }
                 });
             }
+
+            it('Should not allow to update status to READY when contentUrl / thumbnailUrl are undefined', async function () {
+                let hasThrown = false;
+                const vid = { ...video };
+                delete vid.contentUrl;
+                delete vid.thumbnailUrl;
+
+                const createdVid = await VideoRepository.create(vid);
+
+                try {
+                    await VideoRepository.updateById(createdVid.id!, { status: VideoStatus.READY });
+                } catch (err) {
+                    hasThrown = true;
+                    expect(err).to.exist;
+                } finally {
+                    expect(hasThrown).to.be.true;
+                }
+            });
         });
     });
 
