@@ -30,7 +30,7 @@ process.on('SIGINT', async () => {
 });
 
 (async () => {
-        await mongoose.connect(
+    await mongoose.connect(
         `mongodb://${config.db.host}:${config.db.port}/${config.db.name}`,
         { useNewUrlParser: true },
     );
@@ -40,13 +40,13 @@ process.on('SIGINT', async () => {
     Logger.configure();
     Logger.log(syslogSeverityLevels.Informational, 'Server Started', `Port: ${config.server.port}`);
 
-        await VideoService.startReceiver();
+    await VideoService.startReceiver();
     console.log('Starting server');
     const server: Server = Server.bootstrap();
 
     server.app.on('close', () => {
         RabbitMQ.closeConnection();
-                mongoose.disconnect();
+        mongoose.disconnect();
         console.log('Server closed');
     });
 })();
