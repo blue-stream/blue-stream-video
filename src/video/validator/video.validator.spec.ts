@@ -8,6 +8,7 @@ import { Request } from 'express';
 describe('Video Validator Middleware', function () {
     const invalidProps = {
         title: 'a'.repeat(257),
+        description: 'b'.repeat(5001),
         contentUrl: 'invalid url',
         thumbnailUrl: 'invalid url',
     };
