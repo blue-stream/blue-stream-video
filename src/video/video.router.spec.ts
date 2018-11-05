@@ -14,13 +14,13 @@ describe('Video Module', function () {
     const video: IVideo = {
         contentUrl: 'https://www.youtube.com/watch?v=YkgkThdzX-8',
         description: 'John Lennon',
-        owner: 'john@lenon',
+        owner: 'user@domain',
         title: 'Imagine - John Lennon',
         views: 157,
         thumbnailUrl: 'https://yt3.ggpht.com/a-/ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it_oupg=s288-mo-c-c0xffffffff-rj-k-no',
     };
 
-    const authorizationHeader = `Bearer ${sign('mock-user', config.authentication.secret)}`;
+    const authorizationHeader = `Bearer ${sign({ id: 'user@domain' }, config.authentication.secret)}`;
     const invalidId: string = '1';
     const invalidVideo: IVideo = {
         title: 'a'.repeat(300),
@@ -55,7 +55,6 @@ describe('Video Module', function () {
 
     const updateVideo: Partial<IVideo> = {
         title: 'updated value',
-        owner: 'updater@test',
     };
 
     const videos: IVideo[] =
