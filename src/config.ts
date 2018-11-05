@@ -35,7 +35,7 @@ export type Configuration = {
 const development: Configuration = {
     db: {
         host: process.env.DB_SERVER || 'localhost',
-        name: process.env.DB_NAME || 'blue-stream-template',
+        name: process.env.DB_NAME || 'blue-stream-video',
         port: 27017,
     },
     logger: {
@@ -69,7 +69,7 @@ const development: Configuration = {
 const production: Configuration = {
     db: {
         host: process.env.DB_SERVER || 'localhost',
-        name: process.env.DB_NAME || 'blue-stream-template',
+        name: process.env.DB_NAME || 'blue-stream-video',
         port: 27017,
     },
     logger: {
@@ -103,7 +103,7 @@ const production: Configuration = {
 const test: Configuration = {
     db: {
         host: process.env.DB_SERVER || 'localhost',
-        name: process.env.DB_NAME || 'blue-stream-template-test',
+        name: process.env.DB_NAME || 'blue-stream-video-test',
         port: 27017,
     },
     logger: {
