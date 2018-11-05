@@ -14,7 +14,7 @@ export class ValidRequestMocks {
         {
             contentUrl: 'https://www.youtube.com/watch?v=YkgkThdzX-8',
             description: 'John Lennon',
-            owner: 'john@lenon',
+            owner: 'user@domain',
             title: 'Imagine - John Lennon',
             views: 157,
             thumbnailUrl: 'https://yt3.ggpht.com/a-/ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it_oupg=s288-mo-c-c0xffffffff-rj-k-no',
@@ -22,7 +22,7 @@ export class ValidRequestMocks {
         {
             title: 'BOB DYLAN - Mr Tambourine Man',
             description: `Subterranean Homesick Blues: A Tribute to Bob Dylan's 'Bringing It All Back Home'`,
-            owner: 'bob@dylan',
+            owner: 'user@domain',
             views: 38169017,
             contentUrl: 'https://www.youtube.com/watch?v=PYF8Y47qZQY',
             thumbnailUrl: 'http://lh3.googleusercontent.com/w8qfEEDmQ-wPQBX5SVCne2ehV-oZrpIX6WdDTamHfh8ZRrl5Y3AsdkfHtatMnxLZVV1z7LmRdh9sDYHRtQQ=s176-c-k-c0x00ffffff-no-rj',
@@ -30,7 +30,7 @@ export class ValidRequestMocks {
         {
             title: 'OFFICIAL Somewhere over the Rainbow - Israel "IZ" Kamakawiwoʻole',
             description: `Israel "IZ" Kamakawiwoʻole's Platinum selling hit "Over the Rainbow" OFFICIAL video produced by Jon de Mello for The Mountain Apple Company • HAWAI`,
-            owner: 'mountain@apple',
+            owner: 'user@domain',
             views: 579264778,
             contentUrl: 'https://www.youtube.com/watch?v=V1bFr2SWP1I',
             thumbnailUrl: 'https://yt3.ggpht.com/a-/AN66SAxZyTsOYDydiDuDzlWvf4cXAxDCoFYij5nkNg=s48-mo-c-c0xffffffff-rj-k-no',
@@ -45,6 +45,9 @@ export class ValidRequestMocks {
         },
         body: {
             ...this.videos[0],
+        },
+        user: {
+            id: 'user@domain',
         },
     });
 
