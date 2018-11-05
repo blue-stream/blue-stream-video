@@ -7,6 +7,7 @@ import { config } from './config';
 import { AppRouter } from './router';
 import { userErrorHandler, serverErrorHandler, unknownErrorHandler } from './utils/errors/errorHandler';
 import { Authenticator } from './utils/authenticator';
+
 export class Server {
     public app: express.Application;
     private server: http.Server;
@@ -28,6 +29,20 @@ export class Server {
 
     private configureMiddlewares() {
         this.app.use(helmet());
+
+        this.app.use(function (req: express.Request, res: express.Response, next: express.NextFunction) {
+            const origin = req.headers.origin as string;
+
+            if (config.cors.allowedOrigins.indexOf(origin) !== -1) {
+                res.setHeader('Access-Control-Allow-Origin', origin);
+            }
+
+            res.setHeader('Access-Control-Allow-Credentials', 'true');
+            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+            res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+            next();
+        });
 
         if (process.env.NODE_ENV === 'development') {
             this.app.use(morgan('dev'));
