@@ -6,10 +6,13 @@ import { VideoValidatons } from './video.validations';
 export class VideoValidator {
 
     static canCreate(req: Request, res: Response, next: NextFunction) {
+        const { user } = req;
+        req.body.owner = user ? user.id : null;
         next(VideoValidator.validateVideo(req.body));
     }
 
     static canUpdateById(req: Request, res: Response, next: NextFunction) {
+        delete req.body.owner;
         next(
             VideoValidator.validateId(req.params.id) ||
             VideoValidator.validatePartialVideo(req.body));
@@ -38,8 +41,8 @@ export class VideoValidator {
     private static validateVideo(video: IVideo) {
         if (!VideoValidatons.isTitleValid(video.title)) return new VideoValidationFailedError('title');
         if (!VideoValidatons.isOwnerValid(video.owner)) return new VideoValidationFailedError('owner');
-        if (!VideoValidatons.isUrlValid(video.thumbnailUrl)) return new VideoValidationFailedError('thumbnailUrl');
-        if (!VideoValidatons.isUrlValid(video.contentUrl)) return new VideoValidationFailedError('contentUrl');
+        if (video.thumbnailUrl && !VideoValidatons.isUrlValid(video.thumbnailUrl)) return new VideoValidationFailedError('thumbnailUrl');
+        if (video.contentUrl && !VideoValidatons.isUrlValid(video.contentUrl)) return new VideoValidationFailedError('contentUrl');
 
         return undefined;
     }
