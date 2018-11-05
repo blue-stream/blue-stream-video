@@ -2,6 +2,7 @@ import * as passport from 'passport';
 import * as passportJwt from 'passport-jwt';
 import { Request, Response, NextFunction } from 'express';
 import { config } from '../config';
+import { mockUser } from '../mocks/user';
 
 export class Authenticator {
     private static readonly jwtOptions: passportJwt.StrategyOptions = {
@@ -25,5 +26,11 @@ export class Authenticator {
 
     public static middleware(req: Request, res: Response, next: NextFunction) {
         passport.authenticate('jwt', { session: false })(req, res, next);
+    }
+
+    public static mockUser(req: Request, res: Response, next: NextFunction) {
+        req.user = mockUser;
+
+        return next();
     }
 }

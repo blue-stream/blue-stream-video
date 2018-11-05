@@ -54,6 +54,8 @@ export class Server {
         if (config.authentication.required) {
             this.app.use(Authenticator.initialize());
             this.app.use(Authenticator.middleware);
+        } else {
+            this.app.use(Authenticator.mockUser);
         }
     }
 
