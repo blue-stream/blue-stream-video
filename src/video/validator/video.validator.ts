@@ -41,6 +41,7 @@ export class VideoValidator {
     private static validateVideo(video: IVideo) {
         if (!VideoValidatons.isTitleValid(video.title)) return new VideoValidationFailedError('title');
         if (!VideoValidatons.isOwnerValid(video.owner)) return new VideoValidationFailedError('owner');
+        if (!VideoValidatons.isDescriptionValid(video.description)) return new VideoValidationFailedError('description');
         if (video.thumbnailUrl && !VideoValidatons.isUrlValid(video.thumbnailUrl)) return new VideoValidationFailedError('thumbnailUrl');
         if (video.contentUrl && !VideoValidatons.isUrlValid(video.contentUrl)) return new VideoValidationFailedError('contentUrl');
 
@@ -52,6 +53,7 @@ export class VideoValidator {
         if (video.thumbnailUrl && !VideoValidatons.isUrlValid(video.thumbnailUrl)) return new VideoValidationFailedError('thumbnailUrl');
         if (video.title && !VideoValidatons.isTitleValid(video.title)) return new VideoValidationFailedError('title');
         if (video.owner && !VideoValidatons.isOwnerValid(video.owner)) return new VideoValidationFailedError('owner');
+        if (video.description && !VideoValidatons.isDescriptionValid(video.description)) return new VideoValidationFailedError('description');
 
         return undefined;
     }
