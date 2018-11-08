@@ -1,23 +1,24 @@
 import { RabbitMQ } from '../utils/rabbitMQ';
 import { config } from '../config';
+import * as RabbitLite from 'rabbit-lite';
+import { IVideo } from './video.interface';
 
-export class VideoService {
-    static rmqReceiver: RabbitMQ = new RabbitMQ(config.rabbitMQ.exchanges.videoReceiver);
-    static rmqPublisher: RabbitMQ = new RabbitMQ(config.rabbitMQ.exchanges.videoPublisher);
+export class VideoBroker {
+    // public static async assertExchanges() {
+    //     await RabbitLite.assertExchange('application', 'topic');
+    // }
 
-    public static startReceiver() {
-        VideoService.rmqReceiver.startReceiver(VideoService.messageHandler);
-    }
+    // public static async subscribe() {
+    //     await RabbitLite.subscribe('video-updateAfterUpload-queue', [
+    //         { exchange: 'application', pattern: 'uploader.upload.succeeded' },
+    //     ], (message: Object) => { VideoBroker.updateVideoHandler(message) })
 
-    public static startPublisher() {
-        VideoService.rmqPublisher.startPublisher();
-    }
+    //     await RabbitLite.subscribe('video-updateAfterTranscode-queue', [
+    //         { exchange: 'application', pattern: 'transcoder.transcode.succeeded' }
+    //     ], (message: Object) => { VideoBroker.updateVideoHandler(message) })
+    // }
 
-    public static publish(routingKey: string, message: string) {
-        VideoService.rmqPublisher.publish(routingKey, message);
-    }
-
-    private static messageHandler(message: string) {
-        console.log(message);
-    }
+    // private static updateVideoHandler(video: Partial<IVideo>) {
+    //     console.log(video);
+    // }
 }

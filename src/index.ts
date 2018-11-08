@@ -5,7 +5,7 @@ import { Logger } from './utils/logger';
 import { config } from './config';
 import { syslogSeverityLevels } from 'llamajs';
 
-import { VideoService } from './video/video.broker';
+import { VideoBroker } from './video/video.broker';
 process.on('uncaughtException', (err) => {
     console.error('Unhandled Exception', err.stack);
     RabbitMQ.closeConnection();
@@ -40,7 +40,7 @@ process.on('SIGINT', async () => {
     Logger.configure();
     Logger.log(syslogSeverityLevels.Informational, 'Server Started', `Port: ${config.server.port}`);
 
-    await VideoService.startReceiver();
+    // await VideoBroker.startReceiver();
     console.log('Starting server');
     const server: Server = Server.bootstrap();
 
