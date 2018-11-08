@@ -14,8 +14,8 @@ COPY . $HOME/app/
 
 RUN chown -R node $HOME/*
 
-EXPOSE 3000
-
 USER node
+
+EXPOSE 3000
 
 CMD ["npm", "start"]
