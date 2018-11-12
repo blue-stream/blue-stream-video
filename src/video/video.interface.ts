@@ -10,6 +10,7 @@ export interface IVideo {
 }
 
 export enum VideoStatus {
+    UPLOADED = 'UPLOADED',
     PENDING = 'PENDING',
     FAILED = 'FAILED',
     READY = 'READY',
