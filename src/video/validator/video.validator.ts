@@ -42,15 +42,15 @@ export class VideoValidator {
         if (!VideoValidatons.isTitleValid(video.title)) return new VideoValidationFailedError('title');
         if (!VideoValidatons.isOwnerValid(video.owner)) return new VideoValidationFailedError('owner');
         if (!VideoValidatons.isDescriptionValid(video.description)) return new VideoValidationFailedError('description');
-        if (video.thumbnailUrl && !VideoValidatons.isUrlValid(video.thumbnailUrl)) return new VideoValidationFailedError('thumbnailUrl');
-        if (video.contentUrl && !VideoValidatons.isUrlValid(video.contentUrl)) return new VideoValidationFailedError('contentUrl');
+        if (video.thumbnailPath && !VideoValidatons.isUrlValid(video.thumbnailPath)) return new VideoValidationFailedError('thumbnailPath');
+        if (video.contentPath && !VideoValidatons.isUrlValid(video.contentPath)) return new VideoValidationFailedError('contentPath');
 
         return undefined;
     }
 
     private static validatePartialVideo(video: Partial<IVideo>) {
-        if (video.contentUrl && !VideoValidatons.isUrlValid(video.contentUrl)) return new VideoValidationFailedError('contentUrl');
-        if (video.thumbnailUrl && !VideoValidatons.isUrlValid(video.thumbnailUrl)) return new VideoValidationFailedError('thumbnailUrl');
+        if (video.contentPath && !VideoValidatons.isUrlValid(video.contentPath)) return new VideoValidationFailedError('contentPath');
+        if (video.thumbnailPath && !VideoValidatons.isUrlValid(video.thumbnailPath)) return new VideoValidationFailedError('thumbnailPath');
         if (video.title && !VideoValidatons.isTitleValid(video.title)) return new VideoValidationFailedError('title');
         if (video.owner && !VideoValidatons.isOwnerValid(video.owner)) return new VideoValidationFailedError('owner');
         if (video.description && !VideoValidatons.isDescriptionValid(video.description)) return new VideoValidationFailedError('description');

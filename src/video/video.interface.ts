@@ -4,8 +4,8 @@ export interface IVideo {
     description: string;
     views: number;
     owner: string;
-    thumbnailUrl: string;
-    contentUrl: string;
+    thumbnailPath: string;
+    contentPath: string;
     status?: VideoStatus;
 }
 

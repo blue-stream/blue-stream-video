@@ -12,12 +12,12 @@ describe('Video Module', function () {
     let server: Server;
     const validProppertyString: string = '12345';
     const video: IVideo = {
-        contentUrl: 'https://www.youtube.com/watch?v=YkgkThdzX-8',
+        contentPath: 'https://www.youtube.com/watch?v=YkgkThdzX-8',
         description: 'John Lennon',
         owner: 'user@domain',
         title: 'Imagine - John Lennon',
         views: 157,
-        thumbnailUrl: 'https://yt3.ggpht.com/a-/ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it_oupg=s288-mo-c-c0xffffffff-rj-k-no',
+        thumbnailPath: 'https://yt3.ggpht.com/a-/ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it_oupg=s288-mo-c-c0xffffffff-rj-k-no',
     };
 
     const authorizationHeader = `Bearer ${sign({ id: 'user@domain' }, config.authentication.secret)}`;
@@ -25,8 +25,8 @@ describe('Video Module', function () {
     const invalidVideo: IVideo = {
         title: 'a'.repeat(300),
         owner: 'owner',
-        contentUrl: '',
-        thumbnailUrl: '',
+        contentPath: '',
+        thumbnailPath: '',
         description: '',
         views: 2,
     };
@@ -36,8 +36,8 @@ describe('Video Module', function () {
         description: `Subterranean Homesick Blues: A Tribute to Bob Dylan's 'Bringing It All Back Home'`,
         owner: 'bob@dylan',
         views: 38169017,
-        contentUrl: 'https://www.youtube.com/watch?v=PYF8Y47qZQY',
-        thumbnailUrl: 'http://lh3.googleusercontent.com/w8qfEEDmQ-wPQBX5SVCne2ehV-oZrpIX6WdDTamHfh8ZRrl5Y3AsdkfHtatMnxLZVV1z7LmRdh9sDYHRtQQ=s176-c-k-c0x00ffffff-no-rj',
+        contentPath: 'https://www.youtube.com/watch?v=PYF8Y47qZQY',
+        thumbnailPath: 'http://lh3.googleusercontent.com/w8qfEEDmQ-wPQBX5SVCne2ehV-oZrpIX6WdDTamHfh8ZRrl5Y3AsdkfHtatMnxLZVV1z7LmRdh9sDYHRtQQ=s176-c-k-c0x00ffffff-no-rj',
     };
 
     const video3: IVideo = {
@@ -45,8 +45,8 @@ describe('Video Module', function () {
         description: `Israel "IZ" Kamakawiwoʻole's Platinum selling hit "Over the Rainbow" OFFICIAL video produced by Jon de Mello for The Mountain Apple Company • HAWAI`,
         owner: 'mountain@apple',
         views: 579264778,
-        contentUrl: 'https://www.youtube.com/watch?v=V1bFr2SWP1I',
-        thumbnailUrl: 'https://yt3.ggpht.com/a-/AN66SAxZyTsOYDydiDuDzlWvf4cXAxDCoFYij5nkNg=s48-mo-c-c0xffffffff-rj-k-no',
+        contentPath: 'https://www.youtube.com/watch?v=V1bFr2SWP1I',
+        thumbnailPath: 'https://yt3.ggpht.com/a-/AN66SAxZyTsOYDydiDuDzlWvf4cXAxDCoFYij5nkNg=s48-mo-c-c0xffffffff-rj-k-no',
     };
 
     const unexistingVideo: Partial<IVideo> = {

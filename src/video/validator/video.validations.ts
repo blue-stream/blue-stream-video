@@ -12,8 +12,8 @@ export class VideoValidatons {
         return !!video &&
             VideoValidatons.isTitleValid(video.title) &&
             VideoValidatons.isOwnerValid(video.owner) &&
-            VideoValidatons.isUrlValid(video.contentUrl) &&
-            VideoValidatons.isUrlValid(video.thumbnailUrl);
+            VideoValidatons.isUrlValid(video.contentPath) &&
+            VideoValidatons.isUrlValid(video.thumbnailPath);
     }
 
     static isIdValid(id: string): boolean {

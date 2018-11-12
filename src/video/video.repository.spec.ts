@@ -10,8 +10,8 @@ const invalidId: string = 'invalid id';
 const invalidVideo: Partial<IVideo> = {
     title: 'a'.repeat(300),
     owner: 'owner',
-    contentUrl: '',
-    thumbnailUrl: '',
+    contentPath: '',
+    thumbnailPath: '',
     status: 'UNKNOWN-STATUS' as any,
 };
 
@@ -23,12 +23,12 @@ const videoDataToUpdate: Partial<IVideo> = {
 const unexistingVideo: Partial<IVideo> = { title: 'a' };
 const unknownProperty: Object = { unknownProperty: true };
 const video: IVideo = {
-    contentUrl: 'https://www.youtube.com/watch?v=YkgkThdzX-8',
+    contentPath: 'https://www.youtube.com/watch?v=YkgkThdzX-8',
     description: 'John Lennon',
     owner: 'john@lenon',
     title: 'Imagine - John Lennon',
     views: 157,
-    thumbnailUrl: 'https://yt3.ggpht.com/a-/ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it_oupg=s288-mo-c-c0xffffffff-rj-k-no',
+    thumbnailPath: 'https://yt3.ggpht.com/a-/ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it_oupg=s288-mo-c-c0xffffffff-rj-k-no',
 };
 
 const video2: IVideo = {
@@ -36,8 +36,8 @@ const video2: IVideo = {
     description: `Subterranean Homesick Blues: A Tribute to Bob Dylan's 'Bringing It All Back Home'`,
     owner: 'bob@dylan',
     views: 38169017,
-    contentUrl: 'https://www.youtube.com/watch?v=PYF8Y47qZQY',
-    thumbnailUrl: 'http://lh3.googleusercontent.com/w8qfEEDmQ-wPQBX5SVCne2ehV-oZrpIX6WdDTamHfh8ZRrl5Y3AsdkfHtatMnxLZVV1z7LmRdh9sDYHRtQQ=s176-c-k-c0x00ffffff-no-rj',
+    contentPath: 'https://www.youtube.com/watch?v=PYF8Y47qZQY',
+    thumbnailPath: 'http://lh3.googleusercontent.com/w8qfEEDmQ-wPQBX5SVCne2ehV-oZrpIX6WdDTamHfh8ZRrl5Y3AsdkfHtatMnxLZVV1z7LmRdh9sDYHRtQQ=s176-c-k-c0x00ffffff-no-rj',
 };
 
 const video3: IVideo = {
@@ -45,8 +45,8 @@ const video3: IVideo = {
     description: `Israel "IZ" Kamakawiwoʻole's Platinum selling hit "Over the Rainbow" OFFICIAL video produced by Jon de Mello for The Mountain Apple Company • HAWAI`,
     owner: 'mountain@apple',
     views: 579264778,
-    contentUrl: 'https://www.youtube.com/watch?v=V1bFr2SWP1I',
-    thumbnailUrl: 'https://yt3.ggpht.com/a-/AN66SAxZyTsOYDydiDuDzlWvf4cXAxDCoFYij5nkNg=s48-mo-c-c0xffffffff-rj-k-no',
+    contentPath: 'https://www.youtube.com/watch?v=V1bFr2SWP1I',
+    thumbnailPath: 'https://yt3.ggpht.com/a-/AN66SAxZyTsOYDydiDuDzlWvf4cXAxDCoFYij5nkNg=s48-mo-c-c0xffffffff-rj-k-no',
 };
 
 const videoArr = [video, video, video, video2, video3];
@@ -87,23 +87,23 @@ describe('Video Repository', function () {
                 });
             });
 
-            it('Should allow creating video without thumbnailUrl / contentUrl', async function () {
+            it('Should allow creating video without thumbnailPath / contentPath', async function () {
                 const vid = { ...video };
-                delete vid.contentUrl;
-                delete vid.thumbnailUrl;
+                delete vid.contentPath;
+                delete vid.thumbnailPath;
 
                 const createdVideo = await VideoRepository.create(vid);
 
                 expect(createdVideo).to.exist;
                 expect(createdVideo).to.have.property('status', VideoStatus.PENDING);
-                expect(createdVideo.contentUrl).to.not.exist;
-                expect(createdVideo.thumbnailUrl).to.not.exist;
+                expect(createdVideo.contentPath).to.not.exist;
+                expect(createdVideo.thumbnailPath).to.not.exist;
             });
         });
 
         context('When video is invalid', function () {
 
-            ['contentUrl', 'thumbnailUrl'].forEach((prop) => {
+            ['contentPath', 'thumbnailPath'].forEach((prop) => {
                 it(`Should throw error when status is READY and ${prop} is undefined`, async function () {
                     let hasThrown = false;
 
@@ -198,7 +198,7 @@ describe('Video Repository', function () {
                 expect(updatedDoc).to.not.exist;
             });
 
-            it('Should allow to update when status is not READY and contentUrl / thumbnailUrl are undefined', async function () {
+            it('Should allow to update when status is not READY and contentPath / thumbnailPath are undefined', async function () {
                 const updatedDoc = await VideoRepository.updateById(createdVideo.id!, {
                     status: VideoStatus.PENDING,
                 });
@@ -207,17 +207,17 @@ describe('Video Repository', function () {
                 expect(updatedDoc).to.have.property('status', VideoStatus.PENDING);
             });
 
-            it('Should allow to update when status is given and contentUrl / thumbnailUrl are valid', async function () {
+            it('Should allow to update when status is given and contentPath / thumbnailPath are valid', async function () {
                 const updatedDoc = await VideoRepository.updateById(createdVideo.id!, {
                     status: VideoStatus.READY,
-                    thumbnailUrl: 'http://valid.url',
-                    contentUrl: 'http://valid.url',
+                    thumbnailPath: 'http://valid.url',
+                    contentPath: 'http://valid.url',
                 });
 
                 expect(updatedDoc).to.exist;
                 expect(updatedDoc).to.have.property('status', VideoStatus.READY);
-                expect(updatedDoc).to.have.property('thumbnailUrl', 'http://valid.url');
-                expect(updatedDoc).to.have.property('contentUrl', 'http://valid.url');
+                expect(updatedDoc).to.have.property('thumbnailPath', 'http://valid.url');
+                expect(updatedDoc).to.have.property('contentPath', 'http://valid.url');
             });
         });
 
@@ -240,11 +240,11 @@ describe('Video Repository', function () {
                 });
             }
 
-            it('Should not allow to update status to READY when contentUrl / thumbnailUrl are undefined', async function () {
+            it('Should not allow to update status to READY when contentPath / thumbnailPath are undefined', async function () {
                 let hasThrown = false;
                 const vid = { ...video };
-                delete vid.contentUrl;
-                delete vid.thumbnailUrl;
+                delete vid.contentPath;
+                delete vid.thumbnailPath;
 
                 const createdVid = await VideoRepository.create(vid);
 

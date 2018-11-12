@@ -30,10 +30,10 @@ export class VideoBroker {
         });
     }
 
-    private static updateAfterTranscode(data: { id: string, contentUrl: string, thumbnailUrl: string }) {
+    private static updateAfterTranscode(data: { id: string, contentPath: string, thumbnailPath: string }) {
         return VideoManager.updateById(data.id, {
-            contentUrl: data.contentUrl,
-            thumbnailUrl: data.thumbnailUrl,
+            contentPath: data.contentPath,
+            thumbnailPath: data.thumbnailPath,
             status: VideoStatus.READY,
         });
     }

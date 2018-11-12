@@ -22,7 +22,7 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
                 },
             },
         },
-        contentUrl: {
+        contentPath: {
             type: String,
             validate: {
                 validator: (value: string) => {
@@ -30,7 +30,7 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
                 },
             },
         },
-        thumbnailUrl: {
+        thumbnailPath: {
             type: String,
             validate: {
                 validator: (value: string) => {
@@ -60,11 +60,11 @@ videoSchema.pre<IVideo & mongoose.Document>('save', function (next) {
     if (
         this.status &&
         this.status === VideoStatus.READY &&
-        (!this.contentUrl || !this.thumbnailUrl)
+        (!this.contentPath || !this.thumbnailPath)
     ) {
         const error = this.invalidate(
             'status',
-            `Path 'status' cannot be 'READY' unless both 'contentUrl' and 'thumbnailUrl' are valid`,
+            `Path 'status' cannot be 'READY' unless both 'contentPath' and 'thumbnailPath' are valid`,
             this.status,
         ) as mongoose.ValidationError;
 
