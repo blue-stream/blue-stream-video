@@ -70,7 +70,7 @@
     ```javascript
     {
       "type": "VideoValidationFailedError",
-      "message": "Video validation failed for field thumbnailUrl"
+      "message": "Video validation failed for field thumbnailPath"
     }
     ```
 

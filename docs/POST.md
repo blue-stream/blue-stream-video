@@ -26,8 +26,8 @@
     "likes": 220501,
     "owner": "chopin@music",
     "views": 58744261,
-    "thumbnailUrl": "https://g.com",
-    "contentUrl": "https://g.com"
+    "thumbnailPath": "https://g.com",
+    "contentPath": "https://g.com"
   }
   ```
 
@@ -43,8 +43,8 @@
       "description": "Subscribe for more classical music:  http://bit.ly/YouTubeHalidonMusic",
       "owner": "chopin@music",
       "views": 58744261,
-      "thumbnailUrl": "https://g.com",
-      "contentUrl": "https://g.com",
+      "thumbnailPath": "https://g.com",
+      "contentPath": "https://g.com",
       "createdAt": "2018-09-16T19:07:14.052Z",
       "updatedAt": "2018-09-16T19:07:14.052Z",
       "__v": 0,
@@ -78,8 +78,8 @@
         "likes": 220501,
         "owner": "chopin@music",
         "views": 58744261,
-        "thumbnailUrl": "https://g.com",
-        "contentUrl": "https://g.com"
+        "thumbnailPath": "https://g.com",
+        "contentPath": "https://g.com"
       }
       success : function(result) {
         ...
