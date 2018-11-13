@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 import { createRequest, createResponse } from 'node-mocks-http';
 import { sign } from 'jsonwebtoken';
 import { config } from '../../config';
-import { IVideo } from '../video.interface';
+import { IVideo, VideoStatus } from '../video.interface';
 
 export const responseMock = createResponse();
 
@@ -12,28 +12,31 @@ export class ValidRequestMocks {
 
     videos: IVideo[] = [
         {
-            contentPath: 'https://www.youtube.com/watch?v=YkgkThdzX-8',
             description: 'John Lennon',
             owner: 'user@domain',
             title: 'Imagine - John Lennon',
             views: 157,
-            thumbnailPath: 'https://yt3.ggpht.com/a-/ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it_oupg=s288-mo-c-c0xffffffff-rj-k-no',
+            contentPath: 'PYF8Y47qZQY.mp4',
+            thumbnailPath: 'ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it.bmp',
+            status: VideoStatus.READY,
         },
         {
             title: 'BOB DYLAN - Mr Tambourine Man',
             description: `Subterranean Homesick Blues: A Tribute to Bob Dylan's 'Bringing It All Back Home'`,
             owner: 'user@domain',
             views: 38169017,
-            contentPath: 'https://www.youtube.com/watch?v=PYF8Y47qZQY',
-            thumbnailPath: 'http://lh3.googleusercontent.com/w8qfEEDmQ-wPQBX5SVCne2ehV-oZrpIX6WdDTamHfh8ZRrl5Y3AsdkfHtatMnxLZVV1z7LmRdh9sDYHRtQQ=s176-c-k-c0x00ffffff-no-rj',
+            contentPath: 'PYF8Y47qZQY.mp4',
+            thumbnailPath: 'wPQBX5SVCne2ehV.jpeg',
+            status: VideoStatus.READY,
         },
         {
             title: 'OFFICIAL Somewhere over the Rainbow - Israel "IZ" Kamakawiwoʻole',
             description: `Israel "IZ" Kamakawiwoʻole's Platinum selling hit "Over the Rainbow" OFFICIAL video produced by Jon de Mello for The Mountain Apple Company • HAWAI`,
             owner: 'user@domain',
             views: 579264778,
-            contentPath: 'https://www.youtube.com/watch?v=V1bFr2SWP1I',
-            thumbnailPath: 'https://yt3.ggpht.com/a-/AN66SAxZyTsOYDydiDuDzlWvf4cXAxDCoFYij5nkNg=s48-mo-c-c0xffffffff-rj-k-no',
+            contentPath: 'V1bFr2SWP1I.mp4',
+            thumbnailPath: 'AN66SAxZyTsOYDydiDuDzlWvf4cXAxDCoFYij5nkNg.png',
+            status: VideoStatus.READY,
         },
     ];
 
