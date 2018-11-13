@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { IdInvalidError, VideoValidationFailedError } from '../../utils/errors/userErrors';
 import { IVideo } from '../video.interface';
 import { VideoValidatons } from './video.validations';
+import { config } from '../../config';
 
 export class VideoValidator {
 
@@ -42,15 +43,19 @@ export class VideoValidator {
         if (!VideoValidatons.isTitleValid(video.title)) return new VideoValidationFailedError('title');
         if (!VideoValidatons.isOwnerValid(video.owner)) return new VideoValidationFailedError('owner');
         if (!VideoValidatons.isDescriptionValid(video.description)) return new VideoValidationFailedError('description');
-        if (video.thumbnailPath && !VideoValidatons.isUrlValid(video.thumbnailPath)) return new VideoValidationFailedError('thumbnailPath');
-        if (video.contentPath && !VideoValidatons.isUrlValid(video.contentPath)) return new VideoValidationFailedError('contentPath');
+        if (video.thumbnailPath && !VideoValidatons.isPathValid(video.thumbnailPath, config.allowedExtensions.images)) return new VideoValidationFailedError('thumbnailPath');
+        if (video.contentPath && !VideoValidatons.isPathValid(video.contentPath, ['mp4'])) return new VideoValidationFailedError('contentPath');
+        if (video.originalPath && !VideoValidatons.isPathValid(video.originalPath, config.allowedExtensions.videos)) return new VideoValidationFailedError('originalPath');
+        if (video.previewPath && !VideoValidatons.isPathValid(video.previewPath, config.allowedExtensions.images)) return new VideoValidationFailedError('previewPath');
 
         return undefined;
     }
 
     private static validatePartialVideo(video: Partial<IVideo>) {
-        if (video.contentPath && !VideoValidatons.isUrlValid(video.contentPath)) return new VideoValidationFailedError('contentPath');
-        if (video.thumbnailPath && !VideoValidatons.isUrlValid(video.thumbnailPath)) return new VideoValidationFailedError('thumbnailPath');
+        if (video.contentPath && !VideoValidatons.isPathValid(video.contentPath, ['mp4'])) return new VideoValidationFailedError('contentPath');
+        if (video.thumbnailPath && !VideoValidatons.isPathValid(video.thumbnailPath, config.allowedExtensions.images)) return new VideoValidationFailedError('thumbnailPath');
+        if (video.originalPath && !VideoValidatons.isPathValid(video.originalPath, config.allowedExtensions.videos)) return new VideoValidationFailedError('originalPath');
+        if (video.previewPath && !VideoValidatons.isPathValid(video.previewPath, config.allowedExtensions.images)) return new VideoValidationFailedError('previewPath');
         if (video.title && !VideoValidatons.isTitleValid(video.title)) return new VideoValidationFailedError('title');
         if (video.owner && !VideoValidatons.isOwnerValid(video.owner)) return new VideoValidationFailedError('owner');
         if (video.description && !VideoValidatons.isDescriptionValid(video.description)) return new VideoValidationFailedError('description');

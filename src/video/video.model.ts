@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 import { VideoValidatons } from './validator/video.validations';
 import { IVideo, VideoStatus } from './video.interface';
+import { config } from '../config';
 
 const videoSchema: mongoose.Schema = new mongoose.Schema(
     {
@@ -26,7 +27,7 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
             type: String,
             validate: {
                 validator: (value: string) => {
-                    return VideoValidatons.isUrlValid(value);
+                    return VideoValidatons.isPathValid(value, ['mp4']);
                 },
             },
         },
@@ -34,7 +35,22 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
             type: String,
             validate: {
                 validator: (value: string) => {
-                    return VideoValidatons.isUrlValid(value);
+                    return VideoValidatons.isPathValid(value, config.allowedExtensions.images);
+                },
+            },
+        },
+        previewPath: {
+            type: String,
+            validate: {
+                validator: (value: string) => {
+                    return VideoValidatons.isPathValid(value, config.allowedExtensions.previews);
+                },
+            },
+        },
+        originalPath: {
+            type: String, validate: {
+                validator: (value: string) => {
+                    return VideoValidatons.isPathValid(value, config.allowedExtensions.videos);
                 },
             },
         },
@@ -57,18 +73,18 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
     });
 
 videoSchema.pre<IVideo & mongoose.Document>('save', function (next) {
-    if (
-        this.status &&
-        this.status === VideoStatus.READY &&
-        (!this.contentPath || !this.thumbnailPath)
-    ) {
-        const error = this.invalidate(
-            'status',
-            `Path 'status' cannot be 'READY' unless both 'contentPath' and 'thumbnailPath' are valid`,
-            this.status,
-        ) as mongoose.ValidationError;
+    if (this.status) {
+        const canUpdate = VideoValidatons.canChangeStatus(this.status, this as IVideo);
 
-        next(error);
+        if (!canUpdate) {
+            const error = this.invalidate(
+                'status',
+                `Path 'status' cannot be changed unless all required fields are valid`,
+                this.status,
+            ) as mongoose.ValidationError;
+
+            next(error);
+        }
     }
 
     next();

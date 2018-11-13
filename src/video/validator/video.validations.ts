@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
-import { IVideo } from '../video.interface';
+import { IVideo, VideoStatus } from '../video.interface';
+import { config } from '../../config';
 
 export class VideoValidatons {
     private static readonly maxTitleLength = 256;
@@ -12,8 +13,8 @@ export class VideoValidatons {
         return !!video &&
             VideoValidatons.isTitleValid(video.title) &&
             VideoValidatons.isOwnerValid(video.owner) &&
-            VideoValidatons.isUrlValid(video.contentPath) &&
-            VideoValidatons.isUrlValid(video.thumbnailPath);
+            VideoValidatons.isPathValid(video.contentPath, config.allowedExtensions.videos) &&
+            VideoValidatons.isPathValid(video.thumbnailPath, config.allowedExtensions.images);
     }
 
     static isIdValid(id: string): boolean {
@@ -38,7 +39,21 @@ export class VideoValidatons {
         return VideoValidatons.userRegex.test(owner);
     }
 
-    static isUrlValid(url: string): boolean {
-        return VideoValidatons.urlRegex.test(url);
+    static isPathValid(path: string, allowedExtensions: string[]) {
+        const allowedExtensionsStr = allowedExtensions.join('|');
+        const pathRegex = new RegExp(`\\.(${allowedExtensionsStr})$`, 'i');
+
+        return pathRegex.test(path);
+    }
+
+    static canChangeStatus(status: VideoStatus, video: IVideo) {
+        switch (status) {
+            case VideoStatus.READY:
+                return !!video.contentPath && !!video.thumbnailPath && !!video.previewPath;
+            case VideoStatus.UPLOADED:
+                return !!video.originalPath;
+            default:
+                return true;
+        }
     }
 }

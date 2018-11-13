@@ -6,6 +6,8 @@ export interface IVideo {
     owner: string;
     thumbnailPath: string;
     contentPath: string;
+    previewPath?: string;
+    originalPath?: string;
     status?: VideoStatus;
 }
 
