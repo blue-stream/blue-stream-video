@@ -36,4 +36,9 @@ export const config = {
         required: true,
         secret: process.env.SECRET_KEY || 'bLue5tream@2018',
     },
+    allowedExtensions: {
+        images: ['png', 'jpg', 'jpeg', 'bmp'],
+        videos: ['mkv', 'flv', 'ogg', 'avi', 'mov', 'wmv', 'amv', 'mp4', 'm4p', 'm4v', 'mpv', 'mpg', 'mpeg'],
+        previews: ['gif'],
+    },
 };
