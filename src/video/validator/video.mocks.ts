@@ -18,6 +18,7 @@ export class ValidRequestMocks {
             views: 157,
             contentPath: 'PYF8Y47qZQY.mp4',
             thumbnailPath: 'ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it.bmp',
+            previewPath: 'PYF8Y47qZQY.gif',
             status: VideoStatus.READY,
         },
         {
@@ -27,6 +28,7 @@ export class ValidRequestMocks {
             views: 38169017,
             contentPath: 'PYF8Y47qZQY.mp4',
             thumbnailPath: 'wPQBX5SVCne2ehV.jpeg',
+            previewPath: 'PYF8Y47qZQY.gif',
             status: VideoStatus.READY,
         },
         {
@@ -36,6 +38,7 @@ export class ValidRequestMocks {
             views: 579264778,
             contentPath: 'V1bFr2SWP1I.mp4',
             thumbnailPath: 'AN66SAxZyTsOYDydiDuDzlWvf4cXAxDCoFYij5nkNg.png',
+            previewPath: 'PYF8Y47qZQY.gif',
             status: VideoStatus.READY,
         },
     ];
