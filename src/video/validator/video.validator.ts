@@ -14,6 +14,12 @@ export class VideoValidator {
 
     static canUpdateById(req: Request, res: Response, next: NextFunction) {
         delete req.body.owner;
+        delete req.body.contentPath;
+        delete req.body.thumbnailPath;
+        delete req.body.previewPath;
+        delete req.body.originalPath;
+        delete req.body.status;
+
         next(
             VideoValidator.validateId(req.params.id) ||
             VideoValidator.validatePartialVideo(req.body));
