@@ -74,7 +74,7 @@ describe('Video Validator Middleware', function () {
 
         context('When invalid arguments are passed', function () {
 
-            for (const prop in invalidProps) {
+            ['title', 'description'].forEach((prop: string) => {
                 it(`Should throw VideoValidationFailedError when ${prop} is invalid`, function () {
                     const invalidRequestMock = new ValidRequestMocks().updateById;
                     changeRequestProp(prop, invalidProps[prop as keyof (typeof invalidProps)], invalidRequestMock);
@@ -85,7 +85,7 @@ describe('Video Validator Middleware', function () {
                         expect(error).to.have.property('message').which.contains(prop);
                     });
                 });
-            }
+            });
 
             it('Should throw an IdInvalidError When id is undefined', function () {
                 const invalidRequestMock = new ValidRequestMocks().updateById;
