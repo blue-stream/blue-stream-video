@@ -4,6 +4,28 @@ import { config } from '../config';
 let connection: amqplib.Connection;
 let publishChannel: amqplib.Channel;
 
+export interface SubscribeOptions {
+    consumer: amqplib.Options.Consume;
+    exchange: amqplib.Options.AssertExchange;
+    queue: amqplib.Options.AssertQueue;
+    channel: {
+        prefetch?: number;
+    };
+}
+
+const defualtSubscribeOptions: SubscribeOptions = {
+    consumer: {
+        noAck: false,
+    },
+    exchange: {
+        durable: true,
+    },
+    queue: {
+        durable: true,
+    },
+    channel: {},
+};
+
 export async function connect() {
     const { username, password, host, port } = config.rabbitMQ;
     connection = await amqplib.connect(`amqp://${username}:${password}@${host}:${port}`);
@@ -24,17 +46,21 @@ export async function subscribe(
     type: string,
     queue: string,
     pattern: string,
-    messageHandler: (message: { data: any[] }) => Promise<void>,
-    options: amqplib.Options.Consume = {},
+    messageHandler: (message: any) => Promise<void>,
+    options: SubscribeOptions = defualtSubscribeOptions,
 ) {
     if (!connection) {
         throw new Error('No connection available');
     }
 
     const channel = await connection.createChannel();
-    await channel.assertExchange(exchange, type);
+    await channel.assertExchange(exchange, type, options.exchange);
 
-    const assertedQueue = await channel.assertQueue(queue);
+    if (options.channel.prefetch) {
+        channel.prefetch(options.channel.prefetch);
+    }
+
+    const assertedQueue = await channel.assertQueue(queue, options.queue);
 
     await channel.bindQueue(assertedQueue.queue, exchange, pattern);
 
@@ -51,16 +77,26 @@ export async function subscribe(
                 }
             }
         },
-        { ...options, noAck: false },
+        options.consumer,
     );
 
     return channel;
 }
 
-export async function publish(exchange: string, routingKey: string, message: Object, options?: amqplib.Options.Publish) {
+export async function publish(
+    exchange: string,
+    routingKey: string,
+    message: Object,
+    options?: amqplib.Options.Publish,
+) {
     if (!publishChannel) {
         publishChannel = await connection.createChannel();
     }
 
-    publishChannel.publish(exchange, routingKey, Buffer.from(JSON.stringify(message)), options);
+    publishChannel.publish(
+        exchange,
+        routingKey,
+        Buffer.from(JSON.stringify(message)),
+        { persistent: true, ...options },
+    );
 }
