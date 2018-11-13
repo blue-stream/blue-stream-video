@@ -27,13 +27,20 @@ export class VideoBroker {
     private static updateAfterUpload(data: { id: string, key: string }) {
         return VideoManager.updateById(data.id, {
             status: VideoStatus.UPLOADED,
+            originalPath: data.key,
         });
     }
 
-    private static updateAfterTranscode(data: { id: string, contentPath: string, thumbnailPath: string }) {
+    private static updateAfterTranscode(data: {
+        id: string,
+        contentPath: string,
+        thumbnailPath: string,
+        previewPath: string,
+    }) {
         return VideoManager.updateById(data.id, {
             contentPath: data.contentPath,
             thumbnailPath: data.thumbnailPath,
+            previewPath: data.previewPath,
             status: VideoStatus.READY,
         });
     }
