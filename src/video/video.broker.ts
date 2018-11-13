@@ -5,20 +5,30 @@ import { VideoManager } from './video.manager';
 export class VideoBroker {
 
     public static async subscribe() {
-        rabbit.subscribe('application', 'topic', 'video-updateAfterUpload-queue', 'uploader.upload.succeeded', async (data: any) => {
-            await this.updateAfterUpload(data);
-            VideoBroker.publishVideoUploaded(data.id, data.key);
-        });
+        rabbit.subscribe(
+            'application',
+            'topic',
+            'video-updateAfterUpload-queue',
+            'uploader.upload.succeeded',
+            async (data: any) => {
+                await this.updateAfterUpload(data);
+                VideoBroker.publishVideoUploaded(data.id, data.key);
+            });
 
-        rabbit.subscribe('application', 'topic', 'video-updateAfterTranscode-queue', 'transcoder.transcode.succeeded', async (data: any) => {
-            await this.updateAfterTranscode(data);
-        });
+        rabbit.subscribe(
+            'application',
+            'topic',
+            'video-updateAfterTranscode-queue',
+            'transcoder.transcode.succeeded',
+            async (data: any) => {
+                await this.updateAfterTranscode(data);
+            });
     }
 
     public static publishVideoUploaded(id: string, key: string) {
         rabbit.publish(
             'application',
-            'video.upload.finish',
+            'video.upload.succeeded',
             { id, key },
             { persistent: true },
         );
