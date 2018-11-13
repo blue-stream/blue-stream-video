@@ -12,12 +12,12 @@ describe('Video Module', function () {
     let server: Server;
     const validProppertyString: string = '12345';
     const video: IVideo = {
-        contentPath: 'https://www.youtube.com/watch?v=YkgkThdzX-8',
+        contentPath: 'YkgkThdzX-8.mp4',
         description: 'John Lennon',
         owner: 'user@domain',
         title: 'Imagine - John Lennon',
         views: 157,
-        thumbnailPath: 'https://yt3.ggpht.com/a-/ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it_oupg=s288-mo-c-c0xffffffff-rj-k-no',
+        thumbnailPath: 'ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it.png',
     };
 
     const authorizationHeader = `Bearer ${sign({ id: 'user@domain' }, config.authentication.secret)}`;
@@ -36,8 +36,8 @@ describe('Video Module', function () {
         description: `Subterranean Homesick Blues: A Tribute to Bob Dylan's 'Bringing It All Back Home'`,
         owner: 'bob@dylan',
         views: 38169017,
-        contentPath: 'https://www.youtube.com/watch?v=PYF8Y47qZQY',
-        thumbnailPath: 'http://lh3.googleusercontent.com/w8qfEEDmQ-wPQBX5SVCne2ehV-oZrpIX6WdDTamHfh8ZRrl5Y3AsdkfHtatMnxLZVV1z7LmRdh9sDYHRtQQ=s176-c-k-c0x00ffffff-no-rj',
+        contentPath: 'PYF8Y47qZQY.mp4',
+        thumbnailPath: 'w8qfEEDmQ.jpg',
     };
 
     const video3: IVideo = {
@@ -45,8 +45,8 @@ describe('Video Module', function () {
         description: `Israel "IZ" Kamakawiwoʻole's Platinum selling hit "Over the Rainbow" OFFICIAL video produced by Jon de Mello for The Mountain Apple Company • HAWAI`,
         owner: 'mountain@apple',
         views: 579264778,
-        contentPath: 'https://www.youtube.com/watch?v=V1bFr2SWP1I',
-        thumbnailPath: 'https://yt3.ggpht.com/a-/AN66SAxZyTsOYDydiDuDzlWvf4cXAxDCoFYij5nkNg=s48-mo-c-c0xffffffff-rj-k-no',
+        contentPath: 'V1bFr2SWP1I.mp4',
+        thumbnailPath: 'AN66SAxZyTsOYDydiDuDzlWvf4cXAxD.jpeg',
     };
 
     const unexistingVideo: Partial<IVideo> = {

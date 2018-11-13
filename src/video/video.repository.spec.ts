@@ -12,6 +12,7 @@ const invalidVideo: Partial<IVideo> = {
     owner: 'owner',
     contentPath: '',
     thumbnailPath: '',
+    previewPath: '',
     status: 'UNKNOWN-STATUS' as any,
 };
 
@@ -23,12 +24,13 @@ const videoDataToUpdate: Partial<IVideo> = {
 const unexistingVideo: Partial<IVideo> = { title: 'a' };
 const unknownProperty: Object = { unknownProperty: true };
 const video: IVideo = {
-    contentPath: 'https://www.youtube.com/watch?v=YkgkThdzX-8',
+    previewPath: 'YkgkThdzX-8.gif',
+    contentPath: 'YkgkThdzX-8.mp4',
     description: 'John Lennon',
     owner: 'john@lenon',
     title: 'Imagine - John Lennon',
     views: 157,
-    thumbnailPath: 'https://yt3.ggpht.com/a-/ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it_oupg=s288-mo-c-c0xffffffff-rj-k-no',
+    thumbnailPath: 'ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it.png',
 };
 
 const video2: IVideo = {
@@ -36,8 +38,8 @@ const video2: IVideo = {
     description: `Subterranean Homesick Blues: A Tribute to Bob Dylan's 'Bringing It All Back Home'`,
     owner: 'bob@dylan',
     views: 38169017,
-    contentPath: 'https://www.youtube.com/watch?v=PYF8Y47qZQY',
-    thumbnailPath: 'http://lh3.googleusercontent.com/w8qfEEDmQ-wPQBX5SVCne2ehV-oZrpIX6WdDTamHfh8ZRrl5Y3AsdkfHtatMnxLZVV1z7LmRdh9sDYHRtQQ=s176-c-k-c0x00ffffff-no-rj',
+    contentPath: 'PYF8Y47qZQY.mp4',
+    thumbnailPath: 'w8qfEEDmQ.jpeg',
 };
 
 const video3: IVideo = {
@@ -45,8 +47,8 @@ const video3: IVideo = {
     description: `Israel "IZ" Kamakawiwoʻole's Platinum selling hit "Over the Rainbow" OFFICIAL video produced by Jon de Mello for The Mountain Apple Company • HAWAI`,
     owner: 'mountain@apple',
     views: 579264778,
-    contentPath: 'https://www.youtube.com/watch?v=V1bFr2SWP1I',
-    thumbnailPath: 'https://yt3.ggpht.com/a-/AN66SAxZyTsOYDydiDuDzlWvf4cXAxDCoFYij5nkNg=s48-mo-c-c0xffffffff-rj-k-no',
+    contentPath: 'V1bFr2SWP1I.mp4',
+    thumbnailPath: 'AN66SAxZyTsOYDydiDuDzlWvf4cXAxDCoFYij5nkNg.png',
 };
 
 const videoArr = [video, video, video, video2, video3];
@@ -123,6 +125,26 @@ describe('Video Repository', function () {
                         expect(hasThrown).to.be.true;
                     }
                 });
+            });
+
+            it(`Should throw error when status is UPLOADED and 'originalPath' is undefined`, async function () {
+                let hasThrown = false;
+
+                const vid = {
+                    ...video,
+                    originalPath: undefined,
+                    status: VideoStatus.UPLOADED,
+                };
+
+                try {
+                    await VideoRepository.create(vid);
+                } catch (err) {
+                    hasThrown = true;
+                    expect(err).to.exist;
+                    expect(err).to.have.property('name', 'ValidationError');
+                } finally {
+                    expect(hasThrown).to.be.true;
+                }
             });
 
             for (const prop in invalidVideo) {
@@ -207,17 +229,28 @@ describe('Video Repository', function () {
                 expect(updatedDoc).to.have.property('status', VideoStatus.PENDING);
             });
 
+            it('Should allow update when status is UPLOAD and originalPath is valid', async function () {
+                const updatedDoc = await VideoRepository.updateById(createdVideo.id!, {
+                    status: VideoStatus.UPLOADED,
+                    originalPath: 'valid-path.flv',
+                });
+
+                expect(updatedDoc).to.exist;
+                expect(updatedDoc).to.have.property('status', VideoStatus.UPLOADED);
+                expect(updatedDoc).to.have.property('originalPath', 'valid-path.flv');
+            });
+
             it('Should allow to update when status is given and contentPath / thumbnailPath are valid', async function () {
                 const updatedDoc = await VideoRepository.updateById(createdVideo.id!, {
                     status: VideoStatus.READY,
-                    thumbnailPath: 'http://valid.url',
-                    contentPath: 'http://valid.url',
+                    thumbnailPath: 'valid-path.bmp',
+                    contentPath: 'valid-path.mp4',
                 });
 
                 expect(updatedDoc).to.exist;
                 expect(updatedDoc).to.have.property('status', VideoStatus.READY);
-                expect(updatedDoc).to.have.property('thumbnailPath', 'http://valid.url');
-                expect(updatedDoc).to.have.property('contentPath', 'http://valid.url');
+                expect(updatedDoc).to.have.property('thumbnailPath', 'valid-path.bmp');
+                expect(updatedDoc).to.have.property('contentPath', 'valid-path.mp4');
             });
         });
 
@@ -239,6 +272,23 @@ describe('Video Repository', function () {
                     }
                 });
             }
+
+            it('Should not allow to update status to UPLOADED when originalPath is undefined', async function () {
+                let hasThrown = false;
+                const vid = { ...video };
+                delete vid.originalPath;
+
+                const createdVid = await VideoRepository.create(vid);
+
+                try {
+                    await VideoRepository.updateById(createdVid.id!, { status: VideoStatus.UPLOADED });
+                } catch (err) {
+                    hasThrown = true;
+                    expect(err).to.exist;
+                } finally {
+                    expect(hasThrown).to.be.true;
+                }
+            });
 
             it('Should not allow to update status to READY when contentPath / thumbnailPath are undefined', async function () {
                 let hasThrown = false;

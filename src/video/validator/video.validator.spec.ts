@@ -9,8 +9,10 @@ describe('Video Validator Middleware', function () {
     const invalidProps = {
         title: 'a'.repeat(257),
         description: 'b'.repeat(5001),
-        contentPath: 'invalid url',
-        thumbnailPath: 'invalid url',
+        contentPath: 'invalid path',
+        thumbnailPath: 'invalid path',
+        previewPath: 'invalid path',
+        originalPath: 'invalid path',
     };
 
     const nullProps = ['title', 'owner'];
