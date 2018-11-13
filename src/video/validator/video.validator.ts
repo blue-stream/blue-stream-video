@@ -46,7 +46,8 @@ export class VideoValidator {
         if (video.thumbnailPath && !VideoValidatons.isPathValid(video.thumbnailPath, config.allowedExtensions.images)) return new VideoValidationFailedError('thumbnailPath');
         if (video.contentPath && !VideoValidatons.isPathValid(video.contentPath, ['mp4'])) return new VideoValidationFailedError('contentPath');
         if (video.originalPath && !VideoValidatons.isPathValid(video.originalPath, config.allowedExtensions.videos)) return new VideoValidationFailedError('originalPath');
-        if (video.previewPath && !VideoValidatons.isPathValid(video.previewPath, config.allowedExtensions.images)) return new VideoValidationFailedError('previewPath');
+        if (video.previewPath && !VideoValidatons.isPathValid(video.previewPath, config.allowedExtensions.previews)) return new VideoValidationFailedError('previewPath');
+        if (video.status && !VideoValidatons.canChangeStatus(video.status, video)) return new VideoValidationFailedError('status');
 
         return undefined;
     }
@@ -55,10 +56,11 @@ export class VideoValidator {
         if (video.contentPath && !VideoValidatons.isPathValid(video.contentPath, ['mp4'])) return new VideoValidationFailedError('contentPath');
         if (video.thumbnailPath && !VideoValidatons.isPathValid(video.thumbnailPath, config.allowedExtensions.images)) return new VideoValidationFailedError('thumbnailPath');
         if (video.originalPath && !VideoValidatons.isPathValid(video.originalPath, config.allowedExtensions.videos)) return new VideoValidationFailedError('originalPath');
-        if (video.previewPath && !VideoValidatons.isPathValid(video.previewPath, config.allowedExtensions.images)) return new VideoValidationFailedError('previewPath');
+        if (video.previewPath && !VideoValidatons.isPathValid(video.previewPath, config.allowedExtensions.previews)) return new VideoValidationFailedError('previewPath');
         if (video.title && !VideoValidatons.isTitleValid(video.title)) return new VideoValidationFailedError('title');
         if (video.owner && !VideoValidatons.isOwnerValid(video.owner)) return new VideoValidationFailedError('owner');
         if (video.description && !VideoValidatons.isDescriptionValid(video.description)) return new VideoValidationFailedError('description');
+        if (video.status && !VideoValidatons.canChangeStatus(video.status, video as IVideo)) return new VideoValidationFailedError('status');
 
         return undefined;
     }
