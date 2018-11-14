@@ -1,6 +1,9 @@
+ARG PORT
+
 FROM node:latest
 
 ENV HOME=/home/blue-stream
+ENV PORT=$PORT
 
 COPY package*.json $HOME/app/
 
@@ -16,6 +19,6 @@ RUN chown -R node $HOME/*
 
 USER node
 
-EXPOSE 3000
+EXPOSE $PORT
 
 CMD ["npm", "start"]
