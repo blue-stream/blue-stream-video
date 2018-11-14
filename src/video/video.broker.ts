@@ -9,7 +9,7 @@ export class VideoBroker {
             'application',
             'topic',
             'video-updateAfterUpload-queue',
-            'uploader.upload.succeeded',
+            'uploader.video.upload.succeeded',
             async (data: any) => {
                 await this.updateAfterUpload(data);
                 VideoBroker.publishVideoUploaded(data.id, data.key);
@@ -19,7 +19,7 @@ export class VideoBroker {
             'application',
             'topic',
             'video-updateAfterTranscode-queue',
-            'transcoder.transcode.succeeded',
+            'transcoder.video.transcode.succeeded',
             async (data: any) => {
                 await this.updateAfterTranscode(data);
             });
@@ -28,16 +28,25 @@ export class VideoBroker {
             'application',
             'topic',
             'video-deleteAfterCancellation-queue',
-            'uploader.upload.canceled',
+            'uploader.video.upload.canceled',
             async (data: any) => {
                 await this.deleteAfterCancellation(data);
+            });
+
+        rabbit.subscribe(
+            'application',
+            'topic',
+            'video-updateStatusFailed-queue',
+            '*.video.*.failed',
+            async (data: any) => {
+                await this.updateStatusFailed(data);
             });
     }
 
     public static publishVideoUploaded(id: string, key: string) {
         rabbit.publish(
             'application',
-            'video.upload.succeeded',
+            'video-service.video.upload.succeeded',
             { id, key },
             { persistent: true },
         );
@@ -65,6 +74,12 @@ export class VideoBroker {
             thumbnailPath: data.thumbnailPath,
             previewPath: data.previewPath,
             status: VideoStatus.READY,
+        });
+    }
+
+    public static updateStatusFailed(data: { id: string }) {
+        return VideoManager.updateById(data.id, {
+            status: VideoStatus.FAILED,
         });
     }
 }
