@@ -20,6 +20,7 @@ const videoFilter: Partial<IVideo> = { owner: 'john@lenon' };
 const videoDataToUpdate: Partial<IVideo> = {
     title: 'updated title',
     status: VideoStatus.READY,
+    tags: ['hello', 'world'],
 };
 const unexistingVideo: Partial<IVideo> = { title: 'a' };
 const unknownProperty: Object = { unknownProperty: true };
@@ -31,6 +32,7 @@ const video: IVideo = {
     title: 'Imagine - John Lennon',
     views: 157,
     thumbnailPath: 'ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it.png',
+    tags: ['music', 'john-lenon'],
 };
 
 const video2: IVideo = {
@@ -79,9 +81,10 @@ describe('Video Repository', function () {
                 expect(createdVideo).to.exist;
                 expect(createdVideo).to.have.property('createdAt');
                 expect(createdVideo).to.have.property('updatedAt');
+                expect(createdVideo).to.have.property('tags').to.be.an('array').with.lengthOf(2);
 
                 for (const prop in video) {
-                    expect(createdVideo).to.have.property(prop, video[prop as keyof IVideo]);
+                    expectToHaveEqualProperty(createdVideo, prop, video[prop as keyof IVideo]);
                 }
 
                 expect(createdVideo).to.have.property('id').which.satisfies((id: any) => {
@@ -201,7 +204,7 @@ describe('Video Repository', function () {
                 expect(updatedDoc).to.exist;
                 expect(updatedDoc).to.have.property('id', createdVideo.id);
                 for (const prop in videoDataToUpdate) {
-                    expect(updatedDoc).to.have.property(prop, videoDataToUpdate[prop as keyof IVideo]);
+                    expectToHaveEqualProperty(updatedDoc!, prop, videoDataToUpdate[prop as keyof IVideo]);
                 }
             });
 
@@ -211,7 +214,7 @@ describe('Video Repository', function () {
                 expect(updatedDoc).to.have.property('id', createdVideo.id);
 
                 for (const prop in video) {
-                    expect(updatedDoc).to.have.property(prop, createdVideo[prop as keyof IVideo]);
+                    expectToHaveEqualProperty(updatedDoc!, prop, createdVideo[prop as keyof IVideo]);
                 }
             });
 
@@ -368,7 +371,7 @@ describe('Video Repository', function () {
                 expect(doc).to.exist;
                 expect(doc).to.have.property('id', document.id);
                 for (const prop in video) {
-                    expect(doc).to.have.property(prop, video[prop as keyof IVideo]);
+                    expectToHaveEqualProperty(doc!, prop, video[prop as keyof IVideo]);
                 }
             });
 
@@ -408,7 +411,7 @@ describe('Video Repository', function () {
                 const doc = await VideoRepository.getOne({ _id: document.id } as Partial<IVideo>);
                 expect(doc).to.exist;
                 for (const prop in video) {
-                    expect(doc).to.have.property(prop, video[prop as keyof IVideo]);
+                    expectToHaveEqualProperty(doc!, prop, video[prop as keyof IVideo]);
                 }
             });
 
@@ -418,7 +421,8 @@ describe('Video Repository', function () {
                     expect(doc).to.exist;
                     expect(doc).to.have.property('id', document.id);
                     for (const prop in video) {
-                        expect(doc).to.have.property(prop, video[prop as keyof IVideo]);
+                        expectToHaveEqualProperty(doc!, prop, video[prop as keyof IVideo]);
+                        // expect(doc).to.have.property(prop, video[prop as keyof IVideo]);
                     }
                 });
             }
@@ -560,3 +564,11 @@ describe('Video Repository', function () {
     });
 
 });
+
+function expectToHaveEqualProperty(source: Object, prop: string, value: any) {
+    if (typeof value === 'object') {
+        expect(source).to.have.property(prop).deep.equal(value);
+    } else {
+        expect(source).to.have.property(prop, value);
+    }
+}
