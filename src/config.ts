@@ -17,11 +17,6 @@ export const config = {
     rabbitMQ: {
         host: process.env.RMQ_HOST || 'localhost',
         port: +(process.env.RMQ_PORT || 5672),
-        exchanges: {
-            videoReceiver: 'video',
-            videoPublisher: 'video',
-        },
-        reconnect_timeout: 1000,
         password: process.env.RMQ_PASSWORD || 'guest',
         username: process.env.RMQ_USERNAME || 'guest',
     },
