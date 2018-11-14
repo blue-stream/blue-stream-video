@@ -46,7 +46,7 @@ export class VideoBroker {
     public static publishVideoUploaded(id: string, key: string) {
         rabbit.publish(
             'application',
-            'video-service.video.upload.succeeded',
+            'videoService.video.upload.succeeded',
             { id, key },
             { persistent: true },
         );
