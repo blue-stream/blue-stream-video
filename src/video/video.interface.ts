@@ -9,6 +9,7 @@ export interface IVideo {
     previewPath?: string;
     originalPath?: string;
     status?: VideoStatus;
+    tags?: string[];
 }
 
 export enum VideoStatus {
