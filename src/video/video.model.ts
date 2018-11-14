@@ -59,6 +59,9 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
             enum: Object.keys(VideoStatus),
             default: VideoStatus.PENDING,
         },
+        tags: [{
+            type: String,
+        }],
     },
     {
         autoIndex: false,
