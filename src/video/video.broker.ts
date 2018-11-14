@@ -23,6 +23,15 @@ export class VideoBroker {
             async (data: any) => {
                 await this.updateAfterTranscode(data);
             });
+
+        rabbit.subscribe(
+            'application',
+            'topic',
+            'video-deleteAfterCancellation-queue',
+            'uploader.upload.canceled',
+            async (data: any) => {
+                await this.deleteAfterCancellation(data);
+            });
     }
 
     public static publishVideoUploaded(id: string, key: string) {
@@ -39,6 +48,10 @@ export class VideoBroker {
             status: VideoStatus.UPLOADED,
             originalPath: data.key,
         });
+    }
+
+    private static deleteAfterCancellation(data: { id: string }) {
+        return VideoManager.deleteById(data.id);
     }
 
     private static updateAfterTranscode(data: {
