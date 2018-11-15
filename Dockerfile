@@ -3,11 +3,10 @@ ARG PORT
 FROM node:latest
 
 ENV HOME=/home/blue-stream
-ENV PORT=$PORT
 
 COPY package*.json $HOME/app/
 
-RUN chown -R node $HOME/* /usr/local/
+# RUN chown -R node $HOME/* /usr/local/
 
 WORKDIR $HOME/app
 
@@ -15,10 +14,10 @@ RUN npm install --silent --progress=false
 
 COPY . $HOME/app/
 
-RUN chown -R node $HOME/*
+# RUN chown -R node $HOME/*
 
-USER node
+# USER node
 
-EXPOSE $PORT
+EXPOSE 3000
 
 CMD ["npm", "start"]
