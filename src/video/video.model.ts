@@ -62,6 +62,10 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
         tags: [{
             type: String,
         }],
+        published: {
+            type: Boolean,
+            default: false,
+        },
     },
     {
         autoIndex: false,
