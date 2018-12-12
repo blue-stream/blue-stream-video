@@ -1,0 +1,6 @@
+repoName: blue-stream/blue-stream-video
+runTests: true
+testCommand:
+deployUponTestSuccess: true
+deployCommand:
+deployEnvironment: staging
