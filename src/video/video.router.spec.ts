@@ -7,6 +7,7 @@ import { Server } from '../server';
 import { IdInvalidError, VideoNotFoundError, VideoValidationFailedError } from '../utils/errors/userErrors';
 import { IVideo } from './video.interface';
 import { VideoManager } from './video.manager';
+import * as rabbit from '../utils/rabbit';
 
 describe('Video Module', function () {
     let server: Server;
@@ -61,12 +62,14 @@ describe('Video Module', function () {
         [video, video2, video3, video3];
 
     before(async function () {
+        await rabbit.connect();
         await mongoose.connect(`mongodb://${config.db.host}:${config.db.port}/${config.db.name}`, { useNewUrlParser: true });
         server = Server.bootstrap();
     });
 
     after(async function () {
         await mongoose.connection.db.dropDatabase();
+        await rabbit.closeConnection();
     });
 
     describe('#POST /api/video/', function () {
