@@ -52,6 +52,15 @@ export class VideoBroker {
         );
     }
 
+    public static publishVideoDeleted(id: string) {
+        rabbit.publish(
+            'application',
+            'videoService.video.remove.succeeded',
+            { id },
+            { persistent: true }
+        );
+    }
+
     private static updateAfterUpload(data: { id: string, key: string }) {
         return VideoManager.updateById(data.id, {
             status: VideoStatus.UPLOADED,

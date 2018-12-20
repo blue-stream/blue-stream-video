@@ -1,5 +1,6 @@
 import { IVideo } from './video.interface';
 import { VideoRepository } from './video.repository';
+import { VideoBroker } from './video.broker';
 
 export class VideoManager implements VideoRepository {
     static create(video: IVideo) {
@@ -14,8 +15,14 @@ export class VideoManager implements VideoRepository {
         return VideoRepository.updateById(id, video);
     }
 
-    static deleteById(id: string) {
-        return VideoRepository.deleteById(id);
+    static async deleteById(id: string) {
+        const deleted = await VideoRepository.deleteById(id);
+
+        if (deleted) {
+            VideoBroker.publishVideoDeleted(deleted.id!);
+        }
+
+        return deleted;
     }
 
     static getById(id: string) {
