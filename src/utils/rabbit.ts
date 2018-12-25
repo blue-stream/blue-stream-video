@@ -91,6 +91,7 @@ export async function publish(
 ) {
     if (!publishChannel) {
         publishChannel = await connection.createChannel();
+        await publishChannel.assertExchange(exchange, 'topic', options.exchange);
     }
 
     publishChannel.publish(
