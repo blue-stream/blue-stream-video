@@ -46,6 +46,7 @@ export class VideoBroker {
     public static publishVideoUploaded(id: string, key: string) {
         rabbit.publish(
             'application',
+            'topic',
             'videoService.video.upload.succeeded',
             { id, key },
             { persistent: true },
@@ -55,6 +56,7 @@ export class VideoBroker {
     public static publishVideoDeleted(id: string) {
         rabbit.publish(
             'application',
+            'topic',
             'videoService.video.remove.succeeded',
             { id },
             { persistent: true }

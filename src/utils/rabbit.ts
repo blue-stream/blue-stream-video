@@ -85,12 +85,16 @@ export async function subscribe(
 
 export async function publish(
     exchange: string,
+    type: string,
     routingKey: string,
     message: Object,
     options?: amqplib.Options.Publish,
 ) {
     if (!publishChannel) {
         publishChannel = await connection.createChannel();
+        await publishChannel.assertExchange(exchange, type, {
+            durable: true,
+        });
     }
 
     publishChannel.publish(
