@@ -66,6 +66,9 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        publishDate: {
+            type: Date,
+        }
     },
     {
         autoIndex: false,
@@ -80,6 +83,9 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
     });
 
 videoSchema.pre<IVideo & mongoose.Document>('save', function (next) {
+    if(this.published && !this.publishDate) {
+        this.publishDate = new Date();
+    }
     if (this.status) {
         const canUpdate = VideoValidatons.canChangeStatus(this.status, this as IVideo);
 

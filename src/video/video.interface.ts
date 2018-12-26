@@ -11,6 +11,7 @@ export interface IVideo {
     status?: VideoStatus;
     tags?: string[];
     published?: boolean;
+    publishDate?: Date;
 }
 
 export enum VideoStatus {
