@@ -255,6 +255,32 @@ describe('Video Repository', function () {
                 expect(updatedDoc).to.have.property('thumbnailPath', 'valid-path.bmp');
                 expect(updatedDoc).to.have.property('contentPath', 'valid-path.mp4');
             });
+
+            it('Should set `publishDate` when `published` field set to true first time', async function() {
+                const updatedDoc = await VideoRepository.updateById(createdVideo.id!, {
+                    published: true
+                });
+
+                expect(updatedDoc).to.exist;
+                expect(updatedDoc).to.have.property('published', true);
+                expect(updatedDoc).to.have.property('publishDate').which.is.instanceOf(Date);
+            });
+
+            it('Should not update `publishDate` on each update', async function() {
+                const firstUpdate = await VideoRepository.updateById(createdVideo.id!, {
+                    published: true
+                });
+
+                const publishDate = firstUpdate!.publishDate;
+
+                const secondUpdate = await VideoRepository.updateById(createdVideo.id!, {
+                    title: 'Test'
+                });
+
+                expect(secondUpdate).to.exist;
+                expect(secondUpdate).to.have.property('publishDate');
+                expect(secondUpdate!.publishDate!.getTime()).to.equal(publishDate!.getTime());
+            });
         });
 
         context('When data is not valid', function () {
