@@ -256,9 +256,9 @@ describe('Video Repository', function () {
                 expect(updatedDoc).to.have.property('contentPath', 'valid-path.mp4');
             });
 
-            it('Should set `publishDate` when `published` field set to true first time', async function() {
+            it('Should set `publishDate` when `published` field set to true first time', async function () {
                 const updatedDoc = await VideoRepository.updateById(createdVideo.id!, {
-                    published: true
+                    published: true,
                 });
 
                 expect(updatedDoc).to.exist;
@@ -266,15 +266,15 @@ describe('Video Repository', function () {
                 expect(updatedDoc).to.have.property('publishDate').which.is.instanceOf(Date);
             });
 
-            it('Should not update `publishDate` on each update', async function() {
+            it('Should not update `publishDate` on each update', async function () {
                 const firstUpdate = await VideoRepository.updateById(createdVideo.id!, {
-                    published: true
+                    published: true,
                 });
 
                 const publishDate = firstUpdate!.publishDate;
 
                 const secondUpdate = await VideoRepository.updateById(createdVideo.id!, {
-                    title: 'Test'
+                    title: 'Test',
                 });
 
                 expect(secondUpdate).to.exist;

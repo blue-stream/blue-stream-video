@@ -68,7 +68,7 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
         },
         publishDate: {
             type: Date,
-        }
+        },
     },
     {
         autoIndex: false,
@@ -83,7 +83,7 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
     });
 
 videoSchema.pre<IVideo & mongoose.Document>('save', function (next) {
-    if(this.published && !this.publishDate) {
+    if (this.published && !this.publishDate) {
         this.publishDate = new Date();
     }
     if (this.status) {

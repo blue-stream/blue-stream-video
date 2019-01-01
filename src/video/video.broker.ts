@@ -59,7 +59,7 @@ export class VideoBroker {
             'topic',
             'videoService.video.remove.succeeded',
             { id },
-            { persistent: true }
+            { persistent: true },
         );
     }
 
