@@ -13,7 +13,6 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
             },
         },
         description: String,
-        views: Number,
         owner: {
             type: String,
             required: true,
@@ -68,6 +67,10 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
         },
         publishDate: {
             type: Date,
+        },
+        views: {
+            type: Number,
+            default: 0,
         },
     },
     {
