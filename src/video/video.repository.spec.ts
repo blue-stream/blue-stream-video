@@ -33,6 +33,7 @@ const video: IVideo = {
     title: 'Imagine - John Lennon',
     thumbnailPath: 'ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it.png',
     tags: ['music', 'john-lenon'],
+    channel: 'Music',
 };
 
 const video2: IVideo = {
@@ -41,6 +42,7 @@ const video2: IVideo = {
     owner: 'bob@dylan',
     contentPath: 'PYF8Y47qZQY.mp4',
     thumbnailPath: 'w8qfEEDmQ.jpeg',
+    channel: 'Music',
 };
 
 const video3: IVideo = {
@@ -49,6 +51,7 @@ const video3: IVideo = {
     owner: 'mountain@apple',
     contentPath: 'V1bFr2SWP1I.mp4',
     thumbnailPath: 'AN66SAxZyTsOYDydiDuDzlWvf4cXAxDCoFYij5nkNg.png',
+    channel: 'Music',
 };
 
 const videoArr = [video, video, video, video2, video3];

@@ -19,6 +19,7 @@ describe('Video Module', function () {
         owner: 'user@domain',
         title: 'Imagine - John Lennon',
         thumbnailPath: 'ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it.png',
+        channel: 'Music',
     };
 
     const authorizationHeader = `Bearer ${sign({ id: 'user@domain' }, config.authentication.secret)}`;
@@ -29,6 +30,7 @@ describe('Video Module', function () {
         contentPath: '',
         thumbnailPath: '',
         description: '',
+        channel: '',
     };
 
     const video2: IVideo = {
@@ -37,6 +39,7 @@ describe('Video Module', function () {
         owner: 'bob@dylan',
         contentPath: 'PYF8Y47qZQY.mp4',
         thumbnailPath: 'w8qfEEDmQ.jpg',
+        channel: 'Music',
     };
 
     const video3: IVideo = {
@@ -45,6 +48,7 @@ describe('Video Module', function () {
         owner: 'mountain@apple',
         contentPath: 'V1bFr2SWP1I.mp4',
         thumbnailPath: 'AN66SAxZyTsOYDydiDuDzlWvf4cXAxD.jpeg',
+        channel: 'Music',
     };
 
     const unexistingVideo: Partial<IVideo> = {
