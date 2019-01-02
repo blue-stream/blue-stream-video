@@ -2,7 +2,7 @@ export interface IVideo {
     id?: string;
     title: string;
     description: string;
-    views: number;
+    views?: number;
     owner: string;
     thumbnailPath: string;
     contentPath: string;
