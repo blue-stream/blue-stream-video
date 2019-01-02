@@ -20,6 +20,7 @@ export class ValidRequestMocks {
             thumbnailPath: 'ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it.bmp',
             previewPath: 'PYF8Y47qZQY.gif',
             status: VideoStatus.READY,
+            channel: 'Music',
         },
         {
             title: 'BOB DYLAN - Mr Tambourine Man',
@@ -30,6 +31,7 @@ export class ValidRequestMocks {
             thumbnailPath: 'wPQBX5SVCne2ehV.jpeg',
             previewPath: 'PYF8Y47qZQY.gif',
             status: VideoStatus.READY,
+            channel: 'Music',
         },
         {
             title: 'OFFICIAL Somewhere over the Rainbow - Israel "IZ" Kamakawiwoʻole',
@@ -40,6 +42,7 @@ export class ValidRequestMocks {
             thumbnailPath: 'AN66SAxZyTsOYDydiDuDzlWvf4cXAxDCoFYij5nkNg.png',
             previewPath: 'PYF8Y47qZQY.gif',
             status: VideoStatus.READY,
+            channel: 'Music',
         },
     ];
 
