@@ -523,6 +523,55 @@ describe('Video Repository', function () {
                 expect(documents).to.be.an('array');
                 expect(documents).to.have.lengthOf(0);
             });
+
+            it('Should return paged results', async function () {
+                const videos: IVideo[] = [];
+                for (let i = 0; i < config.pagination.resultsPerPage * 2; i++) {
+                    videos.push({
+                        channel: i.toString(),
+                        title: `video number ${i}`,
+                        owner: 'a@b',
+                    } as IVideo);
+                }
+
+                await VideoRepository.createMany(videos);
+
+                const result = await VideoRepository.getMany({});
+
+                expect(result).to.exist;
+                expect(result).to.be.an('array');
+                expect(result).to.have.lengthOf(config.pagination.resultsPerPage);
+            });
+
+            it('Should return sorted results', async function () {
+                const videos: IVideo[] = [];
+                for (let i = 0; i < config.pagination.resultsPerPage * 2; i++) {
+                    videos.push({
+                        channel: i.toString(),
+                        title: `video number ${i}`,
+                        owner: 'a@b',
+                    } as IVideo);
+                }
+
+                const createdVids = await VideoRepository.createMany(videos);
+
+                const promises = [];
+                for (let i = 0; i < 45; i++) {
+                    if (i % 5 === 0) {
+                        promises.push(VideoRepository.increaseViews(createdVids[1].id!));
+                    }
+                    promises.push(VideoRepository.increaseViews(createdVids[2].id!));
+                }
+
+                await Promise.all(promises);
+                const result = await VideoRepository.getMany({});
+
+                expect(result).to.exist;
+                expect(result).to.be.an('array');
+                expect(result).to.have.lengthOf(config.pagination.resultsPerPage);
+                expect(result[0]).to.have.property('views', 45);
+                expect(result[1]).to.have.property('views', 9);
+            });
         });
 
         context('When data is invalid', function () {
