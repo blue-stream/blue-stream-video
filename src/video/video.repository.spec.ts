@@ -4,6 +4,7 @@ import { config } from '../config';
 import { ServerError } from '../utils/errors/applicationError';
 import { IVideo, VideoStatus } from './video.interface';
 import { VideoRepository } from './video.repository';
+import { VideoModel } from './video.model';
 
 const validId: string = new mongoose.Types.ObjectId().toHexString();
 const invalidId: string = 'invalid id';
@@ -30,7 +31,6 @@ const video: IVideo = {
     description: 'John Lennon',
     owner: 'john@lenon',
     title: 'Imagine - John Lennon',
-    views: 157,
     thumbnailPath: 'ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it.png',
     tags: ['music', 'john-lenon'],
 };
@@ -39,7 +39,6 @@ const video2: IVideo = {
     title: 'BOB DYLAN - Mr Tambourine Man',
     description: `Subterranean Homesick Blues: A Tribute to Bob Dylan's 'Bringing It All Back Home'`,
     owner: 'bob@dylan',
-    views: 38169017,
     contentPath: 'PYF8Y47qZQY.mp4',
     thumbnailPath: 'w8qfEEDmQ.jpeg',
 };
@@ -48,7 +47,6 @@ const video3: IVideo = {
     title: 'OFFICIAL Somewhere over the Rainbow - Israel "IZ" Kamakawiwoʻole',
     description: `Israel "IZ" Kamakawiwoʻole's Platinum selling hit "Over the Rainbow" OFFICIAL video produced by Jon de Mello for The Mountain Apple Company • HAWAI`,
     owner: 'mountain@apple',
-    views: 579264778,
     contentPath: 'V1bFr2SWP1I.mp4',
     thumbnailPath: 'AN66SAxZyTsOYDydiDuDzlWvf4cXAxDCoFYij5nkNg.png',
 };
@@ -67,7 +65,7 @@ describe('Video Repository', function () {
     });
 
     afterEach(async function () {
-        await mongoose.connection.dropDatabase();
+        await VideoModel.deleteMany({}).exec();
     });
 
     after(async function () {
@@ -90,6 +88,12 @@ describe('Video Repository', function () {
                 expect(createdVideo).to.have.property('id').which.satisfies((id: any) => {
                     return mongoose.Types.ObjectId.isValid(id);
                 });
+            });
+
+            it('Should create a video without changing views count', async function () {
+                const createdVideo = await VideoRepository.create({ ...video, views: 50 });
+                expect(createdVideo).to.exist;
+                expect(createdVideo).to.have.property('views', 0);
             });
 
             it('Should allow creating video without thumbnailPath / contentPath', async function () {
@@ -585,6 +589,48 @@ describe('Video Repository', function () {
                 expect(amount).to.exist;
                 expect(amount).to.be.a('number');
                 expect(amount).to.equal(0);
+            });
+        });
+    });
+
+    describe('#increaseViews()', function () {
+        context('When data is valid', function () {
+            let createdVideo: IVideo;
+
+            beforeEach(async function () {
+                createdVideo = await VideoRepository.create(video);
+                await VideoRepository.createMany(videoArr);
+            });
+
+            it('Should increase views by 1', async function () {
+                expect(createdVideo).to.have.property('views', 0);
+
+                const vid = await VideoRepository.increaseViews(createdVideo!.id!);
+
+                expect(vid).to.exist;
+                expect(vid).to.have.property('views', 1);
+            });
+
+            it('Should return null when video not exists', async function () {
+                const vid = await VideoRepository.increaseViews(new mongoose.Types.ObjectId().toHexString());
+
+                expect(vid).to.not.exist;
+            });
+        });
+
+        context('When data is invalid', function () {
+            it('Should throw an error when id is not a valid ObjectId', async function () {
+                let hasThrown = false;
+
+                try {
+                    await VideoRepository.increaseViews('test');
+                } catch (err) {
+                    hasThrown = true;
+                    expect(err).to.exist;
+                    expect(err).to.be.instanceOf(mongoose.CastError);
+                } finally {
+                    expect(hasThrown).to.be.true;
+                }
             });
         });
     });
