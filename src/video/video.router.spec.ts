@@ -8,6 +8,7 @@ import { IdInvalidError, VideoNotFoundError, VideoValidationFailedError } from '
 import { IVideo } from './video.interface';
 import { VideoManager } from './video.manager';
 import * as rabbit from '../utils/rabbit';
+import { VideoModel } from './video.model';
 
 describe('Video Module', function () {
     let server: Server;
@@ -17,7 +18,6 @@ describe('Video Module', function () {
         description: 'John Lennon',
         owner: 'user@domain',
         title: 'Imagine - John Lennon',
-        views: 157,
         thumbnailPath: 'ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it.png',
     };
 
@@ -29,14 +29,12 @@ describe('Video Module', function () {
         contentPath: '',
         thumbnailPath: '',
         description: '',
-        views: 2,
     };
 
     const video2: IVideo = {
         title: 'BOB DYLAN - Mr Tambourine Man',
         description: `Subterranean Homesick Blues: A Tribute to Bob Dylan's 'Bringing It All Back Home'`,
         owner: 'bob@dylan',
-        views: 38169017,
         contentPath: 'PYF8Y47qZQY.mp4',
         thumbnailPath: 'w8qfEEDmQ.jpg',
     };
@@ -45,7 +43,6 @@ describe('Video Module', function () {
         title: 'OFFICIAL Somewhere over the Rainbow - Israel "IZ" Kamakawiwoʻole',
         description: `Israel "IZ" Kamakawiwoʻole's Platinum selling hit "Over the Rainbow" OFFICIAL video produced by Jon de Mello for The Mountain Apple Company • HAWAI`,
         owner: 'mountain@apple',
-        views: 579264778,
         contentPath: 'V1bFr2SWP1I.mp4',
         thumbnailPath: 'AN66SAxZyTsOYDydiDuDzlWvf4cXAxD.jpeg',
     };
@@ -68,7 +65,7 @@ describe('Video Module', function () {
     });
 
     after(async function () {
-        await mongoose.connection.db.dropDatabase();
+        await VideoModel.deleteMany({}).exec();
         await rabbit.closeConnection();
     });
 
@@ -76,7 +73,7 @@ describe('Video Module', function () {
         context('When request is valid', function () {
 
             beforeEach(async function () {
-                await mongoose.connection.db.dropDatabase();
+                await VideoModel.deleteMany({}).exec();
             });
 
             it('Should return created video', function (done: MochaDone) {
@@ -105,7 +102,7 @@ describe('Video Module', function () {
         context('When request is invalid', function () {
 
             beforeEach(async function () {
-                await mongoose.connection.db.dropDatabase();
+                await VideoModel.deleteMany({}).exec();
             });
 
             it('Should return error status when property is invalid', function (done: MochaDone) {
@@ -135,7 +132,7 @@ describe('Video Module', function () {
         context('When request is valid', function () {
 
             beforeEach(async function () {
-                await mongoose.connection.db.dropDatabase();
+                await VideoModel.deleteMany({}).exec();
                 returnedVideo = await VideoManager.create(video);
             });
 
@@ -182,7 +179,7 @@ describe('Video Module', function () {
 
         context('When request is invalid', function () {
             beforeEach(async function () {
-                await mongoose.connection.db.dropDatabase();
+                await VideoModel.deleteMany({}).exec();
                 returnedVideo = await VideoManager.create(video);
             });
 
@@ -231,7 +228,7 @@ describe('Video Module', function () {
 
         context('When request is valid', function () {
             beforeEach(async function () {
-                await mongoose.connection.db.dropDatabase();
+                await VideoModel.deleteMany({}).exec();
                 returnedVideo = await VideoManager.create(video);
             });
 
@@ -277,7 +274,7 @@ describe('Video Module', function () {
 
         context('When request is invalid', function () {
             beforeEach(async function () {
-                await mongoose.connection.db.dropDatabase();
+                await VideoModel.deleteMany({}).exec();
                 returnedVideo = await VideoManager.create(video);
             });
 
@@ -301,60 +298,11 @@ describe('Video Module', function () {
         });
     });
 
-    describe('#GET /api/video/one', function () {
-
-        context('When request is valid', function () {
-            beforeEach(async function () {
-                await mongoose.connection.db.dropDatabase();
-                await VideoManager.createMany(videos);
-            });
-
-            it('Should return video', function (done: MochaDone) {
-                request(server.app)
-                    .get(`/api/video/one?title=${videos[0].title}`)
-                    .set({ authorization: authorizationHeader })
-                    .expect(200)
-                    .expect('Content-Type', /json/)
-                    .end((error: Error, res: request.Response) => {
-                        expect(error).to.not.exist;
-                        expect(res).to.exist;
-                        expect(res.status).to.equal(200);
-                        expect(res).to.have.property('body');
-                        expect(res.body).to.be.an('object');
-
-                        for (const prop in video3) {
-                            expect(res.body).to.have.property(prop, videos[0][prop as keyof IVideo]);
-                        }
-
-                        done();
-                    });
-            });
-
-            it('Should return error when video not found', function (done: MochaDone) {
-                request(server.app)
-                    .get(`/api/video/one?title=${unexistingVideo.title}`)
-                    .set({ authorization: authorizationHeader })
-                    .expect(404)
-                    .expect('Content-Type', /json/)
-                    .end((error: Error, res: request.Response) => {
-                        expect(res).to.exist;
-                        expect(res.status).to.equal(404);
-                        expect(res).to.have.property('body');
-                        expect(res.body).to.be.an('object');
-                        expect(res.body).to.have.property('type', VideoNotFoundError.name);
-                        expect(res.body).to.have.property('message', new VideoNotFoundError().message);
-
-                        done();
-                    });
-            });
-        });
-    });
-
     describe('#GET /api/video/amount', function () {
 
         context('When request is valid', function () {
             beforeEach(async function () {
-                await mongoose.connection.db.dropDatabase();
+                await VideoModel.deleteMany({}).exec();
                 await VideoManager.createMany(videos);
             });
 
@@ -382,7 +330,7 @@ describe('Video Module', function () {
 
         context('When request is valid', function () {
             beforeEach(async function () {
-                await mongoose.connection.db.dropDatabase();
+                await VideoModel.deleteMany({}).exec();
                 returnedVideo = await VideoManager.create(video);
             });
 
@@ -428,7 +376,7 @@ describe('Video Module', function () {
 
         context('When request is invalid', function () {
             beforeEach(async function () {
-                await mongoose.connection.db.dropDatabase();
+                await VideoModel.deleteMany({}).exec();
                 returnedVideo = await VideoManager.create(video);
             });
 
