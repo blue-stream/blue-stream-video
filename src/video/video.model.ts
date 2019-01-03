@@ -72,6 +72,10 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
             type: Number,
             default: 0,
         },
+        channel: {
+            type: String,
+            required: true,
+        },
     },
     {
         autoIndex: false,

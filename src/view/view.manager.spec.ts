@@ -62,6 +62,7 @@ describe('View Manager', function () {
                 video = await VideoModel.create({
                     title: 'test',
                     owner: 'user@dom',
+                    channel: 'Test Channel',
                 });
                 videoId = ObjectId(video.id);
             });

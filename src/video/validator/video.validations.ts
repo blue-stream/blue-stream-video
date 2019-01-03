@@ -12,6 +12,7 @@ export class VideoValidatons {
     static isValid(video: IVideo): boolean {
         return !!video &&
             VideoValidatons.isTitleValid(video.title) &&
+            VideoValidatons.isChannelValid(video.channel) &&
             VideoValidatons.isOwnerValid(video.owner) &&
             VideoValidatons.isPathValid(video.contentPath, config.allowedExtensions.videos) &&
             VideoValidatons.isPathValid(video.thumbnailPath, config.allowedExtensions.images);
@@ -28,6 +29,12 @@ export class VideoValidatons {
             trimmed.length <= VideoValidatons.maxTitleLength &&
             trimmed.length >= VideoValidatons.minTitleLength
         );
+    }
+
+    static isChannelValid(channel: string): boolean {
+        const trimmed = channel ? channel.trim() : null;
+
+        return !!trimmed;
     }
 
     static isDescriptionValid(description: string): boolean {

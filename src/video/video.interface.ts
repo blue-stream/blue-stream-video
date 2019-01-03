@@ -1,6 +1,7 @@
 export interface IVideo {
     id?: string;
     title: string;
+    channel: string;
     description: string;
     views?: number;
     owner: string;
