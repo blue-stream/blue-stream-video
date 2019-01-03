@@ -36,4 +36,5 @@ export const config = {
         videos: ['mkv', 'flv', 'ogg', 'avi', 'mov', 'wmv', 'amv', 'mp4', 'm4p', 'm4v', 'mpv', 'mpg', 'mpeg'],
         previews: ['gif'],
     },
+    viewDebounceDuration: +(process.env.VIEW_DEBOUNCE_DURATION || 15), // minutes
 };

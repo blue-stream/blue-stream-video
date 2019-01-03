@@ -4,6 +4,7 @@ import { ServerError } from '../utils/errors/applicationError';
 
 export class VideoRepository {
     static create(video: IVideo): Promise<IVideo> {
+        delete video.views;
         return VideoModel.create(video);
     }
 
@@ -56,5 +57,13 @@ export class VideoRepository {
         return VideoModel
             .countDocuments(videoFilter)
             .exec();
+    }
+
+    static increaseViews(id: string): Promise<IVideo | null> {
+        return VideoModel.findByIdAndUpdate(
+            id,
+            { $inc: { views: 1 } },
+            { new: true },
+        ).exec();
     }
 }

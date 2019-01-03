@@ -19,6 +19,7 @@ export class VideoValidator {
         delete req.body.previewPath;
         delete req.body.originalPath;
         delete req.body.status;
+        delete req.body.views;
 
         next(
             VideoValidator.validateId(req.params.id) ||
