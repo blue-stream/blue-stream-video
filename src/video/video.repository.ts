@@ -1,6 +1,7 @@
 import { IVideo } from './video.interface';
 import { VideoModel } from './video.model';
 import { ServerError } from '../utils/errors/applicationError';
+import { config } from '../config';
 
 export class VideoRepository {
     static create(video: IVideo): Promise<IVideo> {
@@ -47,10 +48,19 @@ export class VideoRepository {
         ).exec();
     }
 
-    static getMany(videoFilter: Partial<IVideo>): Promise<IVideo[]> {
-        return VideoModel.find(
-            videoFilter,
-        ).exec();
+    static getMany(
+        videoFilter: Partial<IVideo>,
+        startIndex: number = 0,
+        endIndex: number = config.pagination.resultsPerPage,
+        sortOrder: '-' | '' = '-',
+        sortBy: string = 'views',
+    ): Promise<IVideo[]> {
+        return VideoModel
+            .find(videoFilter)
+            .sort(sortOrder + sortBy)
+            .skip(startIndex)
+            .limit(endIndex - startIndex)
+            .exec();
     }
 
     static getAmount(videoFilter: Partial<IVideo>): Promise<number> {
