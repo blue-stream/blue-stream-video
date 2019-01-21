@@ -5,6 +5,7 @@ import { Logger } from './utils/logger';
 import { config } from './config';
 import { syslogSeverityLevels } from 'llamajs';
 import { VideoBroker } from './video/video.broker';
+import { RPCServer } from './utils/rpc.server';
 
 process.on('uncaughtException', (err) => {
     console.error('Unhandled Exception', err.stack);
@@ -44,6 +45,11 @@ process.on('SIGINT', async () => {
     await rabbit.connect();
 
     await VideoBroker.subscribe();
+
+    console.log('Starting RPC Server');
+    RPCServer.http().listen(config.rpc.port, function () {
+        console.log(`RPC server running on port ${config.rpc.port}`);
+    });
 
     console.log('Starting server');
     const server: Server = Server.bootstrap();
