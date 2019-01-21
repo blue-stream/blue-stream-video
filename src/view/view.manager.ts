@@ -47,10 +47,10 @@ export class ViewManager {
         return [];
     }
 
-    static async getChannelViews(channelIds: string | string[]): Promise<{ [channel: string]: number }> {
+    static async getChannelsViews(channelIds: string | string[]): Promise<{ [channel: string]: number }> {
         const channels = (typeof channelIds === 'string') ? [channelIds] : channelIds;
 
-        const channelViews = await VideoRepository.getChannelViews(channels);
+        const channelViews = await VideoRepository.getChannelsViews(channels);
 
         const channelViewMap: { [channel: string]: number } = {};
 

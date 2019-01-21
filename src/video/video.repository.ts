@@ -77,7 +77,7 @@ export class VideoRepository {
         ).exec();
     }
 
-    static getChannelViews(channelIds: string[]): Promise<{ channel: string, views: number }[]> {
+    static getChannelsViews(channelIds: string[]): Promise<{ channel: string, views: number }[]> {
         return VideoModel
             .aggregate()
             .match({ channel: { $in: channelIds } })
