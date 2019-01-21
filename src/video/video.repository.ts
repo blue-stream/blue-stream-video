@@ -76,4 +76,13 @@ export class VideoRepository {
             { new: true },
         ).exec();
     }
+
+    static getChannelsViews(channelIds: string[]): Promise<{ channel: string, views: number }[]> {
+        return VideoModel
+            .aggregate()
+            .match({ channel: { $in: channelIds } })
+            .group({ _id: '$channel', views: { $sum: '$views' } })
+            .project({ _id: 0, channel: '$_id', views: 1 })
+            .exec();
+    }
 }

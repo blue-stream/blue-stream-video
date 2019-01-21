@@ -1,4 +1,7 @@
 export const config = {
+    rpc: {
+        port: +(process.env.RPC_PORT || 3001),
+    },
     db: {
         host: process.env.DB_SERVER || 'localhost',
         name: process.env.DB_NAME || 'blue-stream-video',

@@ -46,4 +46,18 @@ export class ViewManager {
 
         return [];
     }
+
+    static async getChannelsViews(channelIds: string | string[]): Promise<{ [channel: string]: number }> {
+        const channels = (typeof channelIds === 'string') ? [channelIds] : channelIds;
+
+        const channelViews = await VideoRepository.getChannelsViews(channels);
+
+        const channelViewMap: { [channel: string]: number } = {};
+
+        channelViews.forEach((channelView) => {
+            channelViewMap[channelView.channel] = channelView.views;
+        });
+
+        return channelViewMap;
+    }
 }
