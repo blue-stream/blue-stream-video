@@ -42,5 +42,12 @@ export const config = {
     viewDebounceDuration: +(process.env.VIEW_DEBOUNCE_DURATION || 15), // minutes,
     pagination: {
         resultsPerPage: 20,
+        startIndex: 0,
+        endIndex: 20,
     },
+    sort: {
+        sortOrder: '-',
+        sortBy: 'createdAt',
+    },
+
 };
