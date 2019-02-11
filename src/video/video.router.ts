@@ -10,6 +10,8 @@ VideoRouter.put('/:id', VideoValidator.canUpdateById, Wrapper.wrapAsync(VideoCon
 VideoRouter.delete('/:id', VideoValidator.canDeleteById, Wrapper.wrapAsync(VideoController.deleteById));
 VideoRouter.get('/', VideoValidator.canGetMany, Wrapper.wrapAsync(VideoController.getMany));
 VideoRouter.get('/amount', VideoValidator.canGetAmount, Wrapper.wrapAsync(VideoController.getAmount));
+VideoRouter.get('/search', VideoValidator.canGetSearched, Wrapper.wrapAsync(VideoController.getSearched));
+VideoRouter.get('/search/amount', VideoValidator.canGetSearchedAmount, Wrapper.wrapAsync(VideoController.getSearchedAmount));
 VideoRouter.get('/:id', VideoValidator.canGetById, Wrapper.wrapAsync(VideoController.getById));
 
 export { VideoRouter };

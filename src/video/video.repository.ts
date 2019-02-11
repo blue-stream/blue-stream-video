@@ -69,6 +69,23 @@ export class VideoRepository {
             .exec();
     }
 
+    static getSearched(
+        searchFilter: string = '',
+        startIndex: number = config.pagination.startIndex,
+        endIndex: number = config.pagination.endIndex,
+        sortOrder: string = config.sort.sortOrder,
+        sortBy: string = config.sort.sortBy) {
+        return VideoModel.find({
+            $or: [
+
+            ],
+        })
+            .sort(sortOrder + sortBy)
+            .skip(+startIndex)
+            .limit(endIndex - startIndex)
+            .exec();
+    }
+
     static increaseViews(id: string): Promise<IVideo | null> {
         return VideoModel.findByIdAndUpdate(
             id,

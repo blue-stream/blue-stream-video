@@ -50,4 +50,13 @@ export class VideoController {
     static async getAmount(req: Request, res: Response) {
         res.json(await VideoManager.getAmount(req.query));
     }
+
+    static async getSearched(req: Request, res: Response) {
+        res.json(await VideoManager.getSearched(req.query.searchFilter, req.query.startIndex, req.query.endIndex, req.query.sortOrder, req.query.sortBy));
+    }
+
+    static async getSearchedAmount(req: Request, res: Response) {
+        res.json(await VideoManager.getSearchedAmount(req.query.searchFilter));
+    }
+
 }

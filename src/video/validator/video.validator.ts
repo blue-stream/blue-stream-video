@@ -47,6 +47,14 @@ export class VideoValidator {
         next();
     }
 
+    static canGetSearched(req: Request, res: Response, next: NextFunction) {
+        next();
+    }
+
+    static canGetSearchedAmount(req: Request, res: Response, next: NextFunction) {
+        next();
+    }
+
     private static validateVideo(video: IVideo) {
         if (!VideoValidatons.isTitleValid(video.title)) return new VideoValidationFailedError('title');
         if (!VideoValidatons.isChannelValid(video.channel)) return new VideoValidationFailedError('channel');

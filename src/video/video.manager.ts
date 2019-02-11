@@ -40,4 +40,17 @@ export class VideoManager implements VideoRepository {
     static getAmount(videoFilter: Partial<IVideo>) {
         return VideoRepository.getAmount(videoFilter);
     }
+
+    static getSearched(
+        searchFilter: string,
+        startIndex?: number,
+        endIndex?: number,
+        sortOrder?: '-' | '',
+        sortBy?: string) {
+        return VideoRepository.getSearched(searchFilter, startIndex, endIndex, sortOrder, sortBy);
+    }
+
+    static getSearchedAmount(searchFilter: string) {
+        return VideoRepository.getSearchedAmount(searchFilter);
+    }
 }
