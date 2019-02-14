@@ -77,13 +77,25 @@ export class VideoRepository {
         sortBy: string = config.sort.sortBy) {
         return VideoModel.find({
             $or: [
-
+                { title: { $regex: searchFilter, $options: 'i' } },
+                { tags: { $elemMatch: { $regex: searchFilter, $options: 'i' } } },
+                { description: { $regex: searchFilter, $options: 'i' } },
             ],
         })
             .sort(sortOrder + sortBy)
             .skip(+startIndex)
             .limit(endIndex - startIndex)
             .exec();
+    }
+
+    static getSearchedAmount(searchFilter: string = '') {
+        return VideoModel.countDocuments({
+            $or: [
+                { title: { $regex: searchFilter, $options: 'i' } },
+                { tags: { $elemMatch: { $regex: searchFilter, $options: 'i' } } },
+                { description: { $regex: searchFilter, $options: 'i' } },
+            ],
+        }).exec();
     }
 
     static increaseViews(id: string): Promise<IVideo | null> {
