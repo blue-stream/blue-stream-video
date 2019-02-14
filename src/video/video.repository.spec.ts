@@ -54,11 +54,23 @@ const video3: IVideo = {
     channel: 'Music',
 };
 
+const video4: IVideo = {
+    previewPath: 'GsgrO4-9.gif',
+    contentPath: 'GsgrO4-9.mp4',
+    description: 'This is description',
+    owner: 'aaa@bbb',
+    title: 'Hi this is title',
+    thumbnailPath: 'ACSszfE1KoE4fGYUWaNbkn1UWPiwKiQzOJ0it.png',
+    tags: ['Imagine'],
+    channel: 'Music',
+};
+
 const videoArr = [video, video, video, video2, video3];
 
 Object.freeze(video);
 Object.freeze(video2);
 Object.freeze(video3);
+Object.freeze(video4);
 Object.freeze(videoArr);
 
 describe('Video Repository', function () {
@@ -641,6 +653,124 @@ describe('Video Repository', function () {
                 expect(amount).to.exist;
                 expect(amount).to.be.a('number');
                 expect(amount).to.equal(0);
+            });
+        });
+    });
+
+    describe('#getSearched()', function () {
+        const videosArr = [...videoArr, video4];
+
+        context('When data is valid', function () {
+            beforeEach(async function () {
+                await VideoRepository.createMany(videosArr);
+            });
+
+            it('Should return all videos when searchFilter is empty', async function () {
+                const documents = await VideoRepository.getSearched('');
+                expect(documents).to.exist;
+                expect(documents).to.be.an('array');
+                expect(documents).to.have.lengthOf(videosArr.length);
+            });
+
+            it('Should return a video that contains \'OFFICIAL\' in title', async function () {
+                const documents = await VideoRepository.getSearched('OFFICIAL');
+                expect(documents).to.exist;
+                expect(documents).to.be.an('array');
+                expect(documents).to.have.lengthOf(videosArr.filter(v => v.title.includes('OFFICIAL')).length);
+            });
+
+            it('Should return a video that contains \'music\' in tag', async function () {
+                const documents = await VideoRepository.getSearched('music');
+                expect(documents).to.exist;
+                expect(documents).to.be.an('array');
+                expect(documents).to.have.lengthOf(1);
+            });
+
+            it('Should return a video that contains \'Back Home\' in description', async function () {
+                const documents = await VideoRepository.getSearched('Back Home');
+                expect(documents).to.exist;
+                expect(documents).to.be.an('array');
+                expect(documents).to.have.lengthOf(1);
+            });
+
+            it('Should return all videos that have \'I\' in title/tag/desctiption', async function () {
+                const documents = await VideoRepository.getSearched('I');
+                expect(documents).to.exist;
+                expect(documents).to.be.an('array');
+                expect(documents).to.have.lengthOf(videosArr.length);
+            });
+
+            it('Should return all videos that have \'Imagine\' in title/tag/desctiption', async function () {
+                const documents = await VideoRepository.getSearched('Imagine');
+                expect(documents).to.exist;
+                expect(documents).to.be.an('array');
+                expect(documents).to.have.lengthOf(3);
+            });
+
+            it('Should return an empty array when searchFilter is not present in any videos\' title/tag/desctiption', async function () {
+                const documents = await VideoRepository.getSearched('aaaaaa');
+                expect(documents).to.exist;
+                expect(documents).to.be.an('array');
+                expect(documents).to.have.lengthOf(0);
+            });
+        });
+    });
+
+    describe('#getSearchedAmount()', function () {
+        const videosArr = [...videoArr, video4];
+
+        context('When data is valid', function () {
+            beforeEach(async function () {
+                await VideoRepository.createMany(videosArr);
+            });
+
+            it('Should return all videos when searchFilter is empty', async function () {
+                const documents = await VideoRepository.getSearchedAmount('');
+                expect(documents).to.exist;
+                expect(documents).to.be.a('number');
+                expect(documents).to.be.equal(videosArr.length);
+            });
+
+            it('Should return a video that contains \'OFFICIAL\' in title', async function () {
+                const documents = await VideoRepository.getSearchedAmount('OFFICIAL');
+                expect(documents).to.exist;
+                expect(documents).to.be.a('number');
+                expect(documents).to.be.equal(1);
+            });
+
+            it('Should return a video that contains \'music\' in tag', async function () {
+                const documents = await VideoRepository.getSearchedAmount('music');
+                expect(documents).to.exist;
+                expect(documents).to.be.a('number');
+                expect(documents).to.be.equal(2);
+            });
+
+            it('Should return a video that contains \'Back Home\' in description', async function () {
+                const documents = await VideoRepository.getSearchedAmount('Back Home');
+                expect(documents).to.exist;
+                expect(documents).to.be.a('number');
+                expect(documents).to.be.equal(1);
+            });
+
+            it('Should return all videos that have \'I\' in title/tag/desctiption', async function () {
+                const documents = await VideoRepository.getSearchedAmount('I');
+                expect(documents).to.exist;
+                expect(documents).to.be.a('number');
+                expect(documents).to.be.equal(videosArr.length);
+            });
+
+            it('Should return all videos that have \'Imagine\' in title/tag/desctiption', async function () {
+                const documents = await VideoRepository.getSearchedAmount('Imagine');
+                expect(documents).to.exist;
+                expect(documents).to.be.a('number');
+                expect(documents).to.be.equal(3);
+            });
+
+            it('Should return an empty array when searchFilter is not present in any videos\' title/tag/desctiption', async function () {
+                const documents = await VideoRepository.getSearchedAmount('aaaaaa');
+                expect(documents).to.exist;
+                expect(documents).to.be.a('number');
+                expect(documents).to.be.equal(0);
             });
         });
     });
