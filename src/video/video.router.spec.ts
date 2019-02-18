@@ -5,6 +5,7 @@ import * as request from 'supertest';
 import { config } from '../config';
 import { Server } from '../server';
 import { IdInvalidError, VideoNotFoundError, VideoValidationFailedError } from '../utils/errors/userErrors';
+import { searchValueInTitleDescTags } from '../utils/test.helper';
 import { IVideo } from './video.interface';
 import { VideoManager } from './video.manager';
 import * as rabbit from '../utils/rabbit';
@@ -322,6 +323,56 @@ describe('Video Module', function () {
                         expect(res.status).to.equal(200);
                         expect(res).to.have.property('body');
                         expect(res.body).to.equal(2);
+
+                        done();
+                    });
+            });
+        });
+    });
+
+    describe('#GET /api/video/search', function () {
+
+        context('When request is valid', function () {
+            beforeEach(async function () {
+                await VideoModel.deleteMany({}).exec();
+                await VideoManager.createMany(videos);
+            });
+
+            it('Should return all videos when searchFilter is empty', function (done: MochaDone) {
+                request(server.app)
+                    .get(`/api/video/search?searchFilter=`)
+                    .set({ authorization: authorizationHeader })
+                    .expect(200)
+                    .expect('Content-Type', /json/)
+                    .end((error: Error, res: request.Response) => {
+                        expect(error).to.not.exist;
+                        expect(res).to.exist;
+                        expect(res.status).to.equal(200);
+                        expect(res).to.have.property('body');
+                        expect(res.body).to.be.an('array');
+                        expect(res.body.length).to.be.equals(searchValueInTitleDescTags('', videos));
+
+                        // for (const prop in video) {
+                        //     res.body.forEach(v =>  n) // expect(res.body).to.have.property(prop, video[prop as keyof (typeof video)]);
+                        // }
+
+                        done();
+                    });
+            });
+
+            it('Should return all videos that have \'I\' in title/tag/desctiption', function (done: MochaDone) {
+                request(server.app)
+                    .get(`/api/video/search?searchFilter=I`)
+                    .set({ authorization: authorizationHeader })
+                    .expect(200)
+                    .expect('Content-Type', /json/)
+                    .end((error: Error, res: request.Response) => {
+                        expect(error).to.not.exist;
+                        expect(res).to.exist;
+                        expect(res.status).to.equal(200);
+                        expect(res).to.have.property('body');
+                        expect(res.body).to.be.an('array');
+                        expect(res.body.length).to.be.equals(searchValueInTitleDescTags('I', videos));
 
                         done();
                     });
