@@ -44,7 +44,7 @@ export class VideoController {
     }
 
     static async getMany(req: Request, res: Response) {
-        res.json(await VideoManager.getMany(req.query));
+        res.json(await VideoManager.getMany(req.user.id, req.query));
     }
 
     static async getAmount(req: Request, res: Response) {

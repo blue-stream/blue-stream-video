@@ -13,6 +13,7 @@ export interface IVideo {
     tags?: string[];
     published?: boolean;
     publishDate?: Date;
+    classificationSource?: number;
 }
 
 export enum VideoStatus {
