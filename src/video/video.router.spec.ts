@@ -350,11 +350,14 @@ describe('Video Module', function () {
                         expect(res.status).to.equal(200);
                         expect(res).to.have.property('body');
                         expect(res.body).to.be.an('array');
-                        expect(res.body.length).to.be.equals(searchValueInTitleDescTags('', videos));
+                        const returnedVideos: IVideo[] = res.body;
+                        expect(returnedVideos.length).to.be.equals(searchValueInTitleDescTags('', videos));
 
-                        // for (const prop in video) {
-                        //     res.body.forEach(v =>  n) // expect(res.body).to.have.property(prop, video[prop as keyof (typeof video)]);
-                        // }
+                        returnedVideos.forEach(function (vid) {
+                            for (const prop in video) {
+                                expect(vid).to.have.property(prop);
+                            }
+                        });
 
                         done();
                     });
@@ -372,7 +375,103 @@ describe('Video Module', function () {
                         expect(res.status).to.equal(200);
                         expect(res).to.have.property('body');
                         expect(res.body).to.be.an('array');
-                        expect(res.body.length).to.be.equals(searchValueInTitleDescTags('I', videos));
+                        const returnedVideos: IVideo[] = res.body;
+                        expect(returnedVideos.length).to.be.equals(searchValueInTitleDescTags('I', videos));
+
+                        returnedVideos.forEach(function (vid) {
+                            for (const prop in video) {
+                                expect(vid).to.have.property(prop);
+                            }
+                        });
+
+                        done();
+                    });
+            });
+
+            it('Should return all videos that have \'OFFICIAL\' in title/tag/desctiption', function (done: MochaDone) {
+                request(server.app)
+                    .get(`/api/video/search?searchFilter=OFFICIAL`)
+                    .set({ authorization: authorizationHeader })
+                    .expect(200)
+                    .expect('Content-Type', /json/)
+                    .end((error: Error, res: request.Response) => {
+                        expect(error).to.not.exist;
+                        expect(res).to.exist;
+                        expect(res.status).to.equal(200);
+                        expect(res).to.have.property('body');
+                        expect(res.body).to.be.an('array');
+                        const returnedVideos: IVideo[] = res.body;
+                        expect(returnedVideos.length).to.be.equals(searchValueInTitleDescTags('OFFICIAL', videos));
+
+                        returnedVideos.forEach(function (vid) {
+                            for (const prop in video) {
+                                expect(vid).to.have.property(prop);
+                            }
+                        });
+
+                        done();
+                    });
+            });
+        });
+    });
+
+    describe('#GET /api/video/search/amount', function () {
+
+        context('When request is valid', function () {
+            beforeEach(async function () {
+                await VideoModel.deleteMany({}).exec();
+                await VideoManager.createMany(videos);
+            });
+
+            it('Should return number of all videos when searchFilter is empty', function (done: MochaDone) {
+                request(server.app)
+                    .get(`/api/video/search/amount?searchFilter=`)
+                    .set({ authorization: authorizationHeader })
+                    .expect(200)
+                    .expect('Content-Type', /json/)
+                    .end((error: Error, res: request.Response) => {
+                        expect(error).to.not.exist;
+                        expect(res).to.exist;
+                        expect(res.status).to.equal(200);
+                        expect(res).to.have.property('body');
+                        expect(res.body).to.be.a('number');
+                        expect(res.body).to.be.equals(searchValueInTitleDescTags('', videos));
+
+                        done();
+                    });
+            });
+
+            it('Should return number of all videos that contain \'I\' in title/tag/desctiption', function (done: MochaDone) {
+                request(server.app)
+                    .get(`/api/video/search/amount?searchFilter=I`)
+                    .set({ authorization: authorizationHeader })
+                    .expect(200)
+                    .expect('Content-Type', /json/)
+                    .end((error: Error, res: request.Response) => {
+                        expect(error).to.not.exist;
+                        expect(res).to.exist;
+                        expect(res.status).to.equal(200);
+                        expect(res).to.have.property('body');
+                        expect(res.body).to.be.a('number');
+                        expect(res.body).to.be.equals(searchValueInTitleDescTags('I', videos));
+
+                        done();
+                    });
+            });
+
+            it('Should return all videos that have \'OFFICIAL\' in title/tag/desctiption', function (done: MochaDone) {
+                request(server.app)
+                    .get(`/api/video/search/amount?searchFilter=OFFICIAL`)
+                    .set({ authorization: authorizationHeader })
+                    .expect(200)
+                    .expect('Content-Type', /json/)
+                    .end((error: Error, res: request.Response) => {
+                        expect(error).to.not.exist;
+                        expect(res).to.exist;
+                        expect(res.status).to.equal(200);
+                        expect(res).to.have.property('body');
+                        expect(res.body).to.be.an('number');
+                        expect(res.body).to.be.equals(searchValueInTitleDescTags('OFFICIAL', videos));
 
                         done();
                     });
