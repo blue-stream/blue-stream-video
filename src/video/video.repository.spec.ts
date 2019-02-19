@@ -1,10 +1,21 @@
 import { expect } from 'chai';
 import * as mongoose from 'mongoose';
 import { config } from '../config';
+import { generateClassificationSources } from '../mocks/classificationSources';
+import { generateUserClassifications } from '../mocks/userClassifications';
+import { ClassificationSourceModel } from '../source-classification/source-classification.model';
 import { ServerError } from '../utils/errors/applicationError';
+import { getRandomInt } from '../utils/random';
 import { IVideo, VideoStatus } from './video.interface';
-import { VideoRepository } from './video.repository';
 import { VideoModel } from './video.model';
+import { VideoRepository } from './video.repository';
+import { generateVideos } from '../mocks/videos';
+import { IClassificationSource } from '../source-classification/source-classification.interface';
+import { IUserClassification } from '../user-classification/user-classification.interface';
+
+const videos: IVideo[] = generateVideos(2000);
+const classificationSources = generateClassificationSources(8000);
+const userClassifications = generateUserClassifications(20);
 
 const validId: string = new mongoose.Types.ObjectId().toHexString();
 const invalidId: string = 'invalid id';
@@ -15,51 +26,35 @@ const invalidVideo: Partial<IVideo> = {
     thumbnailPath: '',
     previewPath: '',
     status: 'UNKNOWN-STATUS' as any,
+    classificationSource: 'abc' as any,
 };
 
-const videoFilter: Partial<IVideo> = { owner: 'john@lenon' };
 const videoDataToUpdate: Partial<IVideo> = {
     title: 'updated title',
     status: VideoStatus.READY,
     tags: ['hello', 'world'],
+    classificationSource: 591,
+    thumbnailPath: 'thumbnail.png',
+    previewPath: 'preview.gif',
+    contentPath: 'content.mp4',
 };
+
 const unexistingVideo: Partial<IVideo> = { title: 'a' };
 const unknownProperty: Object = { unknownProperty: true };
-const video: IVideo = {
-    previewPath: 'YkgkThdzX-8.gif',
-    contentPath: 'YkgkThdzX-8.mp4',
-    description: 'John Lennon',
-    owner: 'john@lenon',
-    title: 'Imagine - John Lennon',
-    thumbnailPath: 'ACSszfE1bmbrfGYUWaNbkn1UWPiwKiQzOJ0it.png',
-    tags: ['music', 'john-lenon'],
-    channel: 'Music',
-};
 
-const video2: IVideo = {
-    title: 'BOB DYLAN - Mr Tambourine Man',
-    description: `Subterranean Homesick Blues: A Tribute to Bob Dylan's 'Bringing It All Back Home'`,
-    owner: 'bob@dylan',
-    contentPath: 'PYF8Y47qZQY.mp4',
-    thumbnailPath: 'w8qfEEDmQ.jpeg',
-    channel: 'Music',
+const video = videos[getRandomInt(0, videos.length)];
+const videoToCreate: Partial<IVideo> = {
+    channel: 'channel',
+    title: 'title',
+    owner: 'owner@domain',
+    description: 'desc',
+    originalPath: 'test.avi',
+    tags: ['tag1', 'tag2', 'tag3'],
 };
-
-const video3: IVideo = {
-    title: 'OFFICIAL Somewhere over the Rainbow - Israel "IZ" Kamakawiwoʻole',
-    description: `Israel "IZ" Kamakawiwoʻole's Platinum selling hit "Over the Rainbow" OFFICIAL video produced by Jon de Mello for The Mountain Apple Company • HAWAI`,
-    owner: 'mountain@apple',
-    contentPath: 'V1bFr2SWP1I.mp4',
-    thumbnailPath: 'AN66SAxZyTsOYDydiDuDzlWvf4cXAxDCoFYij5nkNg.png',
-    channel: 'Music',
-};
-
-const videoArr = [video, video, video, video2, video3];
 
 Object.freeze(video);
-Object.freeze(video2);
-Object.freeze(video3);
-Object.freeze(videoArr);
+Object.freeze(videoToCreate);
+Object.freeze(videos);
 
 describe('Video Repository', function () {
 
@@ -69,6 +64,7 @@ describe('Video Repository', function () {
 
     afterEach(async function () {
         await VideoModel.deleteMany({}).exec();
+        await ClassificationSourceModel.deleteMany({}).exec();
     });
 
     after(async function () {
@@ -78,14 +74,14 @@ describe('Video Repository', function () {
     describe('#create()', function () {
         context('When video is valid', function () {
             it('Should create video', async function () {
-                const createdVideo = await VideoRepository.create(video);
+                const createdVideo = await VideoRepository.create(videoToCreate as IVideo);
                 expect(createdVideo).to.exist;
                 expect(createdVideo).to.have.property('createdAt');
                 expect(createdVideo).to.have.property('updatedAt');
-                expect(createdVideo).to.have.property('tags').to.be.an('array').with.lengthOf(2);
+                expect(createdVideo).to.have.property('tags').to.be.an('array').with.lengthOf(videoToCreate.tags!.length);
 
-                for (const prop in video) {
-                    expectToHaveEqualProperty(createdVideo, prop, video[prop as keyof IVideo]);
+                for (const prop in videoToCreate) {
+                    expectToHaveEqualProperty(createdVideo, prop, videoToCreate[prop as keyof IVideo]);
                 }
 
                 expect(createdVideo).to.have.property('id').which.satisfies((id: any) => {
@@ -250,11 +246,12 @@ describe('Video Repository', function () {
                 expect(updatedDoc).to.have.property('originalPath', 'valid-path.flv');
             });
 
-            it('Should allow to update when status is given and contentPath / thumbnailPath are valid', async function () {
+            it('Should allow to update when status is given and contentPath / thumbnailPath / previewPath are valid', async function () {
                 const updatedDoc = await VideoRepository.updateById(createdVideo.id!, {
                     status: VideoStatus.READY,
                     thumbnailPath: 'valid-path.bmp',
                     contentPath: 'valid-path.mp4',
+                    previewPath: 'valid-path.gif',
                 });
 
                 expect(updatedDoc).to.exist;
@@ -492,33 +489,36 @@ describe('Video Repository', function () {
 
         context('When data is valid', function () {
 
+            const userClassifications = generateUserClassifications(videos.length);
+
             beforeEach(async function () {
-                await VideoRepository.createMany(videoArr);
+                await VideoRepository.createMany(videos);
+                await ClassificationSourceModel.insertMany(classificationSources);
             });
 
             it('Should return all documents when filter is empty', async function () {
-                const documents = await VideoRepository.getMany({});
+                const documents = await VideoRepository.getMany({}, userClassifications);
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
-                expect(documents).to.have.lengthOf(videoArr.length);
+                expect(documents).to.have.lengthOf(config.pagination.resultsPerPage);
             });
 
             for (const prop in video) {
                 it(`Should return only matching documents by ${prop}`, async function () {
-                    const documents = await VideoRepository.getMany({ [prop]: video[prop as keyof IVideo] });
+                    const documents = await VideoRepository.getMany({ [prop]: video[prop as keyof IVideo] }, userClassifications);
                     expect(documents).to.exist;
                     expect(documents).to.be.an('array');
 
-                    const amountOfRequiredDocuments = videoArr.filter((item: IVideo) => {
+                    const amountOfRequiredDocuments = videos.filter((item: IVideo) => {
                         return item[prop as keyof IVideo] === video[prop as keyof IVideo];
                     }).length;
 
-                    expect(documents).to.have.lengthOf(amountOfRequiredDocuments);
+                    expect(documents).to.have.lengthOf(Math.min(amountOfRequiredDocuments, config.pagination.resultsPerPage));
                 });
             }
 
             it('Should return empty array when critiria not matching any document', async function () {
-                const documents = await VideoRepository.getMany(unexistingVideo);
+                const documents = await VideoRepository.getMany(unexistingVideo, userClassifications);
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
                 expect(documents).to.have.lengthOf(0);
@@ -536,7 +536,7 @@ describe('Video Repository', function () {
 
                 await VideoRepository.createMany(videos);
 
-                const result = await VideoRepository.getMany({});
+                const result = await VideoRepository.getMany({}, userClassifications);
 
                 expect(result).to.exist;
                 expect(result).to.be.an('array');
@@ -550,8 +550,16 @@ describe('Video Repository', function () {
                         channel: i.toString(),
                         title: `video number ${i}`,
                         owner: 'a@b',
+                        classificationSource: 1234567,
                     } as IVideo);
                 }
+
+                await ClassificationSourceModel.create({
+                    _id: 1234567,
+                    classificationId: 1234567,
+                    layer: 4,
+                    name: 'test',
+                } as IClassificationSource);
 
                 const createdVids = await VideoRepository.createMany(videos);
 
@@ -564,7 +572,7 @@ describe('Video Repository', function () {
                 }
 
                 await Promise.all(promises);
-                const result = await VideoRepository.getMany({});
+                const result = await VideoRepository.getMany({}, [{ classificationId: 1234567, layer: 4 } as IUserClassification]);
 
                 expect(result).to.exist;
                 expect(result).to.be.an('array');
@@ -579,21 +587,78 @@ describe('Video Repository', function () {
                 let hasThrown = false;
 
                 try {
-                    await VideoRepository.getMany(0 as any);
+                    await VideoRepository.getMany(1 as any, userClassifications);
                 } catch (err) {
                     hasThrown = true;
                     expect(err).to.exist;
-                    expect(err).to.have.property('name', 'ObjectParameterError');
                 } finally {
                     expect(hasThrown).to.be.true;
                 }
             });
 
             it('Should return null when filter is not in correct format', async function () {
-                const documents = await VideoRepository.getMany(unknownProperty);
+                const documents = await VideoRepository.getMany(unknownProperty, userClassifications);
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
                 expect(documents).to.have.lengthOf(0);
+            });
+        });
+    });
+
+    describe('#getClassifiedVideos()', function () {
+        context('When data is valid', function () {
+            beforeEach(async function () {
+                await VideoRepository.createMany(videos);
+                await ClassificationSourceModel.insertMany(classificationSources);
+            });
+
+            it('Should return all classified videos when no custom matcher', async function () {
+                const videos = await VideoRepository.getClassifiedVideos(userClassifications);
+
+                expect(videos).to.exist;
+                expect(videos).to.be.an('array');
+                expect(videos.length).to.be.lte(config.pagination.resultsPerPage);
+
+                videos.forEach((video: any) => {
+                    expect(video).to.have.property('classification').which.has.property('classificationId').which.is.a('number');
+                    expect(video).to.have.property('classification').which.has.property('layer').which.is.a('number').lessThan(5);
+                    const classification = userClassifications.find(classification => video.classification.classificationId === classification.classificationId);
+                    expect(classification).to.exist;
+                    expect(classification).to.have.property('layer').gte(video.classification.layer);
+                });
+            });
+
+            it('Should return classified videos filtered by channel', async function () {
+                const videos = await VideoRepository.getClassifiedVideos(userClassifications, { channel: 'channel-2' });
+
+                expect(videos).to.exist;
+                expect(videos).to.be.an('array');
+                expect(videos.length).to.be.lte(config.pagination.resultsPerPage);
+
+                videos.forEach((video: any) => {
+                    expect(video).to.have.property('channel', 'channel-2');
+                    expect(video).to.have.property('classification').which.has.property('classificationId').which.is.a('number');
+                    expect(video).to.have.property('classification').which.has.property('layer').which.is.a('number').lessThan(5);
+                    const classification = userClassifications.find(classification => video.classification.classificationId === classification.classificationId);
+                    expect(classification).to.exist;
+                    expect(classification).to.have.property('layer').gte(video.classification.layer);
+                });
+            });
+
+            it('Should return empty array when all videos has classifications but user doesn\'t have any', async function () {
+                const videos = await VideoRepository.getClassifiedVideos([]);
+
+                expect(videos).to.exist;
+                expect(videos).to.be.an('array');
+                expect(videos).to.be.empty;
+            });
+
+            it('Should return empty array when user don\'t have any classifications even when customMatcher matches', async function () {
+                const videos = await VideoRepository.getClassifiedVideos([], { channel: 'channel-2' });
+
+                expect(videos).to.exist;
+                expect(videos).to.be.an('array');
+                expect(videos).to.be.empty;
             });
         });
     });
@@ -603,14 +668,14 @@ describe('Video Repository', function () {
         context('When data is valid', function () {
 
             beforeEach(async function () {
-                await VideoRepository.createMany(videoArr);
+                await VideoRepository.createMany(videos);
             });
 
             it('Should return amount of all documents when no filter provided', async function () {
                 const amount = await VideoRepository.getAmount({});
                 expect(amount).to.exist;
                 expect(amount).to.be.a('number');
-                expect(amount).to.equal(videoArr.length);
+                expect(amount).to.equal(videos.length);
             });
 
             for (const prop in video) {
@@ -619,7 +684,7 @@ describe('Video Repository', function () {
                     expect(amount).to.exist;
                     expect(amount).to.be.a('number');
 
-                    const amountOfRequiredDocuments = videoArr.filter((item: IVideo) => {
+                    const amountOfRequiredDocuments = videos.filter((item: IVideo) => {
                         return item[prop as keyof IVideo] === video[prop as keyof IVideo];
                     }).length;
 
@@ -651,7 +716,7 @@ describe('Video Repository', function () {
 
             beforeEach(async function () {
                 createdVideo = await VideoRepository.create(video);
-                await VideoRepository.createMany(videoArr);
+                await VideoRepository.createMany(videos);
             });
 
             it('Should increase views by 1', async function () {
