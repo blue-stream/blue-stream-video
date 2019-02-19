@@ -9,12 +9,12 @@
     "pretest": "cross-env NODE_ENV=test",
     "test:validation": "cross-env NODE_ENV=test mocha --recursive -r ts-node/register \"src/**/*.validator.spec.ts\" --exit",
     "test:integration": "cross-env NODE_ENV=test mocha --recursive -r ts-node/register \"src/**/*.router.spec.ts\" --exit",
-    "test:repository": "cross-env NODE_ENV=test mocha --recursive -r ts-node/register \"src/**/*.repository.spec.ts\" --exit",
+    "test:repository": "cross-env NODE_ENV=test mocha --timeout 5000 --recursive -r ts-node/register \"src/**/*.repository.spec.ts\" --exit",
     "test:coverage": "cross-env NODE_ENV=test nyc npm test",
     "coverage-test": "cross-env NODE_ENV=test nyc check-coverage --lines 95 --functions 95 --branches 95",
     "tslint": "tslint -c tslint.json -p tsconfig.json"
   },
-  "author": "Ron Borysovski, Almog Vagman & Yonatan Tal",
+  "author": "Ron Borysovski & Yuval Assa",
   "license": "ISC",
   "devDependencies": {
     "@types/amqplib": "^0.5.8",
