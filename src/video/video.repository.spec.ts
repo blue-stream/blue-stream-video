@@ -13,8 +13,8 @@ import { generateVideos } from '../mocks/videos';
 import { IClassificationSource } from '../source-classification/source-classification.interface';
 import { IUserClassification } from '../user-classification/user-classification.interface';
 
-const videos: IVideo[] = generateVideos(2000);
-const classificationSources = generateClassificationSources(8000);
+const videos: IVideo[] = generateVideos(200);
+const classificationSources = generateClassificationSources(100);
 const userClassifications = generateUserClassifications(20);
 
 const validId: string = new mongoose.Types.ObjectId().toHexString();
@@ -513,7 +513,7 @@ describe('Video Repository', function () {
                         return item[prop as keyof IVideo] === video[prop as keyof IVideo];
                     }).length;
 
-                    expect(documents).to.have.lengthOf(Math.min(amountOfRequiredDocuments, config.pagination.resultsPerPage));
+                    expect(documents.length).to.have.lte(Math.min(amountOfRequiredDocuments, config.pagination.resultsPerPage));
                 });
             }
 

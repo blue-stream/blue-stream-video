@@ -8,7 +8,7 @@ export function generateVideos(amount: number): IVideo[] {
             title: `title-${index}`,
             owner: `owner@${index}`,
             description: `description-${index}`,
-            classificationSource: getRandomInt(0, 2000),
+            classificationSource: getRandomInt(0, 100),
         };
 
         return video as IVideo;
