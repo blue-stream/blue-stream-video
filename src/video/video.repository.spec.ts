@@ -671,6 +671,12 @@ describe('Video Repository', function () {
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
                 expect(documents).to.have.lengthOf(videosArr.length);
+
+                documents.forEach(function (doc) {
+                    for (const prop in video) {
+                        expect(doc).to.have.property(prop);
+                    }
+                });
             });
 
             it('Should return a video that contains \'OFFICIAL\' in title', async function () {
@@ -678,6 +684,12 @@ describe('Video Repository', function () {
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
                 expect(documents).to.have.lengthOf(searchValueInTitleDescTags('OFFICIAL', videosArr));
+
+                documents.forEach(function (doc) {
+                    for (const prop in video) {
+                        expect(doc).to.have.property(prop);
+                    }
+                });
             });
 
             it('Should return a video that contains \'music\' in tag', async function () {
@@ -685,6 +697,12 @@ describe('Video Repository', function () {
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
                 expect(documents).to.have.lengthOf(searchValueInTitleDescTags('music', videosArr));
+
+                documents.forEach(function (doc) {
+                    for (const prop in video) {
+                        expect(doc).to.have.property(prop);
+                    }
+                });
             });
 
             it('Should return a video that contains \'Back Home\' in description', async function () {
@@ -692,6 +710,12 @@ describe('Video Repository', function () {
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
                 expect(documents).to.have.lengthOf(searchValueInTitleDescTags('Back Home', videosArr));
+
+                documents.forEach(function (doc) {
+                    for (const prop in video) {
+                        expect(doc).to.have.property(prop);
+                    }
+                });
             });
 
             it('Should return all videos that have \'I\' in title/tag/desctiption', async function () {
@@ -699,6 +723,12 @@ describe('Video Repository', function () {
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
                 expect(documents).to.have.lengthOf(searchValueInTitleDescTags('I', videosArr));
+
+                documents.forEach(function (doc) {
+                    for (const prop in video) {
+                        expect(doc).to.have.property(prop);
+                    }
+                });
             });
 
             it('Should return all videos that have \'Imagine\' in title/tag/desctiption', async function () {
@@ -706,6 +736,12 @@ describe('Video Repository', function () {
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
                 expect(documents).to.have.lengthOf(searchValueInTitleDescTags('Imagine', videosArr));
+
+                documents.forEach(function (doc) {
+                    for (const prop in video) {
+                        expect(doc).to.have.property(prop);
+                    }
+                });
             });
 
             it('Should return an empty array when searchFilter is not present in any videos\' title/tag/desctiption', async function () {
@@ -713,6 +749,12 @@ describe('Video Repository', function () {
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
                 expect(documents).to.have.lengthOf(searchValueInTitleDescTags('aaaaaa', videosArr));
+
+                documents.forEach(function (doc) {
+                    for (const prop in video) {
+                        expect(doc).to.have.property(prop);
+                    }
+                });
             });
         });
     });
