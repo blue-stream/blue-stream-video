@@ -1,22 +1,21 @@
 import { expect } from 'chai';
 import * as mongoose from 'mongoose';
 import { config } from '../config';
-import { generateClassificationSources } from '../mocks/classificationSources';
-import { generateUserClassifications } from '../mocks/userClassifications';
+import { getClassificationSources } from '../mocks/classificationSources';
+import { getUserClassifications } from '../mocks/userClassifications';
+import { getVideos } from '../mocks/videos';
+import { IClassificationSource } from '../source-classification/source-classification.interface';
 import { ClassificationSourceModel } from '../source-classification/source-classification.model';
+import { IUserClassification } from '../user-classification/user-classification.interface';
 import { ServerError } from '../utils/errors/applicationError';
 import { getRandomInt } from '../utils/random';
 import { IVideo, VideoStatus } from './video.interface';
 import { VideoModel } from './video.model';
 import { VideoRepository } from './video.repository';
-import { generateVideos } from '../mocks/videos';
-import { IClassificationSource } from '../source-classification/source-classification.interface';
-import { IUserClassification } from '../user-classification/user-classification.interface';
 
-const videos: IVideo[] = generateVideos(200);
-const classificationSources = generateClassificationSources(100);
-const userClassifications = generateUserClassifications(20);
-
+const videos: IVideo[] = getVideos();
+const classificationSources = getClassificationSources();
+const userClassifications = getUserClassifications();
 const validId: string = new mongoose.Types.ObjectId().toHexString();
 const invalidId: string = 'invalid id';
 const invalidVideo: Partial<IVideo> = {
@@ -489,18 +488,21 @@ describe('Video Repository', function () {
 
         context('When data is valid', function () {
 
-            const userClassifications = generateUserClassifications(videos.length);
-
             beforeEach(async function () {
                 await VideoRepository.createMany(videos);
                 await ClassificationSourceModel.insertMany(classificationSources);
             });
 
             it('Should return all documents when filter is empty', async function () {
-                const documents = await VideoRepository.getMany({}, userClassifications);
+                const documents = await VideoRepository.getMany({}, userClassifications, 0, videos.length);
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
-                expect(documents).to.have.lengthOf(config.pagination.resultsPerPage);
+
+                const expectedResults = classificationSources.filter((source) => {
+                    return !!userClassifications.find(c => c.classificationId === source.classificationId && c.layer >= source.layer);
+                }).length;
+
+                expect(documents).to.have.lengthOf(expectedResults);
             });
 
             for (const prop in video) {
@@ -536,7 +538,7 @@ describe('Video Repository', function () {
 
                 await VideoRepository.createMany(videos);
 
-                const result = await VideoRepository.getMany({}, userClassifications);
+                const result = await VideoRepository.getMany({}, []);
 
                 expect(result).to.exist;
                 expect(result).to.be.an('array');
@@ -613,13 +615,18 @@ describe('Video Repository', function () {
             });
 
             it('Should return all classified videos when no custom matcher', async function () {
-                const videos = await VideoRepository.getClassifiedVideos(userClassifications);
+                const classifiedVideos = await VideoRepository.getClassifiedVideos(userClassifications, undefined, 0, videos.length);
 
-                expect(videos).to.exist;
-                expect(videos).to.be.an('array');
-                expect(videos.length).to.be.lte(config.pagination.resultsPerPage);
+                expect(classifiedVideos).to.exist;
+                expect(classifiedVideos).to.be.an('array');
 
-                videos.forEach((video: any) => {
+                const expectedResults = classificationSources.filter((source) => {
+                    return !!userClassifications.find(c => c.classificationId === source.classificationId && c.layer >= source.layer);
+                }).length;
+
+                expect(classifiedVideos).to.have.lengthOf(expectedResults);
+
+                classifiedVideos.forEach((video: any) => {
                     expect(video).to.have.property('classification').which.has.property('classificationId').which.is.a('number');
                     expect(video).to.have.property('classification').which.has.property('layer').which.is.a('number').lessThan(5);
                     const classification = userClassifications.find(classification => video.classification.classificationId === classification.classificationId);
@@ -629,13 +636,23 @@ describe('Video Repository', function () {
             });
 
             it('Should return classified videos filtered by channel', async function () {
-                const videos = await VideoRepository.getClassifiedVideos(userClassifications, { channel: 'channel-2' });
+                const classifiedVideos = await VideoRepository.getClassifiedVideos(userClassifications, { channel: 'channel-2' }, 0, videos.length);
 
-                expect(videos).to.exist;
-                expect(videos).to.be.an('array');
-                expect(videos.length).to.be.lte(config.pagination.resultsPerPage);
+                expect(classifiedVideos).to.exist;
+                expect(classifiedVideos).to.be.an('array');
 
-                videos.forEach((video: any) => {
+                const permittedSources = classificationSources.filter((source) => {
+                    return (!!userClassifications.find(c => c.classificationId === source.classificationId && c.layer >= source.layer));
+                }).map(s => s._id);
+
+                const expectedResults = videos.filter((video: IVideo) => (
+                    video.channel === 'channel-2' &&
+                    !!permittedSources.find(source => source === video.classificationSource)
+                )).length;
+
+                expect(classifiedVideos).to.have.lengthOf(expectedResults);
+
+                classifiedVideos.forEach((video: any) => {
                     expect(video).to.have.property('channel', 'channel-2');
                     expect(video).to.have.property('classification').which.has.property('classificationId').which.is.a('number');
                     expect(video).to.have.property('classification').which.has.property('layer').which.is.a('number').lessThan(5);
