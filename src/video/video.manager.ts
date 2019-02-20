@@ -1,7 +1,7 @@
 import { IVideo } from './video.interface';
 import { VideoRepository } from './video.repository';
 import { VideoBroker } from './video.broker';
-import { UserClassificationManager } from '../user-classification/user-classification.manager';
+import { UserClassificationManager } from '../classification/user/user-classification.manager';
 
 export class VideoManager implements VideoRepository {
     static create(video: IVideo) {

@@ -1,4 +1,4 @@
-import { IClassificationSource } from '../source-classification/source-classification.interface';
+import { IClassificationSource } from '../classification/source/classification-source.interface';
 import { getUserClassifications } from './userClassifications';
 
 export function getClassificationSources(): IClassificationSource[] {

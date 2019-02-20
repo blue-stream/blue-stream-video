@@ -2,7 +2,7 @@ import { IVideo } from './video.interface';
 import { VideoModel } from './video.model';
 import { ServerError } from '../utils/errors/applicationError';
 import { config } from '../config';
-import { IUserClassification } from '../user-classification/user-classification.interface';
+import { IUserClassification } from '../classification/user/user-classification.interface';
 import { VideoAggregator } from './video.aggregator';
 
 export class VideoRepository {
