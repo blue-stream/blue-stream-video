@@ -1,4 +1,4 @@
-import { config } from '../config';
+import { config } from '../../config';
 import { IUserClassification } from './user-classification.interface';
 import { UserClassificationRepository } from './user-classification.repository';
 import { UserClassificationService } from './user-classification.service';

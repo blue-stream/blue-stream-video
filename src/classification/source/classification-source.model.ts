@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { IClassificationSource } from './source-classification.interface';
+import { IClassificationSource } from './classification-source.interface';
 
 const classificationSourceSchema: mongoose.Schema = new mongoose.Schema(
     {

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as mongoose from 'mongoose';
-import { config } from '../config';
+import { config } from '../../config';
 import { UserClassificationsServiceMock } from './user-classification.service.mock';
 import { UserClassificationModel } from './user-classification.model';
 import { UserClassificationManager } from './user-classification.manager';

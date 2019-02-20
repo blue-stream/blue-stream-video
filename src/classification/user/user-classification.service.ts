@@ -1,4 +1,4 @@
-import { HttpClient } from '../utils/http.client';
+import { HttpClient } from '../../utils/http.client';
 import { IUserClassification } from './user-classification.interface';
 
 interface UserPermissions {
