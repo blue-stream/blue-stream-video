@@ -1,5 +1,5 @@
 import * as MockAdapter from 'axios-mock-adapter';
-import { HttpClient } from '../../utils/http.client';
+import { ClassificationHttpClient } from '../classification-http.client';
 import { stringify } from 'querystring';
 
 export class UserClassificationsServiceMock {
@@ -7,7 +7,7 @@ export class UserClassificationsServiceMock {
     private static mock: any;
 
     static startMock() {
-        UserClassificationsServiceMock.mock = new MockAdapter.default(HttpClient.axiosInstance);
+        UserClassificationsServiceMock.mock = new MockAdapter.default(ClassificationHttpClient.axiosInstance);
 
         UserClassificationsServiceMock.mock.onGet(`/userPermissions?${stringify({ userName: 'c@moreThenLittle' })}`).reply(200, {
             classification: 3,

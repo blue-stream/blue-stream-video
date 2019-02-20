@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 import { stringify } from 'querystring';
 import { config } from '../config';
 
-export class HttpClient {
+export class ClassificationHttpClient {
     static axiosInstance: AxiosInstance = axios.create({
         baseURL: config.classifications.serviceApi,
         headers: {
@@ -11,6 +11,6 @@ export class HttpClient {
     });
 
     static async get(url: string, query?: any) {
-        return (await HttpClient.axiosInstance.get(`${url}?${stringify(query)}`)).data;
+        return (await ClassificationHttpClient.axiosInstance.get(`${url}?${stringify(query)}`)).data;
     }
 }

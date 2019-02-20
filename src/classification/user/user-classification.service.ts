@@ -1,4 +1,4 @@
-import { HttpClient } from '../../utils/http.client';
+import { ClassificationHttpClient } from '../classification-http.client';
 import { IUserClassification } from './user-classification.interface';
 
 interface UserPermissions {
@@ -10,7 +10,7 @@ interface UserPermissions {
 
 export class UserClassificationService {
     static async fetchUserClassifications(userId: string): Promise<IUserClassification[] | undefined> {
-        const result: UserPermissions = await HttpClient.get('/userPermissions', { userName: userId }).catch(() => undefined);
+        const result: UserPermissions = await ClassificationHttpClient.get('/userPermissions', { userName: userId }).catch(() => undefined);
         return result ? result.classificationsAllow.map((classification) => {
             return {
                 classificationId: classification.classificationId,
