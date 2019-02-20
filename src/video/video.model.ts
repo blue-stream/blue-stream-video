@@ -76,6 +76,10 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        classificationSource: {
+            type: Number,
+            ref: 'ClassificationSource',
+        },
     },
     {
         autoIndex: false,

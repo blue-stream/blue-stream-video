@@ -2,6 +2,8 @@ import { IVideo } from './video.interface';
 import { VideoModel } from './video.model';
 import { ServerError } from '../utils/errors/applicationError';
 import { config } from '../config';
+import { IUserClassification } from '../classification/user/user-classification.interface';
+import { VideoAggregator } from './video.aggregator';
 
 export class VideoRepository {
     static create(video: IVideo): Promise<IVideo> {
@@ -48,19 +50,41 @@ export class VideoRepository {
         ).exec();
     }
 
-    static getMany(
-        videoFilter: Partial<IVideo>,
+    static getClassifiedVideos(
+        userClassifications: IUserClassification[],
+        customMatcher?: Object,
         startIndex: number = 0,
         endIndex: number = config.pagination.resultsPerPage,
-        sortOrder: '-' | '' = '-',
-        sortBy: string = 'views',
+        sortOrder: -1 | 1 = -1,
+        sortBy: keyof IVideo = 'views',
+    ) {
+        return VideoModel.aggregate([
+            ...customMatcher
+                ? [{ $match: customMatcher }]
+                : [],
+            ...VideoAggregator.getClassificationsAggregator(userClassifications),
+            { $sort: { [sortBy]: sortOrder } },
+            { $skip: startIndex },
+            { $limit: endIndex - startIndex },
+        ]).exec();
+    }
+
+    static getMany(
+        videoFilter: Partial<IVideo>,
+        userClassifications: IUserClassification[],
+        startIndex: number = 0,
+        endIndex: number = config.pagination.resultsPerPage,
+        sortOrder: -1 | 1 = -1,
+        sortBy: keyof IVideo = 'views',
     ): Promise<IVideo[]> {
-        return VideoModel
-            .find(videoFilter)
-            .sort(sortOrder + sortBy)
-            .skip(startIndex)
-            .limit(endIndex - startIndex)
-            .exec();
+        return VideoRepository.getClassifiedVideos(
+            userClassifications,
+            videoFilter,
+            startIndex,
+            endIndex,
+            sortOrder,
+            sortBy,
+        );
     }
 
     static getAmount(videoFilter: Partial<IVideo>): Promise<number> {

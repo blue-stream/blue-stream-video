@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "tsc && cross-env NODE_ENV=production node ./dist/index.js",
-    "test": "mocha --recursive -r ts-node/register src/**/*.spec.ts --exit",
+    "test": "mocha --recursive -r ts-node/register \"src/**/*.spec.ts\" --exit",
     "pretest": "cross-env NODE_ENV=test",
     "test:validation": "cross-env NODE_ENV=test mocha --recursive -r ts-node/register \"src/**/*.validator.spec.ts\" --exit",
     "test:integration": "cross-env NODE_ENV=test mocha --recursive -r ts-node/register \"src/**/*.router.spec.ts\" --exit",
@@ -30,6 +30,7 @@
     "@types/passport": "^0.4.6",
     "@types/passport-jwt": "^3.0.1",
     "@types/supertest": "^2.0.5",
+    "axios-mock-adapter": "^1.16.0",
     "chai": "^4.1.2",
     "cross-env": "^5.2.0",
     "jsonwebtoken": "^8.3.0",
@@ -44,6 +45,7 @@
   },
   "dependencies": {
     "amqplib": "^0.5.2",
+    "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
     "helmet": "^3.12.1",
@@ -52,6 +54,7 @@
     "mongoose": "^5.2.7",
     "morgan": "^1.9.1",
     "passport": "^0.4.0",
-    "passport-jwt": "^4.0.0"
+    "passport-jwt": "^4.0.0",
+    "querystring": "^0.2.0"
   }
 }

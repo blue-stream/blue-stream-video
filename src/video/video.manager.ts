@@ -1,6 +1,7 @@
 import { IVideo } from './video.interface';
 import { VideoRepository } from './video.repository';
 import { VideoBroker } from './video.broker';
+import { UserClassificationManager } from '../classification/user/user-classification.manager';
 
 export class VideoManager implements VideoRepository {
     static create(video: IVideo) {
@@ -33,8 +34,9 @@ export class VideoManager implements VideoRepository {
         return VideoRepository.getOne(videoFilter);
     }
 
-    static getMany(videoFilter: Partial<IVideo>) {
-        return VideoRepository.getMany(videoFilter);
+    static async getMany(userId: string, videoFilter: Partial<IVideo>) {
+        const userClassifications = await UserClassificationManager.getUserClassifications(userId);
+        return VideoRepository.getMany(videoFilter, userClassifications);
     }
 
     static getAmount(videoFilter: Partial<IVideo>) {
