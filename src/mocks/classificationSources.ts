@@ -1,13 +1,21 @@
 import { IClassificationSource } from '../source-classification/source-classification.interface';
-import { getRandomInt } from '../utils/random';
+import { getUserClassifications } from './userClassifications';
 
-export function generateClassificationSources(amount: number) {
-    return Array.from({ length: amount }, (_, index: number) => {
-        return {
-            _id: index,
-            classificationId: getRandomInt(0, 200),
-            layer: getRandomInt(0, 4),
-            name: `classification-source-${index}`,
-        } as IClassificationSource;
-    });
+export function getClassificationSources(): IClassificationSource[] {
+    const maxLayers = 5;
+    const classificationSources: IClassificationSource[] = [];
+    const userClassifications = getUserClassifications();
+
+    for (let i = 0; i < userClassifications.length * maxLayers; i++) {
+        for (let j = 0; j < maxLayers; j++) {
+            classificationSources.push({
+                _id: i * maxLayers + j,
+                name: `source-${i}`,
+                classificationId: i,
+                layer: j,
+            } as IClassificationSource);
+        }
+    }
+
+    return classificationSources;
 }

@@ -1,19 +1,11 @@
 import { IUserClassification } from '../user-classification/user-classification.interface';
-import { getRandomInt } from '../utils/random';
 
-export function generateUserClassifications(amount: number) {
-    const userClassifications: IUserClassification[] = [];
-    while (userClassifications.length < amount) {
-        const random = getRandomInt(0, Math.max(200, amount));
-
-        if (!userClassifications.find(u => u.classificationId === random)) {
-            userClassifications.push({
-                classificationId: getRandomInt(0, 200),
-                layer: getRandomInt(0, 4),
-                user: 'test@user',
-            } as IUserClassification);
-        }
-    }
-
-    return userClassifications;
+export function getUserClassifications(): IUserClassification[] {
+    return [
+        { classificationId: 1, layer: 4, user: 'a@a' },
+        { classificationId: 2, layer: 3, user: 'a@a' },
+        { classificationId: 3, layer: 2, user: 'a@a' },
+        { classificationId: 4, layer: 1, user: 'a@a' },
+        { classificationId: 5, layer: 0, user: 'a@a' },
+    ];
 }
