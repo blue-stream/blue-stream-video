@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "tsc && cross-env NODE_ENV=production node ./dist/index.js",
-    "test": "mocha --recursive -r ts-node/register src/**/*.spec.ts --exit",
+    "test": "mocha --recursive -r ts-node/register \"src/**/*.spec.ts\" --exit",
     "pretest": "cross-env NODE_ENV=test",
     "test:validation": "cross-env NODE_ENV=test mocha --recursive -r ts-node/register \"src/**/*.validator.spec.ts\" --exit",
     "test:integration": "cross-env NODE_ENV=test mocha --recursive -r ts-node/register \"src/**/*.router.spec.ts\" --exit",
