@@ -16,6 +16,10 @@ import { VideoRepository } from './video.repository';
 const videos: IVideo[] = getVideos();
 const classificationSources = getClassificationSources();
 const userClassifications = getUserClassifications();
+const permittedSources = classificationSources.filter((source) => {
+    return (!!userClassifications.find(c => c.classificationId === source.classificationId && c.layer >= source.layer));
+}).map(s => s._id);
+
 const validId: string = new mongoose.Types.ObjectId().toHexString();
 const invalidId: string = 'invalid id';
 const invalidVideo: Partial<IVideo> = {
@@ -723,6 +727,93 @@ describe('Video Repository', function () {
                 expect(amount).to.exist;
                 expect(amount).to.be.a('number');
                 expect(amount).to.equal(0);
+            });
+        });
+    });
+
+    describe('#getSearched()', function () {
+        context('When data is valid', function () {
+            beforeEach(async function () {
+                await VideoRepository.createMany(videos);
+                await ClassificationSourceModel.insertMany(classificationSources);
+            });
+
+            it('Should return all videos when searchFilter is empty', async function () {
+                const documents = await VideoRepository.getSearched(userClassifications, '', 0, videos.length);
+                expect(documents).to.exist;
+                expect(documents).to.be.an('array');
+
+                const expectedResults = videos.filter((video) => {
+                    return !!permittedSources.find(s => s === video.classificationSource);
+                }).length;
+
+                expect(documents).to.have.lengthOf(expectedResults);
+            });
+
+            it('Should return videos filtered by title', async function () {
+                const filteredVideos = await VideoRepository.getSearched(userClassifications, 'title-1', 0, videos.length);
+                expect(filteredVideos).to.exist;
+                expect(filteredVideos).to.be.an('array');
+
+                const expectedResults = videos.filter(video => (
+                    video.title.includes('title-1') &&
+                    !!permittedSources.find(s => s === video.classificationSource)
+                )).length;
+
+                expect(filteredVideos).to.have.lengthOf(expectedResults);
+            });
+
+            it('Should return videos filtered by tags', async function () {
+                const filteredVideos = await VideoRepository.getSearched(userClassifications, 'tag-special', 0, videos.length);
+                expect(filteredVideos).to.exist;
+                expect(filteredVideos).to.be.an('array');
+
+                const expectedResults = videos.filter((video) => {
+                    return (
+                        video.tags!.some(tag => tag.includes('tag-special')) &&
+                        !!permittedSources.find(s => s === video.classificationSource)
+                    );
+                }).length;
+
+                expect(filteredVideos).to.have.lengthOf(expectedResults);
+            });
+
+            it('Should return videos filtered by description', async function () {
+                const filteredVideos = await VideoRepository.getSearched(userClassifications, 'sc-12', 0, videos.length);
+                expect(filteredVideos).to.exist;
+                expect(filteredVideos).to.be.an('array');
+
+                const expectedResults = videos.filter(video => (
+                    video.description.includes('sc-12') &&
+                    !!permittedSources.find(s => s === video.classificationSource)
+                )).length;
+
+                expect(filteredVideos).to.have.lengthOf(expectedResults);
+            });
+
+            it('Should return videos filtered by title / tags / description', async function () {
+                const filteredVideos = await VideoRepository.getSearched(userClassifications, 'i', 0, videos.length);
+                expect(filteredVideos).to.exist;
+                expect(filteredVideos).to.be.an('array');
+
+                const expectedResults = videos.filter((video: IVideo) => {
+                    return (
+                        (
+                            video.title.includes('i') ||
+                            video.description.includes('i') ||
+                            video.tags!.some(t => t.includes('i'))
+                        ) && !!permittedSources.find(s => s === video.classificationSource)
+                    );
+                }).length;
+
+                expect(filteredVideos).to.have.lengthOf(expectedResults);
+            });
+
+            it('Should return empty array when search term not satesfies', async function () {
+                const filteredVideos = await VideoRepository.getSearched(userClassifications, 'unexisting video', 0, videos.length);
+                expect(filteredVideos).to.exist;
+                expect(filteredVideos).to.be.an('array');
+                expect(filteredVideos).to.be.empty;
             });
         });
     });
