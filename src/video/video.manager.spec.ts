@@ -7,7 +7,7 @@ import { IVideo } from './video.interface';
 import { UserClassificationsServiceMock } from '../classification/user/user-classification.service.mock';
 import { expect } from 'chai';
 import { IClassificationSource } from '../classification/source/classification-source.interface';
-import { UnauthorizedError } from '../utils/errors/userErrors';
+import { UnauthorizedError, VideoValidationFailedError } from '../utils/errors/userErrors';
 
 describe('Video Manager', function () {
     before(async function () {
@@ -23,6 +23,33 @@ describe('Video Manager', function () {
     afterEach(async function () {
         await VideoModel.deleteMany({}).exec();
         await ClassificationSourceModel.deleteMany({}).exec();
+    });
+
+    describe('#create()', function () {
+        context('When data is valid', function () {
+            it('Should create video when classification exists', async function () {
+                await ClassificationSourceModel.create({ _id: 500000, name: 'a', layer: 1, classificationId: 1 } as IClassificationSource);
+                const video = await VideoManager.create({ title: 'title', owner: '2@2', channel: 'a', classificationSource: 500000 } as IVideo);
+                expect(video).to.exist;
+                expect(video).to.have.property('classificationSource', 500000);
+            });
+        });
+
+        context('When data is invalid', function () {
+            it('Should throw error when requested classification not exists', async function () {
+                let hasThrown = false;
+
+                try {
+                    await VideoManager.create({ title: 'title', owner: '2@2', channel: 'a', classificationSource: 500000 } as IVideo);
+                } catch (err) {
+                    expect(err).to.exist;
+                    expect(err).to.be.instanceOf(VideoValidationFailedError);
+                    hasThrown = true;
+                } finally {
+                    expect(hasThrown).to.be.true;
+                }
+            });
+        });
     });
 
     describe('#getById()', function () {
