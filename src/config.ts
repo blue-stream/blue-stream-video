@@ -1,3 +1,5 @@
+import { IVideo } from './video/video.interface';
+
 export const config = {
     rpc: {
         port: +(process.env.RPC_PORT || 3001),
@@ -42,10 +44,16 @@ export const config = {
     viewDebounceDuration: +(process.env.VIEW_DEBOUNCE_DURATION || 15), // minutes,
     pagination: {
         resultsPerPage: 20,
+        startIndex: 0,
+        endIndex: 20,
     },
     classifications: {
         serviceApi: process.env.CLASSIFICATIONS_API || 'http://localhost:5006/classificationservice/api',
         token: process.env.CLASSIFICATIONS_API_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.B3bRU1r3QAooc974CfHtGwQUYIUjEV4wywoO0bvOO0E',
         expirationDays: +(process.env.CLASSIFICATIONS_EXPIRATION_DAYS || 3), // Days
+    },
+    sort: {
+        sortOrder: -1 as -1 | 1,
+        sortBy: 'createdAt' as keyof IVideo,
     },
 };
