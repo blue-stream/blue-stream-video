@@ -93,6 +93,30 @@ export class VideoRepository {
             .exec();
     }
 
+    static getSearched(
+        userClassifications: IUserClassification[] = [],
+        searchFilter: string = '',
+        startIndex: number = config.pagination.startIndex,
+        endIndex: number = config.pagination.endIndex,
+        sortOrder: -1 | 1 = config.sort.sortOrder,
+        sortBy: keyof IVideo = config.sort.sortBy) {
+
+        return VideoRepository.getClassifiedVideos(
+            userClassifications,
+            {
+                $or: [
+                    { title: { $regex: searchFilter, $options: 'i' } },
+                    { tags: { $elemMatch: { $regex: searchFilter, $options: 'i' } } },
+                    { description: { $regex: searchFilter, $options: 'i' } },
+                ],
+            },
+            startIndex,
+            endIndex,
+            sortOrder,
+            sortBy,
+        );
+    }
+
     static increaseViews(id: string): Promise<IVideo | null> {
         return VideoModel.findByIdAndUpdate(
             id,

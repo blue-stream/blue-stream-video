@@ -42,4 +42,23 @@ export class VideoManager implements VideoRepository {
     static getAmount(videoFilter: Partial<IVideo>) {
         return VideoRepository.getAmount(videoFilter);
     }
+
+    static async getSearched(
+        userId: string,
+        searchFilter: string,
+        startIndex?: number,
+        endIndex?: number,
+        sortOrder?: -1 | 1,
+        sortBy?: keyof IVideo) {
+        const userClassifications = await UserClassificationManager.getUserClassifications(userId);
+
+        return VideoRepository.getSearched(
+            userClassifications,
+            searchFilter,
+            startIndex,
+            endIndex,
+            sortOrder,
+            sortBy,
+        );
+    }
 }
