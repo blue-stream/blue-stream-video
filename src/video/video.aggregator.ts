@@ -24,9 +24,8 @@ export class VideoAggregator {
         return (classificationQuery && classificationQuery.length > 0)
             ? [{
                 $match: {
-                    classification: { $exists: true },
                     $or: [
-                        { 'classification.classificationId': null },
+                        { classificationSource: null },
                         ...classificationQuery,
                     ],
                 },
@@ -57,7 +56,6 @@ export class VideoAggregator {
             {
                 $project: {
                     classificationSourcesArr: 0,
-                    classificationSource: 0,
                     'classification._id': 0,
                     'classification.__v': 0,
                     'classification.name': 0,
