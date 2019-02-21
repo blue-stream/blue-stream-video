@@ -56,4 +56,10 @@ export const config = {
         sortOrder: -1 as -1 | 1,
         sortBy: 'createdAt' as keyof IVideo,
     },
+    validations: {
+        maxTitleLength: 256,
+        minTitleLength: 3,
+        maxDescriptionLength: 5000,
+        userRegex: /^[\w-]+@[\w-]+$/i,
+    },
 };

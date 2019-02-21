@@ -3,11 +3,6 @@ import { IVideo, VideoStatus } from '../video.interface';
 import { config } from '../../config';
 
 export class VideoValidatons {
-    private static readonly maxTitleLength = 256;
-    private static readonly minTitleLength = 3;
-    private static readonly maxDescriptionLength = 5000;
-    private static readonly userRegex = /\w+@\w+/i;
-    private static readonly urlRegex = /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/i;
 
     static isValid(video: IVideo): boolean {
         return !!video &&
@@ -26,8 +21,8 @@ export class VideoValidatons {
         const trimmed = title ? title.trim() : null;
         return (
             !!trimmed &&
-            trimmed.length <= VideoValidatons.maxTitleLength &&
-            trimmed.length >= VideoValidatons.minTitleLength
+            trimmed.length <= config.validations.maxTitleLength &&
+            trimmed.length >= config.validations.minTitleLength
         );
     }
 
@@ -39,11 +34,11 @@ export class VideoValidatons {
 
     static isDescriptionValid(description: string): boolean {
         const trimmed = description ? description.trim() : '';
-        return trimmed.length <= VideoValidatons.maxDescriptionLength;
+        return trimmed.length <= config.validations.maxDescriptionLength;
     }
 
     static isOwnerValid(owner: string): boolean {
-        return VideoValidatons.userRegex.test(owner);
+        return config.validations.userRegex.test(owner);
     }
 
     static isPathValid(path: string, allowedExtensions: string[]) {
