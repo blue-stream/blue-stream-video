@@ -4,10 +4,16 @@ import { VideoBroker } from './video.broker';
 import { UserClassificationManager } from '../classification/user/user-classification.manager';
 import { IClassificationSource } from '../classification/source/classification-source.interface';
 import { IUserClassification } from '../classification/user/user-classification.interface';
-import { UnauthorizedError } from '../utils/errors/userErrors';
+import { UnauthorizedError, VideoValidationFailedError } from '../utils/errors/userErrors';
+import { ClassificationSourceModel } from '../classification/source/classification-source.model';
 
 export class VideoManager implements VideoRepository {
-    static create(video: IVideo) {
+    static async create(video: IVideo) {
+        if (video.classificationSource) {
+            const source = await ClassificationSourceModel.findById(video.classificationSource);
+            if (!source) throw new VideoValidationFailedError();
+        }
+
         return VideoRepository.create(video);
     }
 
