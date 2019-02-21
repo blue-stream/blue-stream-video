@@ -14,7 +14,7 @@
     "coverage-test": "cross-env NODE_ENV=test nyc check-coverage --lines 95 --functions 95 --branches 95",
     "tslint": "tslint -c tslint.json -p tsconfig.json"
   },
-  "author": "Ron Borysovski, Almog Vagman & Yonatan Tal",
+  "author": "Ron Borysovski & Yuval Assa & Almog Vagman Ciprut",
   "license": "ISC",
   "devDependencies": {
     "@types/amqplib": "^0.5.8",
