@@ -23,3 +23,9 @@ export class VideoValidationFailedError extends UserError {
         super(`Video validation failed ${!!field ? 'for field ' + field : ''}`, 400);
     }
 }
+
+export class UnauthorizedError extends UserError {
+    constructor() {
+        super('User is not authorized to the requested resource', 403);
+    }
+}
