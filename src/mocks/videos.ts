@@ -12,6 +12,7 @@ export function getVideos(): IVideo[] {
             title: `title-${i}`,
             owner: `owner@${i}`,
             description: `description-${i}`,
+            tags: [`tag-${i % 5 === 0 ? 'special' : 'normal'}-i`, `tag-${i}`],
         } as IVideo);
     }
 
