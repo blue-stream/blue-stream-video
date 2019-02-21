@@ -15,7 +15,7 @@ export class ViewManager {
         let canView = false;
 
         if (!view) {
-            const vid = await VideoManager.getById(video.toHexString());
+            const vid = await VideoManager.getById(user, video.toHexString());
             if (!vid) throw new VideoNotFoundError();
 
             canView = !!vid;

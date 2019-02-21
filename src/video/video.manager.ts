@@ -2,6 +2,9 @@ import { IVideo } from './video.interface';
 import { VideoRepository } from './video.repository';
 import { VideoBroker } from './video.broker';
 import { UserClassificationManager } from '../classification/user/user-classification.manager';
+import { IClassificationSource } from '../classification/source/classification-source.interface';
+import { IUserClassification } from '../classification/user/user-classification.interface';
+import { UnauthorizedError } from '../utils/errors/userErrors';
 
 export class VideoManager implements VideoRepository {
     static create(video: IVideo) {
@@ -26,8 +29,22 @@ export class VideoManager implements VideoRepository {
         return deleted;
     }
 
-    static getById(id: string) {
-        return VideoRepository.getById(id);
+    static async getById(userId: string, id: string) {
+        const video = await VideoRepository.getById(id);
+        if (video && video.classificationSource) {
+            const videoClassification = video.classificationSource as IClassificationSource;
+            const userClassifications = await UserClassificationManager.getUserClassifications(userId);
+            const hasClassifications = userClassifications.some((classification: IUserClassification) => {
+                return (
+                    classification.classificationId === videoClassification.classificationId ||
+                    classification.layer >= videoClassification.layer
+                );
+            });
+
+            if (!hasClassifications) throw new UnauthorizedError();
+        }
+
+        return video;
     }
 
     static getOne(videoFilter: Partial<IVideo>) {
