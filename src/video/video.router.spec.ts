@@ -4,11 +4,13 @@ import * as mongoose from 'mongoose';
 import * as request from 'supertest';
 import { config } from '../config';
 import { Server } from '../server';
-import { IdInvalidError, VideoNotFoundError, VideoValidationFailedError } from '../utils/errors/userErrors';
+import { IdInvalidError, VideoNotFoundError, VideoValidationFailedError, UnauthorizedError } from '../utils/errors/userErrors';
 import { IVideo } from './video.interface';
 import { VideoManager } from './video.manager';
 import * as rabbit from '../utils/rabbit';
 import { VideoModel } from './video.model';
+import { ClassificationSourceModel } from '../classification/source/classification-source.model';
+import { IClassificationSource } from '../classification/source/classification-source.interface';
 
 describe('Video Module', function () {
     let server: Server;
@@ -449,8 +451,13 @@ describe('Video Module', function () {
 
         context('When request is invalid', function () {
             beforeEach(async function () {
+                await ClassificationSourceModel.create({ _id: 500, name: 'a', classificationId: 1, layer: 4 } as IClassificationSource);
+                returnedVideo = await VideoManager.create({ ...video, classificationSource: 500 });
+            });
+
+            afterEach(async function () {
                 await VideoModel.deleteMany({}).exec();
-                returnedVideo = await VideoManager.create(video);
+                await ClassificationSourceModel.deleteMany({}).exec();
             });
 
             it('Should return error status when id is invalid', function (done: MochaDone) {
@@ -466,6 +473,24 @@ describe('Video Module', function () {
                         expect(res.body).to.be.an('object');
                         expect(res.body).to.have.property('type', IdInvalidError.name);
                         expect(res.body).to.have.property('message', new IdInvalidError().message);
+
+                        done();
+                    });
+            });
+
+            it('Should return 403 error code when user is not permitted to watch video', function (done: MochaDone) {
+                request(server.app)
+                    .get(`/api/video/${returnedVideo.id}`)
+                    .set({ authorization: authorizationHeader })
+                    .expect(403)
+                    .expect('Content-Type', /json/)
+                    .end((error: Error, res: request.Response) => {
+                        expect(error).to.not.exist;
+                        expect(res.status).to.equal(403);
+                        expect(res).to.have.property('body');
+                        expect(res.body).to.be.an('object');
+                        expect(res.body).to.have.property('type', UnauthorizedError.name);
+                        expect(res.body).to.have.property('message', new UnauthorizedError().message);
 
                         done();
                     });

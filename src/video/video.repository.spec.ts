@@ -403,9 +403,6 @@ describe('Video Repository', function () {
                 const doc = await VideoRepository.getById(document.id!);
                 expect(doc).to.exist;
                 expect(doc).to.have.property('id', document.id);
-                for (const prop in video) {
-                    expectToHaveEqualProperty(doc!, prop, video[prop as keyof IVideo]);
-                }
             });
 
             it('Should return null when document not exists', async function () {
