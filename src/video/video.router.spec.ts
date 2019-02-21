@@ -329,6 +329,75 @@ describe('Video Module', function () {
         });
     });
 
+    describe('#GET /api/video/search', function () {
+
+        context('When request is valid', function () {
+            beforeEach(async function () {
+                await VideoModel.deleteMany({}).exec();
+                await VideoManager.createMany(videos);
+            });
+
+            it('Should return all videos when searchFilter is empty', function (done: MochaDone) {
+                request(server.app)
+                    .get(`/api/video/search?searchFilter=`)
+                    .set({ authorization: authorizationHeader })
+                    .expect(200)
+                    .expect('Content-Type', /json/)
+                    .end((error: Error, res: request.Response) => {
+                        expect(error).to.not.exist;
+                        expect(res).to.exist;
+                        expect(res.status).to.equal(200);
+                        expect(res).to.have.property('body');
+                        expect(res.body).to.be.an('array');
+                        const returnedVideos: IVideo[] = res.body;
+                        expect(returnedVideos.length).to.be.equals(videos.length);
+
+                        returnedVideos.forEach(function (vid) {
+                            for (const prop in video) {
+                                expect(vid).to.have.property(prop);
+                            }
+                        });
+
+                        done();
+                    });
+            });
+
+            it('Should return videos filitered by title / tag / desctiption', function (done: MochaDone) {
+                request(server.app)
+                    .get(`/api/video/search?searchFilter=i`)
+                    .set({ authorization: authorizationHeader })
+                    .expect(200)
+                    .expect('Content-Type', /json/)
+                    .end((error: Error, res: request.Response) => {
+                        expect(error).to.not.exist;
+                        expect(res).to.exist;
+                        expect(res.status).to.equal(200);
+                        expect(res).to.have.property('body');
+                        expect(res.body).to.be.an('array');
+
+                        const returnedVideos: IVideo[] = res.body;
+                        const expectedResults = videos.filter((video: IVideo) => {
+                            return (
+                                video.title.includes('i') ||
+                                video.description.includes('i') ||
+                                video.tags!.some(t => t.includes('i'))
+                            );
+                        }).length;
+
+                        expect(returnedVideos).to.have.length(expectedResults);
+
+                        returnedVideos.forEach(function (vid) {
+                            for (const prop in video) {
+                                expect(vid).to.have.property(prop);
+                            }
+                        });
+
+                        done();
+                    });
+            });
+        });
+    });
+
     describe('#GET /api/video/:id', function () {
         let returnedVideo: any;
 
