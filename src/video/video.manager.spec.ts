@@ -90,6 +90,34 @@ describe('Video Manager', function () {
                 expect(video).to.exist;
                 expect(video).to.have.property('title');
             });
+
+            it('Should throw error when user has classifications but not for correct resource', async function () {
+                let hasThrown = false;
+
+                try {
+                    await VideoManager.getById('b@classifications', classifiedVideo.id!);
+                } catch (err) {
+                    expect(err).to.exist;
+                    expect(err).to.be.instanceOf(UnauthorizedError);
+                    hasThrown = true;
+                } finally {
+                    expect(hasThrown).to.be.true;
+                }
+            });
+
+            it('Should throw error when user has classifications to required classificationId but lower layer', async function () {
+                let hasThrown = false;
+
+                try {
+                    await VideoManager.getById('c@lowerLayer', classifiedVideo.id!);
+                } catch (err) {
+                    expect(err).to.exist;
+                    expect(err).to.be.instanceOf(UnauthorizedError);
+                    hasThrown = true;
+                } finally {
+                    expect(hasThrown).to.be.true;
+                }
+            });
         });
     });
 });
