@@ -9,7 +9,7 @@ export function getClassificationSources(): IClassificationSource[] {
     for (let i = 0; i < userClassifications.length * maxLayers; i++) {
         for (let j = 0; j < maxLayers; j++) {
             classificationSources.push({
-                _id: i * maxLayers + j,
+                _id: (i * maxLayers + j) + 1,
                 name: `source-${i}`,
                 classificationId: i,
                 layer: j,

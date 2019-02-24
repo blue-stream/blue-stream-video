@@ -403,9 +403,6 @@ describe('Video Repository', function () {
                 const doc = await VideoRepository.getById(document.id!);
                 expect(doc).to.exist;
                 expect(doc).to.have.property('id', document.id);
-                for (const prop in video) {
-                    expectToHaveEqualProperty(doc!, prop, video[prop as keyof IVideo]);
-                }
             });
 
             it('Should return null when document not exists', async function () {
@@ -502,9 +499,7 @@ describe('Video Repository', function () {
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
 
-                const expectedResults = classificationSources.filter((source) => {
-                    return !!userClassifications.find(c => c.classificationId === source.classificationId && c.layer >= source.layer);
-                }).length;
+                const expectedResults = videos.filter(video => !video.classificationSource || permittedSources.find(s => s === video.classificationSource)).length;
 
                 expect(documents).to.have.lengthOf(expectedResults);
             });
@@ -624,19 +619,9 @@ describe('Video Repository', function () {
                 expect(classifiedVideos).to.exist;
                 expect(classifiedVideos).to.be.an('array');
 
-                const expectedResults = classificationSources.filter((source) => {
-                    return !!userClassifications.find(c => c.classificationId === source.classificationId && c.layer >= source.layer);
-                }).length;
+                const expectedResults = videos.filter(video => !video.classificationSource || permittedSources.find(s => s === video.classificationSource)).length;
 
                 expect(classifiedVideos).to.have.lengthOf(expectedResults);
-
-                classifiedVideos.forEach((video: any) => {
-                    expect(video).to.have.property('classification').which.has.property('classificationId').which.is.a('number');
-                    expect(video).to.have.property('classification').which.has.property('layer').which.is.a('number').lessThan(5);
-                    const classification = userClassifications.find(classification => video.classification.classificationId === classification.classificationId);
-                    expect(classification).to.exist;
-                    expect(classification).to.have.property('layer').gte(video.classification.layer);
-                });
             });
 
             it('Should return classified videos filtered by channel', async function () {
@@ -651,35 +636,30 @@ describe('Video Repository', function () {
 
                 const expectedResults = videos.filter((video: IVideo) => (
                     video.channel === 'channel-2' &&
-                    !!permittedSources.find(source => source === video.classificationSource)
+                    (!video.classificationSource || !!permittedSources.find(source => source === video.classificationSource))
                 )).length;
 
                 expect(classifiedVideos).to.have.lengthOf(expectedResults);
-
-                classifiedVideos.forEach((video: any) => {
-                    expect(video).to.have.property('channel', 'channel-2');
-                    expect(video).to.have.property('classification').which.has.property('classificationId').which.is.a('number');
-                    expect(video).to.have.property('classification').which.has.property('layer').which.is.a('number').lessThan(5);
-                    const classification = userClassifications.find(classification => video.classification.classificationId === classification.classificationId);
-                    expect(classification).to.exist;
-                    expect(classification).to.have.property('layer').gte(video.classification.layer);
-                });
             });
 
-            it('Should return empty array when all videos has classifications but user doesn\'t have any', async function () {
-                const videos = await VideoRepository.getClassifiedVideos([]);
+            it('Should return unclassified videos when user doesn\'t have any classifications', async function () {
+                const classifiedVideos = await VideoRepository.getClassifiedVideos([]);
 
-                expect(videos).to.exist;
-                expect(videos).to.be.an('array');
-                expect(videos).to.be.empty;
+                expect(classifiedVideos).to.exist;
+                expect(classifiedVideos).to.be.an('array');
+
+                const expectedResult = videos.filter((video: IVideo) => !video.classificationSource).length;
+                expect(classifiedVideos).to.have.lengthOf(expectedResult);
             });
 
-            it('Should return empty array when user don\'t have any classifications even when customMatcher matches', async function () {
-                const videos = await VideoRepository.getClassifiedVideos([], { channel: 'channel-2' });
+            it('Should return only unclassified videos even when customMatcher matches', async function () {
+                const classifiedVideos = await VideoRepository.getClassifiedVideos([], { channel: 'channel-2' });
 
-                expect(videos).to.exist;
-                expect(videos).to.be.an('array');
-                expect(videos).to.be.empty;
+                expect(classifiedVideos).to.exist;
+                expect(classifiedVideos).to.be.an('array');
+
+                const expectedResults = videos.filter(video => (!video.classificationSource && video.channel.includes('channel-2'))).length;
+                expect(classifiedVideos).to.have.lengthOf(expectedResults);
             });
         });
     });
@@ -744,7 +724,7 @@ describe('Video Repository', function () {
                 expect(documents).to.be.an('array');
 
                 const expectedResults = videos.filter((video) => {
-                    return !!permittedSources.find(s => s === video.classificationSource);
+                    return !video.classificationSource || !!permittedSources.find(s => s === video.classificationSource);
                 }).length;
 
                 expect(documents).to.have.lengthOf(expectedResults);
@@ -802,7 +782,9 @@ describe('Video Repository', function () {
                             video.title.includes('i') ||
                             video.description.includes('i') ||
                             video.tags!.some(t => t.includes('i'))
-                        ) && !!permittedSources.find(s => s === video.classificationSource)
+                        ) && (!video.classificationSource ||
+                            !!permittedSources.find(s => s === video.classificationSource)
+                        )
                     );
                 }).length;
 

@@ -1,3 +1,5 @@
+import { IClassificationSource } from '../classification/source/classification-source.interface';
+
 export interface IVideo {
     id?: string;
     title: string;
@@ -13,7 +15,7 @@ export interface IVideo {
     tags?: string[];
     published?: boolean;
     publishDate?: Date;
-    classificationSource?: number;
+    classificationSource?: number | IClassificationSource;
 }
 
 export enum VideoStatus {
