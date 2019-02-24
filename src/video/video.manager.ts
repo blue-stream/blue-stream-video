@@ -42,7 +42,7 @@ export class VideoManager implements VideoRepository {
             const userClassifications = await UserClassificationManager.getUserClassifications(userId);
             const hasClassifications = userClassifications.some((classification: IUserClassification) => {
                 return (
-                    classification.classificationId === videoClassification.classificationId ||
+                    classification.classificationId === videoClassification.classificationId &&
                     classification.layer >= videoClassification.layer
                 );
             });
