@@ -73,6 +73,32 @@ export class UserClassificationsServiceMock {
             ],
         });
 
+        UserClassificationsServiceMock.mock.onGet(`/userPermissions?${stringify({ userName: 'b@classifications' })}`).reply(200, {
+            classification: 3,
+            classificationsAllow: [
+                {
+                    classificationId: 1,
+                    classificationLayer: 2,
+                },
+                {
+                    classificationId: 2,
+                    classificationLayer: 4,
+                },
+            ],
+            ppAllow: [],
+        });
+
+        UserClassificationsServiceMock.mock.onGet(`/userPermissions?${stringify({ userName: 'c@lowerLayer' })}`).reply(200, {
+            classification: 3,
+            classificationsAllow: [
+                {
+                    classificationId: 3,
+                    classificationLayer: 0,
+                },
+            ],
+            ppAllow: [],
+        });
+
         UserClassificationsServiceMock.mock.onGet(`/userPermissions?${stringify({ userName: 'a@none' })}`).reply(200, {
             classification: 3,
             classificationsAllow: [],
