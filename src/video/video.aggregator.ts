@@ -71,6 +71,7 @@ export class VideoAggregator {
             ...VideoAggregator.preJoinMatcher(userClassifications),
             ...VideoAggregator.joinClassifications(),
             ...VideoAggregator.postJoinMatcher(userClassifications),
+            { $addFields: { id: '$_id' } },
         ];
     }
 }
