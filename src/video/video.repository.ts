@@ -64,7 +64,7 @@ export class VideoRepository {
                 : [],
             ...VideoAggregator.getClassificationsAggregator(userClassifications),
             { $sort: { [sortBy]: sortOrder } },
-            { $skip: startIndex },
+            { $skip: +startIndex },
             { $limit: endIndex - startIndex },
         ]).exec();
     }
