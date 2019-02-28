@@ -52,6 +52,41 @@ describe('Video Manager', function () {
         });
     });
 
+    describe('#updateById()', function () {
+
+        let classifiedVideo: IVideo;
+
+        beforeEach(async function () {
+            await ClassificationSourceModel.create({ _id: 1, layer: 1, classificationId: 3, name: 'a' } as IClassificationSource);
+            classifiedVideo = await VideoManager.create({ title: 'test', owner: 'a@a', channel: 'a', classificationSource: 1 } as IVideo);
+        });
+
+        context('When data is valid', function () {
+            it('Should update video when classification exists', async function () {
+                await ClassificationSourceModel.create({ _id: 12, name: 'a', layer: 1, classificationId: 1 } as IClassificationSource);
+                const video = await VideoManager.updateById(classifiedVideo.id!, { classificationSource: 12 } as IVideo);
+                expect(video).to.exist;
+                expect(video).to.have.property('classificationSource', 12);
+            });
+        });
+
+        context('When data is invalid', function () {
+            it('Should throw error when requested classification not exists', async function () {
+                let hasThrown = false;
+
+                try {
+                    await VideoManager.updateById(classifiedVideo.id!, { classificationSource: 500000 } as IVideo);
+                } catch (err) {
+                    expect(err).to.exist;
+                    expect(err).to.be.instanceOf(VideoValidationFailedError);
+                    hasThrown = true;
+                } finally {
+                    expect(hasThrown).to.be.true;
+                }
+            });
+        });
+    });
+
     describe('#getById()', function () {
         context('When video is unclassified', function () {
             it('Should return video by id', async function () {
