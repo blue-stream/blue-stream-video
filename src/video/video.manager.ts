@@ -21,7 +21,12 @@ export class VideoManager implements VideoRepository {
         return VideoRepository.createMany(videos);
     }
 
-    static updateById(id: string, video: Partial<IVideo>) {
+    static async updateById(id: string, video: Partial<IVideo>) {
+        if (video.classificationSource) {
+            const source = await ClassificationSourceModel.findById(video.classificationSource);
+            if (!source) throw new VideoValidationFailedError();
+        }
+
         return VideoRepository.updateById(id, video);
     }
 
