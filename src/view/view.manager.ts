@@ -60,4 +60,10 @@ export class ViewManager {
 
         return channelViewMap;
     }
+
+    static async getChannelViews(channelId: string) {
+        const [channelViews] = await VideoRepository.getChannelsViews([channelId]);
+
+        return channelViews ? channelViews.views : 0;
+    }
 }
