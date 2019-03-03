@@ -1,7 +1,7 @@
 {
-  "name": "blue-stream-template",
+  "name": "blue-stream-video",
   "version": "0.0.0",
-  "description": "Blue Stream micro-service template for future services",
+  "description": "A microservice handles video's metadata",
   "main": "index.js",
   "scripts": {
     "start": "tsc && cross-env NODE_ENV=production node ./dist/index.js",
