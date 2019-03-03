@@ -64,6 +64,6 @@ export class ViewManager {
     static async getChannelViews(channelId: string) {
         const [channelViews] = await VideoRepository.getChannelsViews([channelId]);
 
-        return channelViews.views;
+        return channelViews ? channelViews.views : 0;
     }
 }
