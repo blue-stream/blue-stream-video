@@ -1,4 +1,4 @@
-import { IVideo } from './video.interface';
+import { IVideo, VideoStatus } from './video.interface';
 import { VideoRepository } from './video.repository';
 import { VideoBroker } from './video.broker';
 import { UserClassificationManager } from '../classification/user/user-classification.manager';
@@ -64,7 +64,9 @@ export class VideoManager implements VideoRepository {
 
     static async getMany(userId: string, videoFilter: Partial<IVideo>) {
         const userClassifications = await UserClassificationManager.getUserClassifications(userId);
-        return VideoRepository.getMany(videoFilter, userClassifications);
+        let filter = videoFilter;
+        if (userId !== videoFilter.owner) filter = { ...videoFilter, published: true, status: VideoStatus.READY };
+        return VideoRepository.getMany(filter, userClassifications);
     }
 
     static getAmount(videoFilter: Partial<IVideo>) {
@@ -87,6 +89,7 @@ export class VideoManager implements VideoRepository {
             endIndex,
             sortOrder,
             sortBy,
+            { published: true, status: VideoStatus.READY },
         );
     }
 }
