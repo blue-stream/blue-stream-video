@@ -5,7 +5,7 @@ import * as request from 'supertest';
 import { config } from '../config';
 import { Server } from '../server';
 import { IdInvalidError, VideoNotFoundError, VideoValidationFailedError, UnauthorizedError } from '../utils/errors/userErrors';
-import { IVideo } from './video.interface';
+import { IVideo, VideoStatus } from './video.interface';
 import { VideoManager } from './video.manager';
 import * as rabbit from '../utils/rabbit';
 import { VideoModel } from './video.model';
@@ -63,6 +63,13 @@ describe('Video Module', function () {
 
     const videos: IVideo[] =
         [video, video2, video3, video3];
+    
+    const publicVideos = videos.map(video => {
+        video.previewPath = 'AN66SAxZyTsOYDydiDuDzlWvf4cXAxD.gif';
+        video.status = VideoStatus.READY;
+        video.published = true;
+        return video;
+    });
 
     before(async function () {
         await rabbit.connect();
@@ -336,7 +343,7 @@ describe('Video Module', function () {
         context('When request is valid', function () {
             beforeEach(async function () {
                 await VideoModel.deleteMany({}).exec();
-                await VideoManager.createMany(videos);
+                await VideoManager.createMany(publicVideos);
             });
 
             it('Should return all videos when searchFilter is empty', function (done: MochaDone) {
@@ -352,7 +359,7 @@ describe('Video Module', function () {
                         expect(res).to.have.property('body');
                         expect(res.body).to.be.an('array');
                         const returnedVideos: IVideo[] = res.body;
-                        expect(returnedVideos.length).to.be.equals(videos.length);
+                        expect(returnedVideos.length).to.be.equals(publicVideos.length);
 
                         returnedVideos.forEach(function (vid) {
                             for (const prop in video) {
@@ -378,7 +385,7 @@ describe('Video Module', function () {
                         expect(res.body).to.be.an('array');
 
                         const returnedVideos: IVideo[] = res.body;
-                        const expectedResults = videos.filter((video: IVideo) => {
+                        const expectedResults = publicVideos.filter((video: IVideo) => {
                             return (
                                 video.title.includes('i') ||
                                 video.description.includes('i') ||

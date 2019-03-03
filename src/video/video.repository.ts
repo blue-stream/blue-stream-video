@@ -1,4 +1,4 @@
-import { IVideo } from './video.interface';
+import { IVideo, VideoStatus } from './video.interface';
 import { VideoModel } from './video.model';
 import { ServerError } from '../utils/errors/applicationError';
 import { config } from '../config';
@@ -99,11 +99,13 @@ export class VideoRepository {
         startIndex: number = config.pagination.startIndex,
         endIndex: number = config.pagination.endIndex,
         sortOrder: -1 | 1 = config.sort.sortOrder,
-        sortBy: keyof IVideo = config.sort.sortBy) {
+        sortBy: keyof IVideo = config.sort.sortBy,
+        videoFilter: Partial<IVideo> = {}) {
 
         return VideoRepository.getClassifiedVideos(
             userClassifications,
             {
+                ...videoFilter,
                 $or: [
                     { title: { $regex: searchFilter, $options: 'i' } },
                     { tags: { $elemMatch: { $regex: searchFilter, $options: 'i' } } },
