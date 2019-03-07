@@ -5,9 +5,8 @@ export const config = {
         port: +(process.env.RPC_PORT || 3001),
     },
     db: {
-        host: process.env.DB_SERVER || 'localhost',
-        name: process.env.DB_NAME || 'blue-stream-video',
-        port: +(process.env.DB_PORT || 27017),
+        connectionString: `mongodb://${process.env.DB_SERVERS || 'localhost:27017'}/${process.env.VIDEOS_DB_NAME || 'blue-stream-video'}${process.env.DB_REPLICA_NAME ? `?replicaSet=${process.env.DB_REPLICA_NAME}` : ''}`,
+
     },
     logger: {
         durable: false,
