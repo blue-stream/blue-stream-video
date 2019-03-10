@@ -14,7 +14,7 @@ import { IPp } from '../classification/pp/pp.interface';
 describe('Video Manager', function () {
     before(async function () {
         UserClassificationsServiceMock.startMock();
-        await mongoose.connect(`mongodb://${config.db.host}:${config.db.port}/${config.db.name}`, { useNewUrlParser: true });
+        await mongoose.connect(config.db.connectionString, { useNewUrlParser: true });
     });
 
     after(async function () {

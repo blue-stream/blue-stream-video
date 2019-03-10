@@ -15,7 +15,7 @@ const ppsMock: IUserPp[] = [
 describe('Pp Repository', function () {
     before(async function () {
         mongoose.set('useCreateIndex', true);
-        await mongoose.connect(`mongodb://${config.db.host}:${config.db.port}/${config.db.name}`, { useNewUrlParser: true });
+        await mongoose.connect(config.db.connectionString, { useNewUrlParser: true });
     });
 
     afterEach(async function () {
