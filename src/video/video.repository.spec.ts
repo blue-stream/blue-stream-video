@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 import * as mongoose from 'mongoose';
+import { IClassificationSource } from '../classification/source/classification-source.interface';
+import { ClassificationSourceModel } from '../classification/source/classification-source.model';
+import { IUserClassification } from '../classification/user-classification/user-classification.interface';
 import { config } from '../config';
 import { getClassificationSources } from '../mocks/classificationSources';
 import { getUserClassifications } from '../mocks/userClassifications';
 import { getVideos } from '../mocks/videos';
-import { IClassificationSource } from '../classification/source/classification-source.interface';
-import { ClassificationSourceModel } from '../classification/source/classification-source.model';
-import { IUserClassification } from '../classification/user/user-classification.interface';
 import { ServerError } from '../utils/errors/applicationError';
 import { getRandomInt } from '../utils/random';
 import { IVideo, VideoStatus } from './video.interface';

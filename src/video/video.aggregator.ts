@@ -1,5 +1,4 @@
-import { IUserClassification } from '../classification/user/user-classification.interface';
-import { IClassificationSource } from '../classification/source/classification-source.interface';
+import { IUserClassification } from '../classification/user-classification/user-classification.interface';
 
 export class VideoAggregator {
 

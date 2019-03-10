@@ -1,13 +1,13 @@
-import * as mongoose from 'mongoose';
-import { config } from '../config';
-import { VideoModel } from './video.model';
-import { ClassificationSourceModel } from '../classification/source/classification-source.model';
-import { VideoManager } from './video.manager';
-import { IVideo } from './video.interface';
-import { UserClassificationsServiceMock } from '../classification/user/user-classification.service.mock';
 import { expect } from 'chai';
+import * as mongoose from 'mongoose';
+import { UserClassificationsServiceMock } from '../classification/classification.service.mock';
 import { IClassificationSource } from '../classification/source/classification-source.interface';
+import { ClassificationSourceModel } from '../classification/source/classification-source.model';
+import { config } from '../config';
 import { UnauthorizedError, VideoValidationFailedError } from '../utils/errors/userErrors';
+import { IVideo } from './video.interface';
+import { VideoManager } from './video.manager';
+import { VideoModel } from './video.model';
 
 describe('Video Manager', function () {
     before(async function () {

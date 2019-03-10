@@ -1,4 +1,4 @@
-import { IUserClassification } from '../classification/user/user-classification.interface';
+import { IUserClassification } from '../classification/user-classification/user-classification.interface';
 
 export function getUserClassifications(): IUserClassification[] {
     return [

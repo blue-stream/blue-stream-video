@@ -1,9 +1,9 @@
-import { IVideo, VideoStatus } from './video.interface';
-import { VideoModel } from './video.model';
-import { ServerError } from '../utils/errors/applicationError';
+import { IUserClassification } from '../classification/user-classification/user-classification.interface';
 import { config } from '../config';
-import { IUserClassification } from '../classification/user/user-classification.interface';
+import { ServerError } from '../utils/errors/applicationError';
 import { VideoAggregator } from './video.aggregator';
+import { IVideo } from './video.interface';
+import { VideoModel } from './video.model';
 
 export class VideoRepository {
     static create(video: IVideo): Promise<IVideo> {
