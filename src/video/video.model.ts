@@ -80,6 +80,10 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
             type: Number,
             ref: 'ClassificationSource',
         },
+        pp: {
+            type: Number,
+            ref: 'Pp',
+        },
     },
     {
         autoIndex: false,
