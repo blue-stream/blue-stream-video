@@ -110,6 +110,26 @@ describe('Video Repository', function () {
                 expect(createdVideo.contentPath).to.not.exist;
                 expect(createdVideo.thumbnailPath).to.not.exist;
             });
+
+            it('Should create video with classificationSource and without pp', async function () {
+                const createdVideo = await VideoRepository.create({
+                    ...videoToCreate,
+                    classificationSource: 123,
+                } as IVideo);
+                expect(createdVideo).to.exist;
+                expect(createdVideo).to.have.property('classificationSource', 123);
+            });
+
+            it('Should create video with classificationSource and pp', async function () {
+                const createdVideo = await VideoRepository.create({
+                    ...videoToCreate,
+                    classificationSource: 123,
+                    pp: 456,
+                } as IVideo);
+                expect(createdVideo).to.exist;
+                expect(createdVideo).to.have.property('classificationSource', 123);
+                expect(createdVideo).to.have.property('pp', 456);
+            });
         });
 
         context('When video is invalid', function () {
@@ -187,6 +207,23 @@ describe('Video Repository', function () {
                     hasThrown = true;
                     expect(err).to.have.property('name', 'ValidationError');
                     expect(err).to.have.property('message').that.matches(/path.+required/i);
+                } finally {
+                    expect(hasThrown);
+                }
+            });
+
+            it('Should throw error when trying to create video with pp but classificationSource is not provided', async function () {
+                let hasThrown = false;
+
+                try {
+                    await VideoRepository.create({
+                        ...videoToCreate,
+                        pp: 12345,
+                    } as IVideo);
+                } catch (err) {
+                    hasThrown = true;
+                    expect(err).to.have.property('name', 'ValidationError');
+                    expect(err).to.have.property('message').that.matches(/path.+pp.+classificationSource/i);
                 } finally {
                     expect(hasThrown);
                 }
@@ -336,6 +373,22 @@ describe('Video Repository', function () {
 
                 try {
                     await VideoRepository.updateById(createdVid.id!, { status: VideoStatus.READY });
+                } catch (err) {
+                    hasThrown = true;
+                    expect(err).to.exist;
+                } finally {
+                    expect(hasThrown).to.be.true;
+                }
+            });
+
+            it('Should not allow to update pp when classificationSource is not set', async function () {
+                let hasThrown = false;
+                const vid = { ...video };
+                delete vid.classificationSource;
+                const createdVid = await VideoRepository.create(vid);
+
+                try {
+                    await VideoRepository.updateById(createdVid.id!, { pp: 123 });
                 } catch (err) {
                     hasThrown = true;
                     expect(err).to.exist;

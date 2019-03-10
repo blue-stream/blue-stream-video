@@ -8,6 +8,8 @@ import { UnauthorizedError, VideoValidationFailedError } from '../utils/errors/u
 import { IVideo } from './video.interface';
 import { VideoManager } from './video.manager';
 import { VideoModel } from './video.model';
+import { PpModel } from '../classification/pp/pp.model';
+import { IPp } from '../classification/pp/pp.interface';
 
 describe('Video Manager', function () {
     before(async function () {
@@ -23,6 +25,7 @@ describe('Video Manager', function () {
     afterEach(async function () {
         await VideoModel.deleteMany({}).exec();
         await ClassificationSourceModel.deleteMany({}).exec();
+        await PpModel.deleteMany({}).exec();
     });
 
     describe('#create()', function () {
@@ -33,6 +36,14 @@ describe('Video Manager', function () {
                 expect(video).to.exist;
                 expect(video).to.have.property('classificationSource', 500000);
             });
+
+            it('Should create video when pp exists', async function () {
+                await PpModel.create({ _id: 10000, type: 'a', name: 'hello' } as IPp);
+                await ClassificationSourceModel.create({ _id: 500000, name: 'a', layer: 1, classificationId: 1 } as IClassificationSource);
+                const video = await VideoManager.create({ title: 'title', owner: '2@2', channel: 'a', pp: 10000, classificationSource: 500000 } as IVideo);
+                expect(video).to.exist;
+                expect(video).to.have.property('pp', 10000);
+            });
         });
 
         context('When data is invalid', function () {
@@ -41,6 +52,20 @@ describe('Video Manager', function () {
 
                 try {
                     await VideoManager.create({ title: 'title', owner: '2@2', channel: 'a', classificationSource: 500000 } as IVideo);
+                } catch (err) {
+                    expect(err).to.exist;
+                    expect(err).to.be.instanceOf(VideoValidationFailedError);
+                    hasThrown = true;
+                } finally {
+                    expect(hasThrown).to.be.true;
+                }
+            });
+
+            it('Should throw error when requested pp not exists', async function () {
+                let hasThrown = false;
+
+                try {
+                    await VideoManager.create({ title: 'title', owner: '2@2', channel: 'a', pp: 10000 } as IVideo);
                 } catch (err) {
                     expect(err).to.exist;
                     expect(err).to.be.instanceOf(VideoValidationFailedError);
@@ -68,6 +93,15 @@ describe('Video Manager', function () {
                 expect(video).to.exist;
                 expect(video).to.have.property('classificationSource', 12);
             });
+
+            it('Should update video when pp exists', async function () {
+                await PpModel.create({ _id: 1000, name: 'hello', type: 'a' } as IPp);
+                await ClassificationSourceModel.create({ _id: 12, name: 'a', layer: 1, classificationId: 1 } as IClassificationSource);
+                const video = await VideoManager.updateById(classifiedVideo.id!, { classificationSource: 12, pp: 1000 } as IVideo);
+                expect(video).to.exist;
+                expect(video).to.have.property('classificationSource', 12);
+                expect(video).to.have.property('pp', 1000);
+            });
         });
 
         context('When data is invalid', function () {
@@ -76,6 +110,20 @@ describe('Video Manager', function () {
 
                 try {
                     await VideoManager.updateById(classifiedVideo.id!, { classificationSource: 500000 } as IVideo);
+                } catch (err) {
+                    expect(err).to.exist;
+                    expect(err).to.be.instanceOf(VideoValidationFailedError);
+                    hasThrown = true;
+                } finally {
+                    expect(hasThrown).to.be.true;
+                }
+            });
+
+            it('Should throw error when requested pp not exists', async function () {
+                let hasThrown = false;
+
+                try {
+                    await VideoManager.updateById(classifiedVideo.id!, { pp: 500000 } as IVideo);
                 } catch (err) {
                     expect(err).to.exist;
                     expect(err).to.be.instanceOf(VideoValidationFailedError);
