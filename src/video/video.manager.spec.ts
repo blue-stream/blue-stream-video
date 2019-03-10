@@ -148,10 +148,12 @@ describe('Video Manager', function () {
 
         context('When video is classified', function () {
             let classifiedVideo: IVideo;
-
+            let classifiedVideoWithPp: IVideo;
             beforeEach(async function () {
                 await ClassificationSourceModel.create({ _id: 1, layer: 1, classificationId: 3, name: 'a' } as IClassificationSource);
+                await PpModel.create({ _id: 2, type: 'a', name: 'test' });
                 classifiedVideo = await VideoManager.create({ title: 'test', owner: 'a@a', channel: 'a', classificationSource: 1 } as IVideo);
+                classifiedVideoWithPp = await VideoManager.create({ title: 'test', owner: 'a@a', channel: 'a', classificationSource: 1, pp: 2 } as IVideo);
             });
 
             it('Should throw error when user doesn\'t have required classification', async function () {
@@ -200,6 +202,66 @@ describe('Video Manager', function () {
                 } finally {
                     expect(hasThrown).to.be.true;
                 }
+            });
+
+            it('Should throw error when user has required classifications but not required pps', async function () {
+                let hasThrown = false;
+
+                try {
+                    await VideoManager.getById('unknown@user', classifiedVideoWithPp.id!);
+                } catch (err) {
+                    expect(err).to.exist;
+                    expect(err).to.be.instanceOf(UnauthorizedError);
+                    hasThrown = true;
+                } finally {
+                    expect(hasThrown).to.be.true;
+                }
+            });
+
+            it('Should throw error when user has required pps but not required classifications', async function () {
+                let hasThrown = false;
+                await PpModel.create({ _id: 5, name: 'pp', type: 'a' });
+                await ClassificationSourceModel.create({ _id: 100, name: 'test', layer: 0, classificationId: 300 });
+                const video = await VideoManager.create({ title: 'test', channel: 'abc', owner: 'test@user', pp: 5, classificationSource: 100 } as IVideo);
+
+                try {
+                    await VideoManager.getById('c@moreThenLittle', video.id!);
+                } catch (err) {
+                    expect(err).to.exist;
+                    expect(err).to.be.instanceOf(UnauthorizedError);
+                    hasThrown = true;
+                } finally {
+                    expect(hasThrown).to.be.true;
+                }
+            });
+
+            it('Should throw error when user has correct classificationId but lower layer', async function () {
+                let hasThrown = false;
+                await PpModel.create({ _id: 5, name: 'pp', type: 'a' });
+                await ClassificationSourceModel.create({ _id: 100, name: 'test', layer: 4, classificationId: 3 });
+                const video = await VideoManager.create({ title: 'test', channel: 'abc', owner: 'test@user', pp: 5, classificationSource: 100 } as IVideo);
+
+                try {
+                    await VideoManager.getById('c@moreThenLittle', video.id!);
+                } catch (err) {
+                    expect(err).to.exist;
+                    expect(err).to.be.instanceOf(UnauthorizedError);
+                    hasThrown = true;
+                } finally {
+                    expect(hasThrown).to.be.true;
+                }
+            });
+
+            it('Should return video when user has both pp and classification required', async function () {
+                await PpModel.create({ _id: 5, name: 'pp', type: 'a' });
+                await ClassificationSourceModel.create({ _id: 100, name: 'test', layer: 2, classificationId: 7 });
+                const video = await VideoManager.create({ title: 'test', channel: 'abc', owner: 'test@user', pp: 5, classificationSource: 100 } as IVideo);
+
+                const fetchedVideo = await VideoManager.getById('c@moreThenLittle', video.id!);
+
+                expect(fetchedVideo).to.exist;
+                expect(fetchedVideo).to.have.property('pp', 5);
+                expect(fetchedVideo).to.have.property('classificationSource').which.has.property('classificationId', 7);
             });
         });
     });

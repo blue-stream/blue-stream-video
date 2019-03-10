@@ -5,19 +5,23 @@ import { ClassificationSourceModel } from '../classification/source/classificati
 import { IUserClassification } from '../classification/user-classification/user-classification.interface';
 import { config } from '../config';
 import { getClassificationSources } from '../mocks/classificationSources';
-import { getUserClassifications } from '../mocks/userClassifications';
+import { getClassifications } from '../mocks/userClassifications';
 import { getVideos } from '../mocks/videos';
 import { ServerError } from '../utils/errors/applicationError';
 import { getRandomInt } from '../utils/random';
 import { IVideo, VideoStatus } from './video.interface';
 import { VideoModel } from './video.model';
 import { VideoRepository } from './video.repository';
+import { getPps } from '../mocks/pps';
+import { PpModel } from '../classification/pp/pp.model';
+import { IClassification } from '../classification/classification.interface';
 
 const videos: IVideo[] = getVideos();
 const classificationSources = getClassificationSources();
-const userClassifications = getUserClassifications();
+const pps = getPps();
+const classifications = getClassifications();
 const permittedSources = classificationSources.filter((source) => {
-    return (!!userClassifications.find(c => c.classificationId === source.classificationId && c.layer >= source.layer));
+    return (!!classifications.classifications.find(c => c.classificationId === source.classificationId && c.layer >= source.layer));
 }).map(s => s._id);
 
 const validId: string = new mongoose.Types.ObjectId().toHexString();
@@ -68,6 +72,7 @@ describe('Video Repository', function () {
     afterEach(async function () {
         await VideoModel.deleteMany({}).exec();
         await ClassificationSourceModel.deleteMany({}).exec();
+        await PpModel.deleteMany({}).exec();
     });
 
     after(async function () {
@@ -548,7 +553,7 @@ describe('Video Repository', function () {
             });
 
             it('Should return all documents when filter is empty', async function () {
-                const documents = await VideoRepository.getMany({}, userClassifications, 0, videos.length);
+                const documents = await VideoRepository.getMany({}, classifications, 0, videos.length);
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
 
@@ -559,7 +564,7 @@ describe('Video Repository', function () {
 
             for (const prop in video) {
                 it(`Should return only matching documents by ${prop}`, async function () {
-                    const documents = await VideoRepository.getMany({ [prop]: video[prop as keyof IVideo] }, userClassifications);
+                    const documents = await VideoRepository.getMany({ [prop]: video[prop as keyof IVideo] }, classifications);
                     expect(documents).to.exist;
                     expect(documents).to.be.an('array');
 
@@ -572,7 +577,7 @@ describe('Video Repository', function () {
             }
 
             it('Should return empty array when critiria not matching any document', async function () {
-                const documents = await VideoRepository.getMany(unexistingVideo, userClassifications);
+                const documents = await VideoRepository.getMany(unexistingVideo, classifications);
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
                 expect(documents).to.have.lengthOf(0);
@@ -590,7 +595,7 @@ describe('Video Repository', function () {
 
                 await VideoRepository.createMany(videos);
 
-                const result = await VideoRepository.getMany({}, []);
+                const result = await VideoRepository.getMany({}, undefined);
 
                 expect(result).to.exist;
                 expect(result).to.be.an('array');
@@ -626,7 +631,7 @@ describe('Video Repository', function () {
                 }
 
                 await Promise.all(promises);
-                const result = await VideoRepository.getMany({}, [{ classificationId: 1234567, layer: 4 } as IUserClassification]);
+                const result = await VideoRepository.getMany({}, { classifications: [{ classificationId: 1234567, layer: 4 } as IUserClassification], pps: [] });
 
                 expect(result).to.exist;
                 expect(result).to.be.an('array');
@@ -641,7 +646,7 @@ describe('Video Repository', function () {
                 let hasThrown = false;
 
                 try {
-                    await VideoRepository.getMany(1 as any, userClassifications);
+                    await VideoRepository.getMany(1 as any, classifications);
                 } catch (err) {
                     hasThrown = true;
                     expect(err).to.exist;
@@ -651,7 +656,7 @@ describe('Video Repository', function () {
             });
 
             it('Should return null when filter is not in correct format', async function () {
-                const documents = await VideoRepository.getMany(unknownProperty, userClassifications);
+                const documents = await VideoRepository.getMany(unknownProperty, classifications);
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
                 expect(documents).to.have.lengthOf(0);
@@ -660,14 +665,14 @@ describe('Video Repository', function () {
     });
 
     describe('#getClassifiedVideos()', function () {
-        context('When data is valid', function () {
+        context('Without PPs', function () {
             beforeEach(async function () {
                 await VideoRepository.createMany(videos);
                 await ClassificationSourceModel.insertMany(classificationSources);
             });
 
             it('Should return all classified videos when no custom matcher', async function () {
-                const classifiedVideos = await VideoRepository.getClassifiedVideos(userClassifications, undefined, 0, videos.length);
+                const classifiedVideos = await VideoRepository.getClassifiedVideos(classifications, undefined, 0, videos.length);
 
                 expect(classifiedVideos).to.exist;
                 expect(classifiedVideos).to.be.an('array');
@@ -678,13 +683,13 @@ describe('Video Repository', function () {
             });
 
             it('Should return classified videos filtered by channel', async function () {
-                const classifiedVideos = await VideoRepository.getClassifiedVideos(userClassifications, { channel: 'channel-2' }, 0, videos.length);
+                const classifiedVideos = await VideoRepository.getClassifiedVideos(classifications, { channel: 'channel-2' }, 0, videos.length);
 
                 expect(classifiedVideos).to.exist;
                 expect(classifiedVideos).to.be.an('array');
 
                 const permittedSources = classificationSources.filter((source) => {
-                    return (!!userClassifications.find(c => c.classificationId === source.classificationId && c.layer >= source.layer));
+                    return (!!classifications.classifications.find(c => c.classificationId === source.classificationId && c.layer >= source.layer));
                 }).map(s => s._id);
 
                 const expectedResults = videos.filter((video: IVideo) => (
@@ -696,7 +701,7 @@ describe('Video Repository', function () {
             });
 
             it('Should return unclassified videos when user doesn\'t have any classifications', async function () {
-                const classifiedVideos = await VideoRepository.getClassifiedVideos([]);
+                const classifiedVideos = await VideoRepository.getClassifiedVideos();
 
                 expect(classifiedVideos).to.exist;
                 expect(classifiedVideos).to.be.an('array');
@@ -706,12 +711,102 @@ describe('Video Repository', function () {
             });
 
             it('Should return only unclassified videos even when customMatcher matches', async function () {
-                const classifiedVideos = await VideoRepository.getClassifiedVideos([], { channel: 'channel-2' });
+                const classifiedVideos = await VideoRepository.getClassifiedVideos(undefined, { channel: 'channel-2' });
 
                 expect(classifiedVideos).to.exist;
                 expect(classifiedVideos).to.be.an('array');
 
                 const expectedResults = videos.filter(video => (!video.classificationSource && video.channel.includes('channel-2'))).length;
+                expect(classifiedVideos).to.have.lengthOf(expectedResults);
+            });
+        });
+
+        context('With PPs', function () {
+            let videosWithPPs: IVideo[];
+            beforeEach(async function () {
+                videosWithPPs = videos.map((video, index) => ({ ...video, pp: index % 3 === 0 ? index : undefined }));
+
+                await ClassificationSourceModel.insertMany(classificationSources);
+                await PpModel.insertMany(pps);
+                await VideoRepository.createMany(videosWithPPs);
+            });
+
+            it('Should return only classified videos by sources when user don\'t have any pps', async function () {
+                const classifications: IClassification = {
+                    classifications: [
+                        { classificationId: 1, layer: 2, user: 'b@b' },
+                        { classificationId: 2, layer: 4, user: 'b@b' },
+                    ],
+                    pps: [],
+                };
+
+                const permittedSources = classificationSources.filter((source) => {
+                    return (!!classifications.classifications.find(c => c.classificationId === source.classificationId && c.layer >= source.layer));
+                }).map(s => s._id);
+
+                const classifiedVideos = await VideoRepository.getClassifiedVideos(classifications);
+
+                expect(classifiedVideos).to.exist;
+                expect(classifiedVideos).to.be.an('array');
+
+                const expectedResults = videosWithPPs.filter((video: IVideo) => {
+                    return (!video.classificationSource || permittedSources.some(source => video.classificationSource === source)) &&
+                        (!video.pp)
+                }).length;
+
+                expect(classifiedVideos).to.have.lengthOf(expectedResults);
+            });
+
+            it('Should return array with unclassified videos when user don\'t have any classifications but has pps', async function () {
+                const classifications: IClassification = {
+                    classifications: [],
+                    pps: [
+                        { ppId: 5, user: 'a@a', type: 'a' },
+                    ],
+                };
+
+                const classifiedVideos = await VideoRepository.getClassifiedVideos(classifications);
+
+                expect(classifiedVideos).to.exist;
+                expect(classifiedVideos).to.be.an('array');
+
+                const expectedResult = videosWithPPs.filter((video: IVideo) => {
+                    return (!video.pp && !video.classificationSource);
+                }).length;
+
+                expect(classifiedVideos).to.have.lengthOf(expectedResult);
+            });
+
+            it('Should return classified videos by both pps and classifications', async function () {
+                const classifications: IClassification = {
+                    classifications: [
+                        { classificationId: 1, layer: 2, user: 'b@b' },
+                        { classificationId: 2, layer: 4, user: 'b@b' },
+                    ],
+                    pps: [
+                        { ppId: 2, type: 'a', user: 'b@b' },
+                        { ppId: 5, type: 'a', user: 'b@b' },
+                        { ppId: 15, type: 'a', user: 'b@b' },
+                    ],
+                };
+
+                const permittedSources = classificationSources.filter((source) => {
+                    return (!!classifications.classifications.find(c => c.classificationId === source.classificationId && c.layer >= source.layer));
+                }).map(s => s._id);
+
+                const permittedPps = classifications.pps.map(p => p.ppId);
+
+                const classifiedVideos = await VideoRepository.getClassifiedVideos(classifications);
+
+                expect(classifiedVideos).to.exist;
+                expect(classifiedVideos).to.be.an('array');
+
+                const expectedResults = videosWithPPs.filter(video => {
+                    return (
+                        (!video.classificationSource || permittedSources.some(source => video.classificationSource === source)) &&
+                        (!video.pp || permittedPps.some(p => video.pp === p))
+                    );
+                }).length;
                 expect(classifiedVideos).to.have.lengthOf(expectedResults);
             });
         });
@@ -772,7 +867,7 @@ describe('Video Repository', function () {
             });
 
             it('Should return all videos when searchFilter is empty', async function () {
-                const documents = await VideoRepository.getSearched(userClassifications, '', 0, videos.length);
+                const documents = await VideoRepository.getSearched(classifications, '', 0, videos.length);
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
 
@@ -784,7 +879,7 @@ describe('Video Repository', function () {
             });
 
             it('Should return videos filtered by title', async function () {
-                const filteredVideos = await VideoRepository.getSearched(userClassifications, 'title-1', 0, videos.length);
+                const filteredVideos = await VideoRepository.getSearched(classifications, 'title-1', 0, videos.length);
                 expect(filteredVideos).to.exist;
                 expect(filteredVideos).to.be.an('array');
 
@@ -797,7 +892,7 @@ describe('Video Repository', function () {
             });
 
             it('Should return videos filtered by tags', async function () {
-                const filteredVideos = await VideoRepository.getSearched(userClassifications, 'tag-special', 0, videos.length);
+                const filteredVideos = await VideoRepository.getSearched(classifications, 'tag-special', 0, videos.length);
                 expect(filteredVideos).to.exist;
                 expect(filteredVideos).to.be.an('array');
 
@@ -812,7 +907,7 @@ describe('Video Repository', function () {
             });
 
             it('Should return videos filtered by description', async function () {
-                const filteredVideos = await VideoRepository.getSearched(userClassifications, 'sc-12', 0, videos.length);
+                const filteredVideos = await VideoRepository.getSearched(classifications, 'sc-12', 0, videos.length);
                 expect(filteredVideos).to.exist;
                 expect(filteredVideos).to.be.an('array');
 
@@ -825,7 +920,7 @@ describe('Video Repository', function () {
             });
 
             it('Should return videos filtered by title / tags / description', async function () {
-                const filteredVideos = await VideoRepository.getSearched(userClassifications, 'i', 0, videos.length);
+                const filteredVideos = await VideoRepository.getSearched(classifications, 'i', 0, videos.length);
                 expect(filteredVideos).to.exist;
                 expect(filteredVideos).to.be.an('array');
 
@@ -845,7 +940,7 @@ describe('Video Repository', function () {
             });
 
             it('Should return empty array when search term not satesfies', async function () {
-                const filteredVideos = await VideoRepository.getSearched(userClassifications, 'unexisting video', 0, videos.length);
+                const filteredVideos = await VideoRepository.getSearched(classifications, 'unexisting video', 0, videos.length);
                 expect(filteredVideos).to.exist;
                 expect(filteredVideos).to.be.an('array');
                 expect(filteredVideos).to.be.empty;
