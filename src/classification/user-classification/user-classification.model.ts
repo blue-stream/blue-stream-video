@@ -20,10 +20,6 @@ const userClassificationSchema: mongoose.Schema = new mongoose.Schema(
     },
     {
         versionKey: false,
-        timestamps: {
-            createdAt: false,
-            updatedAt: 'modificationDate',
-        },
         toJSON: {
             virtuals: true,
         },

@@ -6,7 +6,6 @@ export const config = {
     },
     db: {
         connectionString: `mongodb://${process.env.DB_SERVERS || 'localhost:27017'}/${process.env.VIDEOS_DB_NAME || 'blue-stream-video'}${process.env.DB_REPLICA_NAME ? `?replicaSet=${process.env.DB_REPLICA_NAME}` : ''}`,
-
     },
     logger: {
         durable: false,
@@ -47,9 +46,22 @@ export const config = {
         endIndex: 20,
     },
     classifications: {
-        serviceApi: process.env.CLASSIFICATIONS_API || 'http://localhost:5006/classificationservice/api',
         token: process.env.CLASSIFICATIONS_API_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.B3bRU1r3QAooc974CfHtGwQUYIUjEV4wywoO0bvOO0E',
         expirationDays: +(process.env.CLASSIFICATIONS_EXPIRATION_DAYS || 3), // Days
+        service: {
+            baseUrl: process.env.CLASSIFICATIONS_API || 'http://localhost:5006/classificationservice/api',
+            sourcesEndpoint: process.env.CLASSIFICATIONS_API_SOURCES_ENDPOINT || '/sources',
+            ppsEndpoint: process.env.CLASSIFICATIONS_API_PPS_ENDPOINT || '/pps',
+            userPermissionsEndpoint: process.env.CLASSIFICATIONS_API_USER_PERMISSIONS_ENDPOINT || '/userPermissions',
+        },
+        properties: {
+            classificationsAllow: process.env.PROPERTY_CLASSIFICATIONS_ALLOW || 'classificationsAllow',
+            userClassificationId: process.env.PROPERTY_USER_CLASSIFICATION_ID || 'classificationId',
+            userClassificationLayer: process.env.PROPERTY_USER_CLASSIFICATION_LAYER || 'classificationLayer',
+            ppsAllow: process.env.PROPERTY_PPS_ALLOW || 'ppAllow',
+            userPpsId: process.env.PROPERTY_USER_PPS_ID || 'ppId',
+            userPpsType: process.env.PROPERTY_USER_PPS_TYPE || 'ppType',
+        },
     },
     sort: {
         sortOrder: -1 as -1 | 1,

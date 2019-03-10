@@ -24,6 +24,16 @@ describe('Video Validator Middleware', function () {
                     expect(error).to.not.exist;
                 });
             });
+
+            it('Should not throw error when pp and source are provided', function () {
+                const request = new ValidRequestMocks().create;
+                request.body.classificationSource = 1111;
+                request.body.pp = 1234;
+
+                VideoValidator.canCreate(request, responseMock, (error: Error) => {
+                    expect(error).to.not.exist;
+                });
+            });
         });
 
         context('When invalid arguments are passed', function () {
@@ -60,6 +70,16 @@ describe('Video Validator Middleware', function () {
                     expect(error).to.be.instanceof(VideoValidationFailedError);
                 });
             });
+
+            it('Should throw VideoValidationFailedError when pp inserted without source', function () {
+                const invalidRequestMock = new ValidRequestMocks().create;
+                invalidRequestMock.body.pp = 1234;
+
+                VideoValidator.canCreate(invalidRequestMock, responseMock, (error: Error) => {
+                    expect(error).to.exist;
+                    expect(error).to.be.instanceof(VideoValidationFailedError);
+                });
+            });
         });
     });
 
@@ -67,6 +87,16 @@ describe('Video Validator Middleware', function () {
         context('When valid arguments are passed', function () {
             it('Should not throw an error', function () {
                 VideoValidator.canUpdateById(new ValidRequestMocks().updateById, responseMock, (error: Error) => {
+                    expect(error).to.not.exist;
+                });
+            });
+
+            it('Should not throw error when pp and source are provided', function () {
+                const request = new ValidRequestMocks().updateById;
+                request.body.classificationSource = 1111;
+                request.body.pp = 1234;
+
+                VideoValidator.canUpdateById(request, responseMock, (error: Error) => {
                     expect(error).to.not.exist;
                 });
             });
@@ -114,6 +144,16 @@ describe('Video Validator Middleware', function () {
                 VideoValidator.canUpdateById(invalidRequestMock, responseMock, (error: Error) => {
                     expect(error).to.exist;
                     expect(error).to.be.an.instanceof(IdInvalidError);
+                });
+            });
+
+            it('Should throw VideoValidationFailedError when pp inserted without source', function () {
+                const invalidRequestMock = new ValidRequestMocks().updateById;
+                invalidRequestMock.body.pp = 1234;
+
+                VideoValidator.canUpdateById(invalidRequestMock, responseMock, (error: Error) => {
+                    expect(error).to.exist;
+                    expect(error).to.be.instanceof(VideoValidationFailedError);
                 });
             });
         });

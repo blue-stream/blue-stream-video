@@ -48,7 +48,6 @@ describe('Classification Repository', function () {
                 expect(classification).to.have.property('classificationId', 1);
                 expect(classification).to.have.property('user', 'a@a');
                 expect(classification).to.have.property('layer', 4);
-                expect(classification).to.have.property('modificationDate').which.is.lessThan(new Date());
             });
 
             it('Should create multiple classifications', async function () {

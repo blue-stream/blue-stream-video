@@ -1,9 +1,10 @@
-import { IVideo, VideoStatus } from './video.interface';
-import { VideoModel } from './video.model';
-import { ServerError } from '../utils/errors/applicationError';
+import { IUserClassification } from '../classification/user-classification/user-classification.interface';
 import { config } from '../config';
-import { IUserClassification } from '../classification/user/user-classification.interface';
+import { ServerError } from '../utils/errors/applicationError';
 import { VideoAggregator } from './video.aggregator';
+import { IVideo } from './video.interface';
+import { VideoModel } from './video.model';
+import { IClassification } from '../classification/classification.interface';
 
 export class VideoRepository {
     static create(video: IVideo): Promise<IVideo> {
@@ -51,7 +52,7 @@ export class VideoRepository {
     }
 
     static getClassifiedVideos(
-        userClassifications: IUserClassification[],
+        classifications: IClassification = { pps: [], classifications: [] },
         customMatcher?: Object,
         startIndex: number = 0,
         endIndex: number = config.pagination.resultsPerPage,
@@ -62,7 +63,7 @@ export class VideoRepository {
             ...customMatcher
                 ? [{ $match: customMatcher }]
                 : [],
-            ...VideoAggregator.getClassificationsAggregator(userClassifications),
+            ...VideoAggregator.getClassificationsAggregator(classifications),
             { $sort: { [sortBy]: sortOrder } },
             { $skip: +startIndex },
             { $limit: endIndex - startIndex },
@@ -71,14 +72,14 @@ export class VideoRepository {
 
     static getMany(
         videoFilter: Partial<IVideo>,
-        userClassifications: IUserClassification[],
+        classifications: IClassification = { pps: [], classifications: [] },
         startIndex: number = 0,
         endIndex: number = config.pagination.resultsPerPage,
         sortOrder: -1 | 1 = -1,
         sortBy: keyof IVideo = 'views',
     ): Promise<IVideo[]> {
         return VideoRepository.getClassifiedVideos(
-            userClassifications,
+            classifications,
             videoFilter,
             startIndex,
             endIndex,
@@ -94,7 +95,7 @@ export class VideoRepository {
     }
 
     static getSearched(
-        userClassifications: IUserClassification[] = [],
+        classifications: IClassification = { pps: [], classifications: [] },
         searchFilter: string = '',
         startIndex: number = config.pagination.startIndex,
         endIndex: number = config.pagination.endIndex,
@@ -103,7 +104,7 @@ export class VideoRepository {
         videoFilter: Partial<IVideo> = {}) {
 
         return VideoRepository.getClassifiedVideos(
-            userClassifications,
+            classifications,
             {
                 ...videoFilter,
                 $or: [

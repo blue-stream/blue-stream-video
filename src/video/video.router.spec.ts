@@ -64,7 +64,7 @@ describe('Video Module', function () {
     const videos: IVideo[] =
         [video, video2, video3, video3];
 
-    const publicVideos = videos.map(video => {
+    const publicVideos = videos.map((video) => {
         video.previewPath = 'AN66SAxZyTsOYDydiDuDzlWvf4cXAxD.gif';
         video.status = VideoStatus.READY;
         video.published = true;
