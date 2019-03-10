@@ -51,7 +51,7 @@ export const config = {
         token: process.env.CLASSIFICATIONS_API_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.B3bRU1r3QAooc974CfHtGwQUYIUjEV4wywoO0bvOO0E',
         expirationDays: +(process.env.CLASSIFICATIONS_EXPIRATION_DAYS || 3), // Days
         service: {
-            baseUrl: process.env.CLASSIFICATIONS_API || 'http://172.25.0.4:3000/classificationservice/api',
+            baseUrl: process.env.CLASSIFICATIONS_API || 'http://localhost:5006/classificationservice/api',
             sourcesEndpoint: process.env.CLASSIFICATIONS_API_SOURCES_ENDPOINT || '/sources',
             ppsEndpoint: process.env.CLASSIFICATIONS_API_PPS_ENDPOINT || '/pps',
             userPermissionsEndpoint: process.env.CLASSIFICATIONS_API_USER_PERMISSIONS_ENDPOINT || '/userPermissions',
