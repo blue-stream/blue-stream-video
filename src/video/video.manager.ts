@@ -1,11 +1,11 @@
 import { IVideo, VideoStatus } from './video.interface';
 import { VideoRepository } from './video.repository';
 import { VideoBroker } from './video.broker';
-import { UserClassificationManager } from '../classification/user/user-classification.manager';
 import { IClassificationSource } from '../classification/source/classification-source.interface';
-import { IUserClassification } from '../classification/user/user-classification.interface';
+import { IUserClassification } from '../classification/user-classification/user-classification.interface';
 import { UnauthorizedError, VideoValidationFailedError } from '../utils/errors/userErrors';
 import { ClassificationSourceModel } from '../classification/source/classification-source.model';
+import { ClassificationManager } from '../classification/classification.manager';
 
 export class VideoManager implements VideoRepository {
     static async create(video: IVideo) {
@@ -44,8 +44,8 @@ export class VideoManager implements VideoRepository {
         const video = await VideoRepository.getById(id);
         if (video && video.classificationSource) {
             const videoClassification = video.classificationSource as IClassificationSource;
-            const userClassifications = await UserClassificationManager.getUserClassifications(userId);
-            const hasClassifications = userClassifications.some((classification: IUserClassification) => {
+            const userClassifications = await ClassificationManager.getClassifications(userId);
+            const hasClassifications = userClassifications.classifications.some((classification: IUserClassification) => {
                 return (
                     classification.classificationId === videoClassification.classificationId &&
                     classification.layer >= videoClassification.layer
@@ -63,10 +63,10 @@ export class VideoManager implements VideoRepository {
     }
 
     static async getMany(userId: string, videoFilter: Partial<IVideo>) {
-        const userClassifications = await UserClassificationManager.getUserClassifications(userId);
+        const userClassifications = await ClassificationManager.getClassifications(userId);
         let filter = videoFilter;
         if (userId !== videoFilter.owner) filter = { ...videoFilter, published: true, status: VideoStatus.READY };
-        return VideoRepository.getMany(filter, userClassifications);
+        return VideoRepository.getMany(filter, userClassifications.classifications);
     }
 
     static getAmount(videoFilter: Partial<IVideo>) {
@@ -80,10 +80,10 @@ export class VideoManager implements VideoRepository {
         endIndex?: number,
         sortOrder?: -1 | 1,
         sortBy?: keyof IVideo) {
-        const userClassifications = await UserClassificationManager.getUserClassifications(userId);
+        const userClassifications = await ClassificationManager.getClassifications(userId);
 
         return VideoRepository.getSearched(
-            userClassifications,
+            userClassifications.classifications,
             searchFilter,
             startIndex,
             endIndex,
