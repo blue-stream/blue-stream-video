@@ -1,4 +1,5 @@
 import { IClassificationSource } from '../classification/source/classification-source.interface';
+import { IPp } from '../classification/pp/pp.interface';
 
 export interface IVideo {
     id?: string;
@@ -16,6 +17,7 @@ export interface IVideo {
     published?: boolean;
     publishDate?: Date;
     classificationSource?: number | IClassificationSource;
+    pp?: number | IPp;
 }
 
 export enum VideoStatus {

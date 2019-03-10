@@ -4,7 +4,7 @@ import { config } from '../config';
 
 export class ClassificationHttpClient {
     static axiosInstance: AxiosInstance = axios.create({
-        baseURL: config.classifications.serviceApi,
+        baseURL: config.classifications.service.baseUrl,
         headers: {
             Authorization: `Bearer ${config.classifications.token}`,
         },

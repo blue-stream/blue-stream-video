@@ -1,5 +1,5 @@
 import * as MockAdapter from 'axios-mock-adapter';
-import { ClassificationHttpClient } from '../classification-http.client';
+import { ClassificationHttpClient } from './classification-http.client';
 import { stringify } from 'querystring';
 
 export class UserClassificationsServiceMock {

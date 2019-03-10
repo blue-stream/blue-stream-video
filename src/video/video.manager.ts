@@ -1,18 +1,16 @@
 import { IVideo, VideoStatus } from './video.interface';
 import { VideoRepository } from './video.repository';
 import { VideoBroker } from './video.broker';
-import { UserClassificationManager } from '../classification/user/user-classification.manager';
 import { IClassificationSource } from '../classification/source/classification-source.interface';
-import { IUserClassification } from '../classification/user/user-classification.interface';
+import { IUserClassification } from '../classification/user-classification/user-classification.interface';
 import { UnauthorizedError, VideoValidationFailedError } from '../utils/errors/userErrors';
 import { ClassificationSourceModel } from '../classification/source/classification-source.model';
+import { ClassificationManager } from '../classification/classification.manager';
+import { PpModel } from '../classification/pp/pp.model';
 
 export class VideoManager implements VideoRepository {
     static async create(video: IVideo) {
-        if (video.classificationSource) {
-            const source = await ClassificationSourceModel.findById(video.classificationSource);
-            if (!source) throw new VideoValidationFailedError();
-        }
+        await VideoManager.verifyClassifications(video.classificationSource as number, video.pp as number);
 
         return VideoRepository.create(video);
     }
@@ -22,10 +20,7 @@ export class VideoManager implements VideoRepository {
     }
 
     static async updateById(id: string, video: Partial<IVideo>) {
-        if (video.classificationSource) {
-            const source = await ClassificationSourceModel.findById(video.classificationSource);
-            if (!source) throw new VideoValidationFailedError();
-        }
+        await VideoManager.verifyClassifications(video.classificationSource as number, video.pp as number);
 
         return VideoRepository.updateById(id, video);
     }
@@ -44,15 +39,23 @@ export class VideoManager implements VideoRepository {
         const video = await VideoRepository.getById(id);
         if (video && video.classificationSource) {
             const videoClassification = video.classificationSource as IClassificationSource;
-            const userClassifications = await UserClassificationManager.getUserClassifications(userId);
-            const hasClassifications = userClassifications.some((classification: IUserClassification) => {
+            const userClassifications = await ClassificationManager.getClassifications(userId);
+            const hasClassifications = userClassifications.classifications.some((classification: IUserClassification) => {
                 return (
                     classification.classificationId === videoClassification.classificationId &&
                     classification.layer >= videoClassification.layer
                 );
             });
 
-            if (!hasClassifications) throw new UnauthorizedError();
+            let hasPps: boolean;
+
+            if (!video.pp) {
+                hasPps = true;
+            } else {
+                hasPps = userClassifications.pps.some(pp => pp.ppId === video.pp);
+            }
+
+            if (!hasClassifications || !hasPps) throw new UnauthorizedError();
         }
 
         return video;
@@ -63,10 +66,10 @@ export class VideoManager implements VideoRepository {
     }
 
     static async getMany(userId: string, videoFilter: Partial<IVideo>) {
-        const userClassifications = await UserClassificationManager.getUserClassifications(userId);
+        const classifications = await ClassificationManager.getClassifications(userId);
         let filter = videoFilter;
         if (userId !== videoFilter.owner) filter = { ...videoFilter, published: true, status: VideoStatus.READY };
-        return VideoRepository.getMany(filter, userClassifications);
+        return VideoRepository.getMany(filter, classifications);
     }
 
     static getAmount(videoFilter: Partial<IVideo>) {
@@ -80,10 +83,10 @@ export class VideoManager implements VideoRepository {
         endIndex?: number,
         sortOrder?: -1 | 1,
         sortBy?: keyof IVideo) {
-        const userClassifications = await UserClassificationManager.getUserClassifications(userId);
+        const classifications = await ClassificationManager.getClassifications(userId);
 
         return VideoRepository.getSearched(
-            userClassifications,
+            classifications,
             searchFilter,
             startIndex,
             endIndex,
@@ -91,5 +94,17 @@ export class VideoManager implements VideoRepository {
             sortBy,
             { published: true, status: VideoStatus.READY },
         );
+    }
+
+    private static async verifyClassifications(source?: number, pp?: number) {
+        if (source) {
+            const fetchedSource = await ClassificationSourceModel.findById(source);
+            if (!fetchedSource) throw new VideoValidationFailedError();
+        }
+
+        if (pp) {
+            const fetchedPp = await PpModel.findById(pp);
+            if (!fetchedPp) throw new VideoValidationFailedError();
+        }
     }
 }

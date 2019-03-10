@@ -61,7 +61,7 @@ export class VideoValidator {
         if (video.originalPath && !VideoValidatons.isPathValid(video.originalPath, config.allowedExtensions.videos)) return new VideoValidationFailedError('originalPath');
         if (video.previewPath && !VideoValidatons.isPathValid(video.previewPath, config.allowedExtensions.previews)) return new VideoValidationFailedError('previewPath');
         if (video.status && !VideoValidatons.canChangeStatus(video.status, video)) return new VideoValidationFailedError('status');
-
+        if (!VideoValidatons.isClassificationsValid(video.classificationSource as number, video.pp as number)) return new VideoValidationFailedError('classification');
         return undefined;
     }
 
@@ -75,6 +75,7 @@ export class VideoValidator {
         if (video.owner && !VideoValidatons.isOwnerValid(video.owner)) return new VideoValidationFailedError('owner');
         if (video.description && !VideoValidatons.isDescriptionValid(video.description)) return new VideoValidationFailedError('description');
         if (video.status && !VideoValidatons.canChangeStatus(video.status, video as IVideo)) return new VideoValidationFailedError('status');
+        if (!VideoValidatons.isClassificationsValid(video.classificationSource as number, video.pp as number)) return new VideoValidationFailedError('classification');
 
         return undefined;
     }

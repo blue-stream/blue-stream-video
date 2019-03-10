@@ -80,6 +80,10 @@ const videoSchema: mongoose.Schema = new mongoose.Schema(
             type: Number,
             ref: 'ClassificationSource',
         },
+        pp: {
+            type: Number,
+            ref: 'Pp',
+        },
     },
     {
         autoIndex: false,
@@ -97,6 +101,7 @@ videoSchema.pre<IVideo & mongoose.Document>('save', function (next) {
     if (this.published && !this.publishDate) {
         this.publishDate = new Date();
     }
+
     if (this.status) {
         const canUpdate = VideoValidatons.canChangeStatus(this.status, this as IVideo);
 
@@ -109,6 +114,16 @@ videoSchema.pre<IVideo & mongoose.Document>('save', function (next) {
 
             next(error);
         }
+    }
+
+    if (this.pp && !this.classificationSource) {
+        const error = this.invalidate(
+            'pp',
+            'Path \'pp\' cannot be saved unless \'classificationSource\' is provided',
+            this.pp,
+        ) as mongoose.ValidationError;
+
+        next(error);
     }
 
     next();
