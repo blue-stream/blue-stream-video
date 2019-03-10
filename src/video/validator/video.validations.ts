@@ -10,7 +10,8 @@ export class VideoValidatons {
             VideoValidatons.isChannelValid(video.channel) &&
             VideoValidatons.isOwnerValid(video.owner) &&
             VideoValidatons.isPathValid(video.contentPath, config.allowedExtensions.videos) &&
-            VideoValidatons.isPathValid(video.thumbnailPath, config.allowedExtensions.images);
+            VideoValidatons.isPathValid(video.thumbnailPath, config.allowedExtensions.images) &&
+            VideoValidatons.isClassificationsValid(video.classificationSource as number, video.pp as number);
     }
 
     static isIdValid(id: string): boolean {
@@ -57,5 +58,9 @@ export class VideoValidatons {
             default:
                 return true;
         }
+    }
+
+    static isClassificationsValid(source?: number, pp?: number): boolean {
+        return !!(!pp || source);
     }
 }

@@ -6,13 +6,11 @@ import { IUserClassification } from '../classification/user-classification/user-
 import { UnauthorizedError, VideoValidationFailedError } from '../utils/errors/userErrors';
 import { ClassificationSourceModel } from '../classification/source/classification-source.model';
 import { ClassificationManager } from '../classification/classification.manager';
+import { PpModel } from '../classification/pp/pp.model';
 
 export class VideoManager implements VideoRepository {
     static async create(video: IVideo) {
-        if (video.classificationSource) {
-            const source = await ClassificationSourceModel.findById(video.classificationSource);
-            if (!source) throw new VideoValidationFailedError();
-        }
+        await VideoManager.verifyClassifications(video.classificationSource as number, video.pp as number);
 
         return VideoRepository.create(video);
     }
@@ -22,10 +20,7 @@ export class VideoManager implements VideoRepository {
     }
 
     static async updateById(id: string, video: Partial<IVideo>) {
-        if (video.classificationSource) {
-            const source = await ClassificationSourceModel.findById(video.classificationSource);
-            if (!source) throw new VideoValidationFailedError();
-        }
+        await VideoManager.verifyClassifications(video.classificationSource as number, video.pp as number);
 
         return VideoRepository.updateById(id, video);
     }
@@ -91,5 +86,17 @@ export class VideoManager implements VideoRepository {
             sortBy,
             { published: true, status: VideoStatus.READY },
         );
+    }
+
+    private static async verifyClassifications(source?: number, pp?: number) {
+        if (source) {
+            const fetchedSource = await ClassificationSourceModel.findById(source);
+            if (!fetchedSource) throw new VideoValidationFailedError();
+        }
+
+        if (pp) {
+            const fetchedPp = await PpModel.findById(pp);
+            if (!fetchedPp) throw new VideoValidationFailedError();
+        }
     }
 }
