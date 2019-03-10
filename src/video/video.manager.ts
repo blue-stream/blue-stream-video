@@ -47,7 +47,15 @@ export class VideoManager implements VideoRepository {
                 );
             });
 
-            if (!hasClassifications) throw new UnauthorizedError();
+            let hasPps: boolean;
+
+            if (!video.pp) {
+                hasPps = true;
+            } else {
+                hasPps = userClassifications.pps.some(pp => pp.ppId === video.pp);
+            }
+
+            if (!hasClassifications || !hasPps) throw new UnauthorizedError();
         }
 
         return video;
@@ -58,10 +66,10 @@ export class VideoManager implements VideoRepository {
     }
 
     static async getMany(userId: string, videoFilter: Partial<IVideo>) {
-        const userClassifications = await ClassificationManager.getClassifications(userId);
+        const classifications = await ClassificationManager.getClassifications(userId);
         let filter = videoFilter;
         if (userId !== videoFilter.owner) filter = { ...videoFilter, published: true, status: VideoStatus.READY };
-        return VideoRepository.getMany(filter, userClassifications.classifications);
+        return VideoRepository.getMany(filter, classifications);
     }
 
     static getAmount(videoFilter: Partial<IVideo>) {
@@ -75,10 +83,10 @@ export class VideoManager implements VideoRepository {
         endIndex?: number,
         sortOrder?: -1 | 1,
         sortBy?: keyof IVideo) {
-        const userClassifications = await ClassificationManager.getClassifications(userId);
+        const classifications = await ClassificationManager.getClassifications(userId);
 
         return VideoRepository.getSearched(
-            userClassifications.classifications,
+            classifications,
             searchFilter,
             startIndex,
             endIndex,

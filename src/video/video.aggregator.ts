@@ -1,8 +1,10 @@
 import { IUserClassification } from '../classification/user-classification/user-classification.interface';
+import { IClassification } from '../classification/classification.interface';
+import { IUserPp } from '../classification/user-pp/user-pp.interface';
 
 export class VideoAggregator {
 
-    private static convertClassificationsToQuery(classifications: IUserClassification[]) {
+    private static convertUserClassificationsToQuery(classifications: IUserClassification[]) {
         return classifications.map((classification: IUserClassification) => {
             return {
                 'classification.classificationId': classification.classificationId,
@@ -11,25 +13,41 @@ export class VideoAggregator {
         });
     }
 
-    private static preJoinMatcher(userClassifications: IUserClassification[]) {
-        return (userClassifications && userClassifications.length > 0)
-            ? []
-            : [{ $match: { classificationSource: null } }];
+    private static convertUserPpsToQuery(pps: IUserPp[]) {
+        const userPps: { pp: number | null }[] = pps.map((pp: IUserPp) => ({
+            pp: pp.ppId,
+        }));
+
+        userPps.push({ pp: null });
+
+        return userPps;
     }
 
-    private static postJoinMatcher(userClassifications: IUserClassification[]) {
-        const classificationQuery = VideoAggregator.convertClassificationsToQuery(userClassifications);
+    private static preJoinMatcher(classifications: IClassification) {
+        return (classifications && classifications.classifications && classifications.classifications.length > 0)
+            ? []
+            : [{ $match: { classificationSource: null, pp: null } }];
+    }
 
-        return (classificationQuery && classificationQuery.length > 0)
-            ? [{
-                $match: {
-                    $or: [
-                        { classificationSource: null },
-                        ...classificationQuery,
-                    ],
-                },
-            }]
-            : [];
+    private static postJoinMatcher(classifications: IClassification) {
+        const classificationsQuery = VideoAggregator.convertUserClassificationsToQuery(classifications.classifications);
+        const ppsQuery = VideoAggregator.convertUserPpsToQuery(classifications.pps);
+
+        if (!classificationsQuery || classificationsQuery.length === 0) return [];
+
+        return [{
+            $match: {
+                $or: [
+                    { classificationSource: null, pp: null },
+                    {
+                        $and: [
+                            { $or: [...ppsQuery] },
+                            { $or: [...classificationsQuery] },
+                        ],
+                    },
+                ],
+            },
+        }];
     }
 
     private static joinClassifications() {
@@ -65,11 +83,11 @@ export class VideoAggregator {
         ];
     }
 
-    static getClassificationsAggregator(userClassifications: IUserClassification[]) {
+    static getClassificationsAggregator(classifications: IClassification) {
         return [
-            ...VideoAggregator.preJoinMatcher(userClassifications),
+            ...VideoAggregator.preJoinMatcher(classifications),
             ...VideoAggregator.joinClassifications(),
-            ...VideoAggregator.postJoinMatcher(userClassifications),
+            ...VideoAggregator.postJoinMatcher(classifications),
             { $addFields: { id: '$_id' } },
         ];
     }
