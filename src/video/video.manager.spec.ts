@@ -140,7 +140,7 @@ describe('Video Manager', function () {
             it('Should return video by id', async function () {
                 const newVideo = await VideoManager.create({ title: 'title', owner: 'owner@owner', channel: 'a' } as IVideo);
 
-                const video = await VideoManager.getById('c@moreThenLittle', newVideo.id!);
+                const video = await VideoManager.getById(newVideo.id!, 'c@moreThenLittle');
                 expect(video).to.exist;
                 expect(video).to.have.property('title', 'title');
             });
@@ -160,7 +160,7 @@ describe('Video Manager', function () {
                 let hasThrown = false;
 
                 try {
-                    await VideoManager.getById('unknown@user', classifiedVideo.id!);
+                    await VideoManager.getById(classifiedVideo.id!, 'unknown@user');
                 } catch (err) {
                     expect(err).to.exist;
                     expect(err).to.be.instanceOf(UnauthorizedError);
@@ -171,7 +171,7 @@ describe('Video Manager', function () {
             });
 
             it('Should return video if user has required classifications', async function () {
-                const video = await VideoManager.getById('c@moreThenLittle', classifiedVideo.id!);
+                const video = await VideoManager.getById(classifiedVideo.id!, 'c@moreThenLittle');
                 expect(video).to.exist;
                 expect(video).to.have.property('title');
             });
@@ -180,7 +180,7 @@ describe('Video Manager', function () {
                 let hasThrown = false;
 
                 try {
-                    await VideoManager.getById('b@classifications', classifiedVideo.id!);
+                    await VideoManager.getById(classifiedVideo.id!, 'b@classifications');
                 } catch (err) {
                     expect(err).to.exist;
                     expect(err).to.be.instanceOf(UnauthorizedError);
@@ -194,7 +194,7 @@ describe('Video Manager', function () {
                 let hasThrown = false;
 
                 try {
-                    await VideoManager.getById('c@lowerLayer', classifiedVideo.id!);
+                    await VideoManager.getById(classifiedVideo.id!, 'c@lowerLayer');
                 } catch (err) {
                     expect(err).to.exist;
                     expect(err).to.be.instanceOf(UnauthorizedError);
@@ -208,7 +208,7 @@ describe('Video Manager', function () {
                 let hasThrown = false;
 
                 try {
-                    await VideoManager.getById('unknown@user', classifiedVideoWithPp.id!);
+                    await VideoManager.getById(classifiedVideoWithPp.id!, 'unknown@user');
                 } catch (err) {
                     expect(err).to.exist;
                     expect(err).to.be.instanceOf(UnauthorizedError);
@@ -225,7 +225,7 @@ describe('Video Manager', function () {
                 const video = await VideoManager.create({ title: 'test', channel: 'abc', owner: 'test@user', pp: 5, classificationSource: 100 } as IVideo);
 
                 try {
-                    await VideoManager.getById('c@moreThenLittle', video.id!);
+                    await VideoManager.getById(video.id!, 'c@moreThenLittle');
                 } catch (err) {
                     expect(err).to.exist;
                     expect(err).to.be.instanceOf(UnauthorizedError);
@@ -242,7 +242,7 @@ describe('Video Manager', function () {
                 const video = await VideoManager.create({ title: 'test', channel: 'abc', owner: 'test@user', pp: 5, classificationSource: 100 } as IVideo);
 
                 try {
-                    await VideoManager.getById('c@moreThenLittle', video.id!);
+                    await VideoManager.getById(video.id!, 'c@moreThenLittle');
                 } catch (err) {
                     expect(err).to.exist;
                     expect(err).to.be.instanceOf(UnauthorizedError);
@@ -257,7 +257,7 @@ describe('Video Manager', function () {
                 await ClassificationSourceModel.create({ _id: 100, name: 'test', layer: 2, classificationId: 7 });
                 const video = await VideoManager.create({ title: 'test', channel: 'abc', owner: 'test@user', pp: 5, classificationSource: 100 } as IVideo);
 
-                const fetchedVideo = await VideoManager.getById('c@moreThenLittle', video.id!);
+                const fetchedVideo = await VideoManager.getById(video.id!, 'c@moreThenLittle');
 
                 expect(fetchedVideo).to.exist;
                 expect(fetchedVideo).to.have.property('pp', 5);

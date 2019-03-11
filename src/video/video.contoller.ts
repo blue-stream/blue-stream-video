@@ -26,7 +26,7 @@ export class VideoController {
     }
 
     static async getById(req: Request, res: Response) {
-        const video = await VideoManager.getById(req.user.id, req.params.id);
+        const video = await VideoManager.getById(req.params.id, req.user.id, req.user.isSysAdmin);
         if (!video) {
             throw new VideoNotFoundError();
         }
@@ -44,7 +44,7 @@ export class VideoController {
     }
 
     static async getMany(req: Request, res: Response) {
-        res.json(await VideoManager.getMany(req.user.id, req.query));
+        res.json(await VideoManager.getMany(req.user.id, req.user.isSysAdmin, req.query));
     }
 
     static async getAmount(req: Request, res: Response) {
@@ -54,6 +54,7 @@ export class VideoController {
     static async getSearched(req: Request, res: Response) {
         res.json(await VideoManager.getSearched(
             req.user.id,
+            req.user.isSysAdmin,
             req.query.searchFilter,
             req.query.startIndex,
             req.query.endIndex,
