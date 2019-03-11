@@ -35,8 +35,10 @@ export class VideoManager implements VideoRepository {
         return deleted;
     }
 
-    static async getById(id: string, userId: string) {
+    static async getById(id: string, userId: string, isSysAdmin: boolean = false) {
         const video = await VideoRepository.getById(id);
+
+        if (isSysAdmin) return video;
         if (video && video.classificationSource) {
             const videoClassification = video.classificationSource as IClassificationSource;
             const userClassifications = await ClassificationManager.getClassifications(userId);
@@ -65,11 +67,11 @@ export class VideoManager implements VideoRepository {
         return VideoRepository.getOne(videoFilter);
     }
 
-    static async getMany(userId: string, videoFilter: Partial<IVideo>) {
+    static async getMany(userId: string, isSysAdmin: boolean = false, videoFilter: Partial<IVideo>) {
         const classifications = await ClassificationManager.getClassifications(userId);
         let filter = videoFilter;
         if (userId !== videoFilter.owner) filter = { ...videoFilter, published: true, status: VideoStatus.READY };
-        return VideoRepository.getMany(filter, classifications);
+        return VideoRepository.getMany(filter, classifications, isSysAdmin);
     }
 
     static getAmount(videoFilter: Partial<IVideo>) {
@@ -78,6 +80,7 @@ export class VideoManager implements VideoRepository {
 
     static async getSearched(
         userId: string,
+        isSysAdmin: boolean = false,
         searchFilter: string,
         startIndex?: number,
         endIndex?: number,
@@ -87,6 +90,7 @@ export class VideoManager implements VideoRepository {
 
         return VideoRepository.getSearched(
             classifications,
+            isSysAdmin,
             searchFilter,
             startIndex,
             endIndex,

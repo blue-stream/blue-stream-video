@@ -53,6 +53,7 @@ export class VideoRepository {
 
     static getClassifiedVideos(
         classifications: IClassification = { pps: [], classifications: [] },
+        isSysAdmin: boolean = false,
         customMatcher?: Object,
         startIndex: number = 0,
         endIndex: number = config.pagination.resultsPerPage,
@@ -63,7 +64,7 @@ export class VideoRepository {
             ...customMatcher
                 ? [{ $match: customMatcher }]
                 : [],
-            ...VideoAggregator.getClassificationsAggregator(classifications),
+            ...VideoAggregator.getClassificationsAggregator(classifications, isSysAdmin),
             { $sort: { [sortBy]: sortOrder } },
             { $skip: +startIndex },
             { $limit: endIndex - startIndex },
@@ -73,6 +74,7 @@ export class VideoRepository {
     static getMany(
         videoFilter: Partial<IVideo>,
         classifications: IClassification = { pps: [], classifications: [] },
+        isSysAdmin: boolean = false,
         startIndex: number = 0,
         endIndex: number = config.pagination.resultsPerPage,
         sortOrder: -1 | 1 = -1,
@@ -80,6 +82,7 @@ export class VideoRepository {
     ): Promise<IVideo[]> {
         return VideoRepository.getClassifiedVideos(
             classifications,
+            isSysAdmin,
             videoFilter,
             startIndex,
             endIndex,
@@ -96,6 +99,7 @@ export class VideoRepository {
 
     static getSearched(
         classifications: IClassification = { pps: [], classifications: [] },
+        isSysAdmin: boolean = false,
         searchFilter: string = '',
         startIndex: number = config.pagination.startIndex,
         endIndex: number = config.pagination.endIndex,
@@ -105,6 +109,7 @@ export class VideoRepository {
 
         return VideoRepository.getClassifiedVideos(
             classifications,
+            isSysAdmin,
             {
                 ...videoFilter,
                 $or: [
