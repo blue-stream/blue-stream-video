@@ -26,7 +26,7 @@ export class VideoController {
     }
 
     static async getById(req: Request, res: Response) {
-        const video = await VideoManager.getById(req.user.id, req.params.id);
+        const video = await VideoManager.getById(req.params.id, req.user.id);
         if (!video) {
             throw new VideoNotFoundError();
         }

@@ -35,7 +35,7 @@ export class VideoManager implements VideoRepository {
         return deleted;
     }
 
-    static async getById(userId: string, id: string) {
+    static async getById(id: string, userId: string) {
         const video = await VideoRepository.getById(id);
         if (video && video.classificationSource) {
             const videoClassification = video.classificationSource as IClassificationSource;
