@@ -553,7 +553,7 @@ describe('Video Repository', function () {
             });
 
             it('Should return all documents when filter is empty', async function () {
-                const documents = await VideoRepository.getMany({}, classifications, 0, videos.length);
+                const documents = await VideoRepository.getMany({}, classifications, false, 0, videos.length);
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
 
@@ -671,8 +671,15 @@ describe('Video Repository', function () {
                 await ClassificationSourceModel.insertMany(classificationSources);
             });
 
+            it('Should return all videos when requesting as sys admin', async function () {
+                const fetchedVideos = await VideoRepository.getClassifiedVideos({ pps: [], classifications: [] }, true, undefined, 0, videos.length);
+                expect(fetchedVideos).to.exist;
+                expect(fetchedVideos).to.be.an('array');
+                expect(fetchedVideos).to.have.lengthOf(videos.length);
+            });
+
             it('Should return all classified videos when no custom matcher', async function () {
-                const classifiedVideos = await VideoRepository.getClassifiedVideos(classifications, undefined, 0, videos.length);
+                const classifiedVideos = await VideoRepository.getClassifiedVideos(classifications, false, undefined, 0, videos.length);
 
                 expect(classifiedVideos).to.exist;
                 expect(classifiedVideos).to.be.an('array');
@@ -683,7 +690,7 @@ describe('Video Repository', function () {
             });
 
             it('Should return classified videos filtered by channel', async function () {
-                const classifiedVideos = await VideoRepository.getClassifiedVideos(classifications, { channel: 'channel-2' }, 0, videos.length);
+                const classifiedVideos = await VideoRepository.getClassifiedVideos(classifications, false, { channel: 'channel-2' }, 0, videos.length);
 
                 expect(classifiedVideos).to.exist;
                 expect(classifiedVideos).to.be.an('array');
@@ -711,7 +718,7 @@ describe('Video Repository', function () {
             });
 
             it('Should return only unclassified videos even when customMatcher matches', async function () {
-                const classifiedVideos = await VideoRepository.getClassifiedVideos(undefined, { channel: 'channel-2' });
+                const classifiedVideos = await VideoRepository.getClassifiedVideos(undefined, false, { channel: 'channel-2' });
 
                 expect(classifiedVideos).to.exist;
                 expect(classifiedVideos).to.be.an('array');
@@ -729,6 +736,13 @@ describe('Video Repository', function () {
                 await ClassificationSourceModel.insertMany(classificationSources);
                 await PpModel.insertMany(pps);
                 await VideoRepository.createMany(videosWithPPs);
+            });
+
+            it('Should return all videos when requesting as sys admin', async function () {
+                const fetchedVideos = await VideoRepository.getClassifiedVideos({ pps: [], classifications: [] }, true, undefined, 0, videosWithPPs.length);
+                expect(fetchedVideos).to.exist;
+                expect(fetchedVideos).to.be.an('array');
+                expect(fetchedVideos).to.have.lengthOf(videosWithPPs.length);
             });
 
             it('Should return only classified videos by sources when user don\'t have any pps', async function () {
@@ -867,7 +881,7 @@ describe('Video Repository', function () {
             });
 
             it('Should return all videos when searchFilter is empty', async function () {
-                const documents = await VideoRepository.getSearched(classifications, '', 0, videos.length);
+                const documents = await VideoRepository.getSearched(classifications, false, '', 0, videos.length);
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
 
@@ -879,7 +893,7 @@ describe('Video Repository', function () {
             });
 
             it('Should return videos filtered by title', async function () {
-                const filteredVideos = await VideoRepository.getSearched(classifications, 'title-1', 0, videos.length);
+                const filteredVideos = await VideoRepository.getSearched(classifications, false, 'title-1', 0, videos.length);
                 expect(filteredVideos).to.exist;
                 expect(filteredVideos).to.be.an('array');
 
@@ -891,8 +905,20 @@ describe('Video Repository', function () {
                 expect(filteredVideos).to.have.lengthOf(expectedResults);
             });
 
+            it('Should return videos filtered by title when requesting as sysadmin', async function () {
+                const filteredVideos = await VideoRepository.getSearched(classifications, true, 'title-1', 0, videos.length);
+                expect(filteredVideos).to.exist;
+                expect(filteredVideos).to.be.an('array');
+
+                const expectedResults = videos.filter(video => (
+                    video.title.includes('title-1')
+                )).length;
+
+                expect(filteredVideos).to.have.lengthOf(expectedResults);
+            });
+
             it('Should return videos filtered by tags', async function () {
-                const filteredVideos = await VideoRepository.getSearched(classifications, 'tag-special', 0, videos.length);
+                const filteredVideos = await VideoRepository.getSearched(classifications, false, 'tag-special', 0, videos.length);
                 expect(filteredVideos).to.exist;
                 expect(filteredVideos).to.be.an('array');
 
@@ -907,7 +933,7 @@ describe('Video Repository', function () {
             });
 
             it('Should return videos filtered by description', async function () {
-                const filteredVideos = await VideoRepository.getSearched(classifications, 'sc-12', 0, videos.length);
+                const filteredVideos = await VideoRepository.getSearched(classifications, false, 'sc-12', 0, videos.length);
                 expect(filteredVideos).to.exist;
                 expect(filteredVideos).to.be.an('array');
 
@@ -920,7 +946,7 @@ describe('Video Repository', function () {
             });
 
             it('Should return videos filtered by title / tags / description', async function () {
-                const filteredVideos = await VideoRepository.getSearched(classifications, 'i', 0, videos.length);
+                const filteredVideos = await VideoRepository.getSearched(classifications, false, 'i', 0, videos.length);
                 expect(filteredVideos).to.exist;
                 expect(filteredVideos).to.be.an('array');
 
@@ -940,7 +966,7 @@ describe('Video Repository', function () {
             });
 
             it('Should return empty array when search term not satesfies', async function () {
-                const filteredVideos = await VideoRepository.getSearched(classifications, 'unexisting video', 0, videos.length);
+                const filteredVideos = await VideoRepository.getSearched(classifications, false, 'unexisting video', 0, videos.length);
                 expect(filteredVideos).to.exist;
                 expect(filteredVideos).to.be.an('array');
                 expect(filteredVideos).to.be.empty;
