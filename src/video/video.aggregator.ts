@@ -23,17 +23,26 @@ export class VideoAggregator {
         return userPps;
     }
 
-    private static preJoinMatcher(classifications: IClassification) {
-        return (classifications && classifications.classifications && classifications.classifications.length > 0)
-            ? []
-            : [{ $match: { classificationSource: null, pp: null } }];
+    private static preJoinMatcher(classifications: IClassification, isSysAdmin: boolean = false) {
+        if (
+            isSysAdmin ||
+            (
+                classifications &&
+                classifications.classifications &&
+                classifications.classifications.length > 0
+            )
+        ) {
+            return [];
+        }
+
+        return [{ $match: { classificationSource: null, pp: null } }];
     }
 
-    private static postJoinMatcher(classifications: IClassification) {
+    private static postJoinMatcher(classifications: IClassification, isSysAdmin: boolean = false) {
         const classificationsQuery = VideoAggregator.convertUserClassificationsToQuery(classifications.classifications);
         const ppsQuery = VideoAggregator.convertUserPpsToQuery(classifications.pps);
 
-        if (!classificationsQuery || classificationsQuery.length === 0) return [];
+        if (isSysAdmin || !classificationsQuery || classificationsQuery.length === 0) return [];
 
         return [{
             $match: {
@@ -83,11 +92,11 @@ export class VideoAggregator {
         ];
     }
 
-    static getClassificationsAggregator(classifications: IClassification) {
+    static getClassificationsAggregator(classifications: IClassification, isSysAdmin: boolean = false) {
         return [
-            ...VideoAggregator.preJoinMatcher(classifications),
+            ...VideoAggregator.preJoinMatcher(classifications, isSysAdmin),
             ...VideoAggregator.joinClassifications(),
-            ...VideoAggregator.postJoinMatcher(classifications),
+            ...VideoAggregator.postJoinMatcher(classifications, isSysAdmin),
             { $addFields: { id: '$_id' } },
         ];
     }
