@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { VideoNotFoundError } from '../utils/errors/userErrors';
 import { VideoManager } from './video.manager';
+import { IVideo } from './video.interface';
 
 export class VideoController {
     static async create(req: Request, res: Response) {
@@ -44,7 +45,26 @@ export class VideoController {
     }
 
     static async getMany(req: Request, res: Response) {
-        res.json(await VideoManager.getMany(req.user.id, req.user.isSysAdmin, req.query));
+        const videoFilter: Partial<IVideo> = {
+            channel: req.query.channel,
+            title: req.query.title,
+            description: req.query.description,
+            owner: req.query.owner,
+            published: req.query.published,
+            tags: req.query.tags,
+        };
+
+        Object.keys(videoFilter).forEach((key: string) => {
+            return videoFilter[key as keyof IVideo] ===
+                undefined && delete videoFilter[key as keyof IVideo];
+        });
+
+        const sortOrder: -1 | 1 = Number(req.query.sortOrder) as (1 | -1);
+        const sortBy: keyof IVideo = req.query.sortBy;
+        const startIndex: number = Number(req.query.startIndex);
+        const endIndex: number = Number(req.query.endIndex);
+
+        res.json(await VideoManager.getMany(req.user.id, req.user.isSysAdmin, videoFilter, startIndex, endIndex, sortOrder, sortBy));
     }
 
     static async getAmount(req: Request, res: Response) {
