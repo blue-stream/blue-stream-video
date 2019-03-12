@@ -65,7 +65,7 @@ export class VideoRepository {
                 ? [{ $match: customMatcher }]
                 : [],
             ...VideoAggregator.getClassificationsAggregator(classifications, isSysAdmin),
-            { $sort: { [sortBy]: sortOrder } },
+            { $sort: { [sortBy]: !Number.isNaN(sortOrder) ? +sortOrder : -1 } },
             { $skip: !Number.isNaN(+startIndex) ? +startIndex : 0 },
             { $limit: endIndex - startIndex },
         ]).exec();
