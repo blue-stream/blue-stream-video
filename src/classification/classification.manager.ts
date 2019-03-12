@@ -2,6 +2,7 @@ import { IClassification } from './classification.interface';
 import { shouldUpdateUserClassifications } from './last-update/classification-last-update';
 import { UserClassificationRepository } from './user-classification/user-classification.repository';
 import { UserPpRepository } from './user-pp/user-pp.repository';
+import { ClassificationSourceRepository } from './source/classification-source.repository';
 import { ClassificationService } from './classifications.service';
 import { IUserPp } from './user-pp/user-pp.interface';
 import { IUserClassification } from './user-classification/user-classification.interface';
@@ -52,5 +53,13 @@ export class ClassificationManager {
             pps: pps || [],
             classifications: classifications || [],
         };
+    }
+
+    static getUserSources(userId: string, searchFilter: string) {
+        return ClassificationSourceRepository.getSearchedUserSources(userId, searchFilter);
+    }
+
+    static getUserPps(userId: string, searchFilter: string) {
+        return UserPpRepository.getSearchedUserPps(userId, searchFilter);
     }
 }
