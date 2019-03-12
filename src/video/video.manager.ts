@@ -67,11 +67,11 @@ export class VideoManager implements VideoRepository {
         return VideoRepository.getOne(videoFilter);
     }
 
-    static async getMany(userId: string, isSysAdmin: boolean = false, videoFilter: Partial<IVideo>) {
+    static async getMany(userId: string, isSysAdmin: boolean = false, videoFilter: Partial<IVideo>, startIndex: number, endIndex: number, sortOrder: -1 | 1, sortBy: keyof IVideo) {
         const classifications = await ClassificationManager.getClassifications(userId);
         let filter = videoFilter;
         if (userId !== videoFilter.owner) filter = { ...videoFilter, published: true, status: VideoStatus.READY };
-        return VideoRepository.getMany(filter, classifications, isSysAdmin);
+        return VideoRepository.getMany(filter, classifications, isSysAdmin, startIndex, endIndex, sortOrder, sortBy);
     }
 
     static getAmount(videoFilter: Partial<IVideo>) {
