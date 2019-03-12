@@ -3,7 +3,11 @@ import * as mongoose from 'mongoose';
 import { config } from '../../config';
 import { IUserClassification } from './user-classification.interface';
 import { UserClassificationModel } from './user-classification.model';
+import { ClassificationSourceModel } from '../source/classification-source.model';
 import { UserClassificationRepository } from './user-classification.repository';
+import { ClassificationSourceRepository } from '../source/classification-source.repository';
+import { getClassificationSources } from '../../mocks/classificationSources';
+import { getClassifications } from '../../mocks/userClassifications';
 
 const classificationsMock: IUserClassification[] = [
     { classificationId: 1, user: 'a@a', layer: 2 },
@@ -15,10 +19,14 @@ const classificationsMock: IUserClassification[] = [
     { classificationId: 3, user: 'c@c', layer: 2 },
 ];
 
+const classificationSources = getClassificationSources();
+const userClassifications = getClassifications().classifications;
+
 describe('Classification Repository', function () {
     before(async function () {
         mongoose.set('useCreateIndex', true);
         await mongoose.connect(config.db.connectionString, { useNewUrlParser: true });
+        await ClassificationSourceModel.insertMany(classificationSources);
     });
 
     afterEach(async function () {
@@ -26,6 +34,7 @@ describe('Classification Repository', function () {
     });
 
     after(async function () {
+        await ClassificationSourceModel.deleteMany({}).exec();
         await mongoose.connection.close();
     });
 
@@ -179,6 +188,59 @@ describe('Classification Repository', function () {
             expect(classifications).to.exist;
             expect(classifications).to.be.an('array');
             expect(classifications).to.have.lengthOf(classificationsMock.filter(c => c.user === 'a@a').length);
+        });
+    });
+
+    describe('#getSearchedUserSources()', function () {
+
+        it.only('Should return empty array when user is not classified to any sources', async function () {
+            await UserClassificationModel.insertMany(userClassifications);
+
+            const classifications = await ClassificationSourceRepository.getSearchedUserSources('test@user');
+
+            expect(classifications).to.exist;
+            expect(classifications).to.be.an('array');
+            expect(classifications).to.have.lengthOf(0);
+        });
+
+        it.only('Should return empty array when filter doesn\'t match any source', async function () {
+            await UserClassificationModel.insertMany(userClassifications);
+
+            const classifications = await ClassificationSourceRepository.getSearchedUserSources('a@a', 'nonExists');
+
+            expect(classifications).to.exist;
+            expect(classifications).to.be.an('array');
+            expect(classifications).to.have.lengthOf(0);
+        });
+
+        it.only('Should return array with user\'s sources when user is classified to some filtered sources', async function () {
+            await UserClassificationModel.insertMany(userClassifications);
+
+            const classifications = await ClassificationSourceRepository.getSearchedUserSources('a@a', '2');
+
+            expect(classifications).to.exist;
+            expect(classifications).to.be.an('array');
+
+            const permittedSources = classificationSources.filter((source) => {
+                return (!!userClassifications.find(c => c.classificationId === source.classificationId && c.layer >= source.layer && source.name.includes('2')));
+            });
+
+            expect(classifications).to.have.lengthOf(permittedSources.length);
+        });
+
+        it.only('Should return array with all user\'s sources when filter is empty', async function () {
+            await UserClassificationModel.insertMany(userClassifications);
+
+            const classifications = await ClassificationSourceRepository.getSearchedUserSources('a@a', '');
+
+            expect(classifications).to.exist;
+            expect(classifications).to.be.an('array');
+
+            const permittedSources = classificationSources.filter((source) => {
+                return (!!userClassifications.find(c => c.classificationId === source.classificationId && c.layer >= source.layer && source.name.includes('')));
+            });
+
+            expect(classifications).to.have.lengthOf(permittedSources.length);
         });
     });
 });
