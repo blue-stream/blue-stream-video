@@ -9,8 +9,7 @@ export class ClassificationSourceRepository {
                 { $sort: { name: 1 } },
             ]);
         }
-        console.log(userId);
-        console.log(searchFilter);
+
         return ClassificationSourceModel.aggregate([
             { $match: { name: { $regex: searchFilter, $options: 'i' } } },
             {
