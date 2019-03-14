@@ -12,7 +12,7 @@ import { UserClassificationModel } from './user-classification/user-classificati
 import { UserPpModel } from './user-pp/user-pp.model';
 import { PpModel } from './pp/pp.model';
 
-describe('Classification Module', function () {
+describe('Classification Router', function () {
     let server: Server;
     const authorizationHeader = `Bearer ${sign({ id: 'a@a' }, config.authentication.secret)}`;
     const unExistingUserauthorizationHeader = `Bearer ${sign({ id: 'unExisting@user' }, config.authentication.secret)}`;
@@ -54,6 +54,8 @@ describe('Classification Module', function () {
                         expect(res.body).to.be.an('array');
                         const returnedSources: { id: string, name: string }[] = res.body;
 
+                        expect(returnedSources).to.not.be.empty;
+
                         returnedSources.forEach((source) => {
                             expect(source).to.have.property('id');
                             expect(source).to.have.property('name');
@@ -77,6 +79,8 @@ describe('Classification Module', function () {
                         expect(res.body).to.be.an('array');
 
                         const returnedSources: { id: string, name: string }[] = res.body;
+
+                        expect(returnedSources).to.not.be.empty;
 
                         returnedSources.forEach((source) => {
                             expect(source).to.have.property('id');
@@ -123,6 +127,8 @@ describe('Classification Module', function () {
                         expect(res.body).to.be.an('array');
                         const returnedPps: { id: string, name: string }[] = res.body;
 
+                        expect(returnedPps).to.not.be.empty;
+
                         returnedPps.forEach((pp) => {
                             expect(pp).to.have.property('id');
                             expect(pp).to.have.property('name');
@@ -134,7 +140,7 @@ describe('Classification Module', function () {
 
             it('Should return filtered arr with user\'s pps', function (done: MochaDone) {
                 request(server.app)
-                    .get(`/api/classification/pps?searchFilter=2`)
+                    .get(`/api/classification/pps?searchFilter=1`)
                     .set({ authorization: authorizationHeader })
                     .expect(200)
                     .expect('Content-Type', /json/)
@@ -146,6 +152,8 @@ describe('Classification Module', function () {
                         expect(res.body).to.be.an('array');
 
                         const returnedPps: { id: string, name: string }[] = res.body;
+
+                        expect(returnedPps).to.not.be.empty;
 
                         returnedPps.forEach((pp) => {
                             expect(pp).to.have.property('id');
