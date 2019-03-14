@@ -172,10 +172,11 @@ describe('Pp Repository', function () {
     });
 
     describe('#getSearchedUserPps()', function () {
+        beforeEach(async function () {
+            await UserPpModel.insertMany(userClassifications);
+        });
 
         it('Should return empty array when user is not classified to any pps', async function () {
-            await UserPpModel.insertMany(userClassifications);
-
             const classifications = await UserPpRepository.getSearchedUserPps('test@user');
 
             expect(classifications).to.exist;
@@ -184,8 +185,6 @@ describe('Pp Repository', function () {
         });
 
         it('Should return empty array when filter doesn\'t match any pp', async function () {
-            await UserPpModel.insertMany(userClassifications);
-
             const classifications = await UserPpRepository.getSearchedUserPps('a@a', 'nonExists');
 
             expect(classifications).to.exist;
@@ -194,8 +193,6 @@ describe('Pp Repository', function () {
         });
 
         it('Should return array with user\'s pps when user is classified to some filtered pps', async function () {
-            await UserPpModel.insertMany(userClassifications);
-
             const classifications = await UserPpRepository.getSearchedUserPps('a@a', '1');
 
             expect(classifications).to.exist;
@@ -214,8 +211,6 @@ describe('Pp Repository', function () {
         });
 
         it('Should return array with all user\'s pps when filter is empty', async function () {
-            await UserPpModel.insertMany(userClassifications);
-
             const classifications = await UserPpRepository.getSearchedUserPps('a@a', '');
 
             expect(classifications).to.exist;
@@ -234,8 +229,6 @@ describe('Pp Repository', function () {
         });
 
         it('Should return array with all pps when isSysAdmin true without filter', async function () {
-            await UserPpModel.insertMany(userClassifications);
-
             const classifications = await UserPpRepository.getSearchedUserPps('a@a', '', true);
 
             expect(classifications).to.exist;
