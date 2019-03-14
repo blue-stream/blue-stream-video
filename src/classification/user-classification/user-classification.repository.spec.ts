@@ -192,10 +192,11 @@ describe('Classification Repository', function () {
     });
 
     describe('#getSearchedUserSources()', function () {
+        beforeEach(async function () {
+            await UserClassificationModel.insertMany(userClassifications);
+        });
 
         it('Should return empty array when user is not classified to any sources', async function () {
-            await UserClassificationModel.insertMany(userClassifications);
-
             const classifications = await ClassificationSourceRepository.getSearchedUserSources('test@user');
 
             expect(classifications).to.exist;
@@ -204,8 +205,6 @@ describe('Classification Repository', function () {
         });
 
         it('Should return empty array when filter doesn\'t match any source', async function () {
-            await UserClassificationModel.insertMany(userClassifications);
-
             const classifications = await ClassificationSourceRepository.getSearchedUserSources('a@a', 'nonExists');
 
             expect(classifications).to.exist;
@@ -214,12 +213,12 @@ describe('Classification Repository', function () {
         });
 
         it('Should return array with user\'s sources when user is classified to some filtered sources', async function () {
-            await UserClassificationModel.insertMany(userClassifications);
-
             const classifications = await ClassificationSourceRepository.getSearchedUserSources('a@a', '2');
 
             expect(classifications).to.exist;
             expect(classifications).to.be.an('array');
+
+            expect(classifications).to.not.have.lengthOf(0);
 
             const permittedSources = classificationSources.filter((source) => {
                 return (!!userClassifications.find(c => c.classificationId === source.classificationId && c.layer >= source.layer && source.name.includes('2')));
@@ -234,12 +233,12 @@ describe('Classification Repository', function () {
         });
 
         it('Should return array with all user\'s sources when filter is empty', async function () {
-            await UserClassificationModel.insertMany(userClassifications);
-
             const classifications = await ClassificationSourceRepository.getSearchedUserSources('a@a', '');
 
             expect(classifications).to.exist;
             expect(classifications).to.be.an('array');
+
+            expect(classifications).to.not.have.lengthOf(0);
 
             const permittedSources = classificationSources.filter((source) => {
                 return (!!userClassifications.find(c => c.classificationId === source.classificationId && c.layer >= source.layer && source.name.includes('')));
@@ -254,12 +253,12 @@ describe('Classification Repository', function () {
         });
 
         it('Should return array with all sources when isSysAdmin true without filter', async function () {
-            await UserClassificationModel.insertMany(userClassifications);
-
             const classifications = await ClassificationSourceRepository.getSearchedUserSources('a@a', '', true);
 
             expect(classifications).to.exist;
             expect(classifications).to.be.an('array');
+
+            expect(classifications).to.not.have.lengthOf(0);
 
             expect(classifications).to.have.lengthOf(classificationSources.length);
 
