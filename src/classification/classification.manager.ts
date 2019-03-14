@@ -55,11 +55,11 @@ export class ClassificationManager {
         };
     }
 
-    static getUserSources(userId: string, searchFilter: string) {
-        return ClassificationSourceRepository.getSearchedUserSources(userId, searchFilter);
+    static getUserSources(userId: string, searchFilter: string, isSysAdmin: boolean = false) {
+        return ClassificationSourceRepository.getSearchedUserSources(userId, searchFilter, isSysAdmin);
     }
 
-    static getUserPps(userId: string, searchFilter: string) {
-        return UserPpRepository.getSearchedUserPps(userId, searchFilter);
+    static getUserPps(userId: string, searchFilter: string, isSysAdmin: boolean = false) {
+        return UserPpRepository.getSearchedUserPps(userId, searchFilter, isSysAdmin);
     }
 }
