@@ -60,14 +60,19 @@ export class VideoRepository {
         sortOrder: -1 | 1 = -1,
         sortBy: keyof IVideo = 'views',
     ) {
+        const startIdx: number = !Number.isNaN(+startIndex) ? +startIndex : 0;
+        const endIdx: number = !Number.isNaN(+endIndex) ? +endIndex : config.pagination.resultsPerPage;
+        const srtOrder: 1 | -1 = (!Number.isNaN(sortOrder) ? +sortOrder : -1) as 1 | -1;
+        const limit: number = endIdx > startIdx ? endIdx - startIdx : startIdx + config.pagination.resultsPerPage;
+
         return VideoModel.aggregate([
             ...customMatcher
                 ? [{ $match: customMatcher }]
                 : [],
             ...VideoAggregator.getClassificationsAggregator(classifications, isSysAdmin),
-            { $sort: { [sortBy]: !Number.isNaN(sortOrder) ? +sortOrder : -1 } },
-            { $skip: !Number.isNaN(+startIndex) ? +startIndex : 0 },
-            { $limit: endIndex - startIndex },
+            { $sort: { [sortBy]: srtOrder } },
+            { $skip: startIdx },
+            { $limit: limit },
         ]).exec();
     }
 
