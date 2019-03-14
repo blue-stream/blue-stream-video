@@ -27,6 +27,10 @@ export class Server {
         });
     }
 
+    public close() {
+        this.server.close();
+    }
+
     private configureMiddlewares() {
         this.app.use(helmet());
 
