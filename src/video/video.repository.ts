@@ -39,7 +39,7 @@ export class VideoRepository {
     static getById(id: string): Promise<IVideo | null> {
         return VideoModel.findById(
             id,
-        ).populate('classificationSource').exec();
+        ).populate('classificationSource pp').exec();
     }
 
     static getOne(videoFilter: Partial<IVideo>): Promise<IVideo | null> {
