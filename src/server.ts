@@ -7,6 +7,7 @@ import { config } from './config';
 import { AppRouter } from './router';
 import { userErrorHandler, serverErrorHandler, unknownErrorHandler } from './utils/errors/errorHandler';
 import { Authenticator } from './utils/authenticator';
+import { log } from './utils/logger';
 
 export class Server {
     public app: express.Application;
@@ -23,7 +24,7 @@ export class Server {
         this.initializeErrorHandler();
         this.server = http.createServer(this.app);
         this.server.listen(config.server.port, () => {
-            console.log(`Server running in ${process.env.NODE_ENV || 'development'} environment on port ${config.server.port}`);
+            log('verbose', 'Server', `Server running in ${process.env.NODE_ENV || 'development'} environment on port ${config.server.port}`);
         });
     }
 

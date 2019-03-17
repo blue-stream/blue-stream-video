@@ -1,5 +1,6 @@
 import * as amqplib from 'amqplib';
 import { config } from '../config';
+import { log } from './logger';
 
 let connection: amqplib.Connection;
 let publishChannel: amqplib.Channel;
@@ -30,7 +31,7 @@ export async function connect() {
     const { username, password, host, port } = config.rabbitMQ;
     connection = await amqplib.connect(`amqp://${username}:${password}@${host}:${port}`);
 
-    console.log(`[RabbitMQ] connected on port ${port}`);
+    log('verbose', 'RabbitMQ', `Connected on port ${port}`);
 
     return connection;
 }

@@ -1,56 +1,38 @@
-import * as llama from 'llamajs';
+import * as winston from 'winston';
+import * as os from 'os';
+const Elasticsearch = require('winston-elasticsearch');
 import { config } from '../config';
 
-interface LogMessage extends llama.LogMessage {
-    timestamp: Date;
-    description: string;
-    hostname: string;
+const indexTemplateMapping = require('winston-elasticsearch/index-template-mapping.json');
+indexTemplateMapping.index_patterns = 'blue-stream-logs-*';
+
+export const logger = winston.createLogger({
+    defaultMeta: { service: config.server.name, hostname: os.hostname() },
+});
+
+if (config.logger.elasticsearch) {
+    const elasticsearch = new Elasticsearch({
+        indexPrefix: 'blue-stream-logs',
+        level: 'verbose',
+        clientOps: config.logger.elasticsearch,
+        bufferLimit: 100,
+        ensureMappingTemplate: true,
+        mappingTemplate: indexTemplateMapping,
+    });
+    logger.add(elasticsearch);
+} else {
+    const winstonConsole = new winston.transports.Console({
+        level: 'silly',
+        format: winston.format.combine(
+            winston.format.timestamp({
+                format: 'YYYY-MM-DD HH:mm:ss',
+            }),
+            winston.format.json(),
+        ),
+    });
+    logger.add(winstonConsole);
 }
 
-export class Logger {
-    private static logger: llama.Logger;
-
-    public static configure() {
-        const rabbitTransport: llama.RabbitMqTransport = new llama.RabbitMqTransport({
-            durable: config.logger.durable,
-            exchanegType: config.logger.exchangeType,
-            exchange: config.logger.exchange,
-            format: new llama.JsonFormat({}),
-            host: config.logger.host,
-            port: config.logger.port,
-            levels: [
-                llama.syslogSeverityLevels.Informational,
-                llama.syslogSeverityLevels.Warning,
-                llama.syslogSeverityLevels.Error,
-                llama.syslogSeverityLevels.Emergency,
-            ],
-            password: config.logger.password,
-            username: config.logger.username,
-            persistent: config.logger.persistent,
-        } as llama.RabbitMqConfig);
-
-        const llamaConfig: llama.LoggerConfig = {
-            levels: llama.syslogSeverityLevels,
-            transports: [rabbitTransport],
-        };
-
-        Logger.logger = new llama.Logger(llamaConfig);
-    }
-
-    public static log(severity: llama.SeverityLevel, name: string, description: string) {
-        if (!Logger.logger) {
-            Logger.configure();
-        }
-
-        const message: LogMessage = {
-            severity,
-            name,
-            description,
-            timestamp: new Date(),
-            hostname: config.server.name,
-        };
-        const rabbitMqTopicKey: string = `${message.severity}.${message.name}.${message.hostname}`;
-
-        Logger.logger.log(message, { routingKey: rabbitMqTopicKey } as llama.RabbitMqMessageConfig);
-    }
-}
+export const log = (severity: string, name: string, description: string, correlationId?: string, user?: string, more?: any) => {
+    logger.log(severity, { name, description, correlationId, user, ...more });
+};

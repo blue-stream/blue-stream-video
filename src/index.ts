@@ -1,32 +1,31 @@
 import * as mongoose from 'mongoose';
 import { Server } from './server';
 import * as rabbit from './utils/rabbit';
-import { Logger } from './utils/logger';
+import { log } from './utils/logger';
 import { config } from './config';
-import { syslogSeverityLevels } from 'llamajs';
 import { VideoBroker } from './video/video.broker';
 import { RPCServer } from './utils/rpc.server';
 
 process.on('uncaughtException', (err) => {
-    console.error('Unhandled Exception', err.stack);
+    log('error', 'Unhandled Exception', err.message, undefined, undefined, { error: err });
     rabbit.closeConnection();
     process.exit(1);
 });
 
 process.on('unhandledRejection', (err) => {
-    console.error('Unhandled Rejection', err);
+    log('error', 'Unhandled Rejection', err.message, undefined, undefined, { error: err });
     rabbit.closeConnection();
     process.exit(1);
 });
 
 process.on('SIGINT', async () => {
     try {
-        console.log('User Termination');
+        log('info', 'User Termination', 'application was terminated by the user (SIGINT event)');
         await mongoose.disconnect();
         rabbit.closeConnection();
         process.exit(0);
     } catch (error) {
-        console.error('Faild to close connections', error);
+        log('error', 'Connection error', 'failed to close connection', undefined, undefined, { error });
     }
 });
 
@@ -37,26 +36,24 @@ process.on('SIGINT', async () => {
         { useNewUrlParser: true },
     );
 
-    console.log('[MongoDB] connected');
-
-    Logger.configure();
-    Logger.log(syslogSeverityLevels.Informational, 'Server Started', `Port: ${config.server.port}`);
+    log('verbose', 'MongoDB', 'db connected');
+    log('verbose', 'Server Started', `Port: ${config.server.port}`);
 
     await rabbit.connect();
 
     await VideoBroker.subscribe();
 
-    console.log('Starting RPC Server');
+    log('verbose', 'RPC', 'starting RPC server');
     RPCServer.http().listen(config.rpc.port, function () {
-        console.log(`RPC server running on port ${config.rpc.port}`);
+        log('verbose', 'RPC', `RPC server running on port ${config.rpc.port}`);
     });
 
-    console.log('Starting server');
+    log('verbose', 'Server', 'Starting server');
     const server: Server = Server.bootstrap();
 
     server.app.on('close', () => {
         rabbit.closeConnection();
         mongoose.disconnect();
-        console.log('Server closed');
+        log('verbose', 'Server', 'Server closed');
     });
 })();
