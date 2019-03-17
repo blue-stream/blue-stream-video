@@ -1,5 +1,6 @@
 import * as mongoose from 'mongoose';
 import { IClassificationLastUpdate } from './classification-last-update.interface';
+import { config } from '../../config';
 
 const classificationLastUpdateSchema: mongoose.Schema = new mongoose.Schema(
     {
@@ -12,7 +13,7 @@ const classificationLastUpdateSchema: mongoose.Schema = new mongoose.Schema(
     {
         versionKey: false,
         timestamps: {
-            createdAt: false,
+            createdAt: 'createdAt',
             updatedAt: 'date',
         },
         toJSON: {
@@ -23,5 +24,8 @@ const classificationLastUpdateSchema: mongoose.Schema = new mongoose.Schema(
         },
     },
 );
+
+// If `config.classification.expirationDays` is changed, mongodb index need to be changed manully.
+classificationLastUpdateSchema.index({ createdAt: 1 }, { expireAfterSeconds: config.classifications.expirationDays });
 
 export const ClassificationLastUpdateModel = mongoose.model<IClassificationLastUpdate & mongoose.Document>('ClassificationLastUpdate', classificationLastUpdateSchema);

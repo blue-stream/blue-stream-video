@@ -31,30 +31,5 @@ describe('Classification Last Update', function () {
 
             expect(shouldUpdate).to.be.false;
         });
-
-        it('Should return true when classifications expired', async function () {
-
-            await ClassificationLastUpdateModel.collection.insert({
-                user: 'test@test',
-                date: new Date(Date.now() + 24 * 60 * 60 * 1000 * (config.classifications.expirationDays + 1)),
-            });
-
-            const shouldUpdate = await shouldUpdateUserClassifications('test@test');
-
-            expect(shouldUpdate).to.be.true;
-        });
-
-        it('Should update date when expired', async function () {
-            await ClassificationLastUpdateModel.collection.insert({
-                user: 'test@test',
-                date: new Date(Date.now() + 24 * 60 * 60 * 1000 * (config.classifications.expirationDays + 1)),
-            });
-
-            const shouldUpdate = await shouldUpdateUserClassifications('test@test');
-            expect(shouldUpdate).to.be.true;
-
-            const shouldUpdateNow = await shouldUpdateUserClassifications('test@test');
-            expect(shouldUpdateNow).to.be.false;
-        });
     });
 });
