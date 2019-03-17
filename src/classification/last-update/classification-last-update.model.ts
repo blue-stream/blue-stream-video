@@ -8,12 +8,12 @@ const classificationLastUpdateSchema: mongoose.Schema = new mongoose.Schema(
             type: String,
             required: true,
             unique: true,
-        }
+        },
     },
     {
         versionKey: false,
         timestamps: {
-            createdAt: 'expireAt',
+            createdAt: 'createdAt',
             updatedAt: 'date',
         },
         toJSON: {
@@ -26,6 +26,6 @@ const classificationLastUpdateSchema: mongoose.Schema = new mongoose.Schema(
 );
 
 // If `config.classification.expirationDays` is changed, mongodb index need to be changed manully.
-classificationLastUpdateSchema.index({ expireAt: 1 }, { expireAfterSeconds: config.classifications.expirationDays * 24 * 60 * 60 });
+classificationLastUpdateSchema.index({ createdAt: 1 }, { expireAfterSeconds: config.classifications.expirationDays });
 
 export const ClassificationLastUpdateModel = mongoose.model<IClassificationLastUpdate & mongoose.Document>('ClassificationLastUpdate', classificationLastUpdateSchema);
