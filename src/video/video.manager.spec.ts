@@ -260,7 +260,7 @@ describe('Video Manager', function () {
                 const fetchedVideo = await VideoManager.getById(video.id!, 'c@moreThenLittle');
 
                 expect(fetchedVideo).to.exist;
-                expect(fetchedVideo).to.have.property('pp', 5);
+                expect(fetchedVideo).to.have.property('pp').which.has.property('_id', 5);
                 expect(fetchedVideo).to.have.property('classificationSource').which.has.property('classificationId', 7);
             });
         });
