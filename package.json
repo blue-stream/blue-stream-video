@@ -4,7 +4,9 @@
   "description": "A microservice handles video's metadata",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && cross-env NODE_ENV=production node ./dist/index.js",
+    "build": "tsc",
+    "dev": "ts-node ./src/index.ts",
+    "start": "node ./dist/index.js",
     "test": "mocha --recursive --timeout 10000 -r ts-node/register \"src/**/*.spec.ts\" --exit",
     "pretest": "cross-env NODE_ENV=test",
     "test:validation": "cross-env NODE_ENV=test mocha --recursive -r ts-node/register \"src/**/*.validator.spec.ts\" --exit",
