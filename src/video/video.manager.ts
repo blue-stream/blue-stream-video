@@ -7,6 +7,7 @@ import { UnauthorizedError, VideoValidationFailedError } from '../utils/errors/u
 import { ClassificationSourceModel } from '../classification/source/classification-source.model';
 import { ClassificationManager } from '../classification/classification.manager';
 import { PpModel } from '../classification/pp/pp.model';
+import { IPp } from '../classification/pp/pp.interface';
 
 export class VideoManager implements VideoRepository {
     static async create(video: IVideo) {
@@ -54,7 +55,7 @@ export class VideoManager implements VideoRepository {
             if (!video.pp) {
                 hasPps = true;
             } else {
-                hasPps = userClassifications.pps.some(pp => pp.ppId === video.pp);
+                hasPps = userClassifications.pps.some(pp => pp.ppId === (video.pp as IPp)._id);
             }
 
             if (!hasClassifications || !hasPps) throw new UnauthorizedError();
