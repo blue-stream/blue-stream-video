@@ -26,6 +26,6 @@ const classificationLastUpdateSchema: mongoose.Schema = new mongoose.Schema(
 );
 
 // If `config.classification.expirationDays` is changed, mongodb index need to be changed manully.
-classificationLastUpdateSchema.index({ createdAt: 1 }, { expireAfterSeconds: config.classifications.expirationDays });
+classificationLastUpdateSchema.index({ createdAt: 1 }, { expireAfterSeconds: config.classifications.expirationDays * 24 * 60 * 60 });
 
 export const ClassificationLastUpdateModel = mongoose.model<IClassificationLastUpdate & mongoose.Document>('ClassificationLastUpdate', classificationLastUpdateSchema);
