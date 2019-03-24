@@ -14,7 +14,7 @@ if (config.logger.elasticsearch) {
     const elasticsearch = new Elasticsearch({
         indexPrefix: 'blue-stream-logs',
         level: 'verbose',
-        clientOps: config.logger.elasticsearch,
+        clientOpts: config.logger.elasticsearch,
         bufferLimit: 100,
         ensureMappingTemplate: true,
         mappingTemplate: indexTemplateMapping,
