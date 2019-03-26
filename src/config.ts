@@ -32,7 +32,7 @@ export const config = {
     allowedExtensions: {
         images: ['png', 'jpg', 'jpeg', 'bmp'],
         videos: ['mkv', 'flv', 'ogg', 'avi', 'mov', 'wmv', 'amv', 'mp4', 'm4p', 'm4v', 'mpv', 'mpg', 'mpeg'],
-        previews: ['gif'],
+        previews: ['gif', 'png', 'jpg', 'jpeg', 'bmp'],
     },
     viewDebounceDuration: +(process.env.VIEW_DEBOUNCE_DURATION || 15), // minutes,
     pagination: {
