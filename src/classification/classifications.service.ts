@@ -9,7 +9,7 @@ export class ClassificationService {
     static async fetchClassifications(userId: string): Promise<IClassification> {
         const result = await ClassificationHttpClient.get(
             config.classifications.service.userPermissionsEndpoint,
-            { userName: userId },
+            { userName: userId.split('@')[0] },
         ).catch((error) => {
             log('warn', 'Fetch error (fetchClassifications)', 'Failed to fetch user classifications', undefined, userId, { error });
             return undefined;
