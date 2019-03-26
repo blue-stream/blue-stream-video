@@ -9,7 +9,7 @@ export class UserClassificationsServiceMock {
     static startMock() {
         UserClassificationsServiceMock.mock = new MockAdapter.default(ClassificationHttpClient.axiosInstance);
 
-        UserClassificationsServiceMock.mock.onGet(`/userPermissions?${stringify({ userName: 'c@moreThenLittle' })}`).reply(200, {
+        UserClassificationsServiceMock.mock.onGet(`/userPermissions?${stringify({ userName: 'c' })}`).reply(200, {
             classification: 3,
             classificationsAllow: [
                 {
@@ -73,7 +73,7 @@ export class UserClassificationsServiceMock {
             ],
         });
 
-        UserClassificationsServiceMock.mock.onGet(`/userPermissions?${stringify({ userName: 'b@classifications' })}`).reply(200, {
+        UserClassificationsServiceMock.mock.onGet(`/userPermissions?${stringify({ userName: 'b' })}`).reply(200, {
             classification: 3,
             classificationsAllow: [
                 {
@@ -88,7 +88,7 @@ export class UserClassificationsServiceMock {
             ppAllow: [],
         });
 
-        UserClassificationsServiceMock.mock.onGet(`/userPermissions?${stringify({ userName: 'c@lowerLayer' })}`).reply(200, {
+        UserClassificationsServiceMock.mock.onGet(`/userPermissions?${stringify({ userName: 'l' })}`).reply(200, {
             classification: 3,
             classificationsAllow: [
                 {
@@ -99,13 +99,13 @@ export class UserClassificationsServiceMock {
             ppAllow: [],
         });
 
-        UserClassificationsServiceMock.mock.onGet(`/userPermissions?${stringify({ userName: 'a@none' })}`).reply(200, {
+        UserClassificationsServiceMock.mock.onGet(`/userPermissions?${stringify({ userName: 'a' })}`).reply(200, {
             classification: 3,
             classificationsAllow: [],
             ppAllow: [],
         });
 
-        UserClassificationsServiceMock.mock.onGet(`/userPermissions?${stringify({ userName: 'unknown@user' })}`).reply(200, null);
+        UserClassificationsServiceMock.mock.onGet(`/userPermissions?${stringify({ userName: 'unknown' })}`).reply(200, null);
     }
 
     static stopMock() {
