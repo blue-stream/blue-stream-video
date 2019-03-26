@@ -25,7 +25,8 @@ export class Authenticator {
     }
 
     public static middleware(req: Request, res: Response, next: NextFunction) {
-        passport.authenticate('jwt', { session: false })(req, res, next);
+        if (req.path === '/health') return next();
+        return passport.authenticate('jwt', { session: false })(req, res, next);
     }
 
     public static mockUser(req: Request, res: Response, next: NextFunction) {
