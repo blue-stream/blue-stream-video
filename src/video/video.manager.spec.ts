@@ -194,7 +194,7 @@ describe('Video Manager', function () {
                 let hasThrown = false;
 
                 try {
-                    await VideoManager.getById(classifiedVideo.id!, 'c@lowerLayer');
+                    await VideoManager.getById(classifiedVideo.id!, 'l');
                 } catch (err) {
                     expect(err).to.exist;
                     expect(err).to.be.instanceOf(UnauthorizedError);
