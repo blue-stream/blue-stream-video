@@ -10,12 +10,12 @@ type ObjectId = Types.ObjectId;
 
 export class ViewManager {
 
-    static async addView(video: ObjectId, user: string): Promise<void> {
+    static async addView(video: ObjectId, user: string, isSysAdmin: boolean): Promise<void> {
         const view = await ViewRepository.getOne(video, user);
         let canView = false;
 
         if (!view) {
-            const vid = await VideoManager.getById(video.toHexString(), user);
+            const vid = await VideoManager.getById(video.toHexString(), user, isSysAdmin);
             if (!vid) throw new VideoNotFoundError();
 
             canView = !!vid;
