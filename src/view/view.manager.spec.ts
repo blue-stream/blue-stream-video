@@ -73,7 +73,7 @@ describe('View Manager', function () {
                 _view = await ViewRepository.getOne(videoId, view.user);
                 expect(_view).to.not.exist;
 
-                await ViewManager.addView(videoId, view.user);
+                await ViewManager.addView(videoId, view.user, false);
 
                 _view = await ViewRepository.getOne(videoId, view.user);
                 expect(_view).to.exist;
@@ -86,10 +86,10 @@ describe('View Manager', function () {
             it('Should not change view\'s amount if `viewDebounceDuration` did not pass', async function () {
 
                 // Create the view
-                await ViewManager.addView(videoId, view.user);
+                await ViewManager.addView(videoId, view.user, false);
 
                 // Try to increase amount
-                await ViewManager.addView(videoId, view.user);
+                await ViewManager.addView(videoId, view.user, false);
 
                 const _view = await ViewRepository.getOne(videoId, view.user);
                 expect(_view).to.exist;
@@ -99,7 +99,7 @@ describe('View Manager', function () {
             it('Should change view\'s amount if `viewDebounceDuration` passed', async function () {
 
                 // Create the view
-                await ViewManager.addView(videoId, view.user);
+                await ViewManager.addView(videoId, view.user, false);
 
                 const originalDateNow = Date.now;
 
@@ -110,7 +110,7 @@ describe('View Manager', function () {
 
                 const viewPromises = [];
                 for (let i = 0; i < 10; i++) {
-                    viewPromises.push(ViewManager.addView(videoId, view.user));
+                    viewPromises.push(ViewManager.addView(videoId, view.user, false));
                 }
 
                 await Promise.all(viewPromises);
@@ -126,7 +126,7 @@ describe('View Manager', function () {
                 let hasThrown = false;
 
                 try {
-                    await ViewManager.addView(new ObjectId(), 'random@user');
+                    await ViewManager.addView(new ObjectId(), 'random@user', false);
                 } catch (err) {
                     hasThrown = true;
                     expect(err).to.be.instanceOf(VideoNotFoundError);
