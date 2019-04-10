@@ -130,6 +130,26 @@ export class VideoRepository {
         );
     }
 
+    static getPopularTags(
+        startIndex: number = config.pagination.startIndex,
+        endIndex: number = config.pagination.endIndex) {
+
+        return VideoModel.aggregate([
+            { $project: { tag: '$tags' } },
+            { $unwind: '$tag' },
+            {
+                $group: {
+                    _id: { $toLower: '$tag' },
+                    count: { $sum: 1 },
+                },
+            },
+            { $sort: { count: -1 } },
+            { $project: { id: '$_id', _id: 0 } },
+            { $skip: startIndex },
+            { $limit: endIndex },
+        ]);
+    }
+
     static increaseViews(id: string): Promise<IVideo | null> {
         return VideoModel.findByIdAndUpdate(
             id,
