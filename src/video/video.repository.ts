@@ -148,7 +148,7 @@ export class VideoRepository {
             { $sort: { count: -1 } },
             { $project: { id: '$_id', _id: 0 } },
             { $skip: startIdx },
-            { $limit: endIdx },
+            { $limit: endIdx - startIdx },
         ]);
     }
 
