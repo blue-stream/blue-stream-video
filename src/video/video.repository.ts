@@ -133,6 +133,8 @@ export class VideoRepository {
     static getPopularTags(
         startIndex: number = config.pagination.startIndex,
         endIndex: number = config.pagination.endIndex) {
+        const startIdx: number = !Number.isNaN(+startIndex) ? +startIndex : 0;
+        const endIdx: number = !Number.isNaN(+endIndex) ? +endIndex : config.pagination.resultsPerPage;
 
         return VideoModel.aggregate([
             { $project: { tag: '$tags' } },
@@ -145,8 +147,8 @@ export class VideoRepository {
             },
             { $sort: { count: -1 } },
             { $project: { id: '$_id', _id: 0 } },
-            { $skip: startIndex },
-            { $limit: endIndex },
+            { $skip: startIdx },
+            { $limit: endIdx },
         ]);
     }
 
