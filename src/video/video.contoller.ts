@@ -82,4 +82,11 @@ export class VideoController {
             req.query.sortBy,
         ));
     }
+
+    static async getPopularTags(req: Request, res: Response) {
+        res.json(await VideoManager.getPopularTags(
+            req.query.startIndex,
+            req.query.endIndex,
+        ));
+    }
 }

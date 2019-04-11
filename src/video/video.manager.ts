@@ -101,6 +101,12 @@ export class VideoManager implements VideoRepository {
         );
     }
 
+    static async getPopularTags(startIndex?: number, endIndex?: number) {
+        const tags = await VideoRepository.getPopularTags(startIndex, endIndex);
+
+        return tags.map(t => t.id);
+    }
+
     private static async verifyClassifications(source?: number, pp?: number) {
         if (source) {
             const fetchedSource = await ClassificationSourceModel.findById(source);

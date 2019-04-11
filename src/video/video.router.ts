@@ -11,6 +11,7 @@ VideoRouter.delete('/:id', VideoValidator.canDeleteById, Wrapper.wrapAsync(Video
 VideoRouter.get('/', VideoValidator.canGetMany, Wrapper.wrapAsync(VideoController.getMany));
 VideoRouter.get('/amount', VideoValidator.canGetAmount, Wrapper.wrapAsync(VideoController.getAmount));
 VideoRouter.get('/search', VideoValidator.canGetSearched, Wrapper.wrapAsync(VideoController.getSearched));
+VideoRouter.get('/tags', VideoValidator.canGetTags, Wrapper.wrapAsync(VideoController.getPopularTags));
 VideoRouter.get('/:id', VideoValidator.canGetById, Wrapper.wrapAsync(VideoController.getById));
 
 export { VideoRouter };
