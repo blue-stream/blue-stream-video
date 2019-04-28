@@ -31,7 +31,7 @@ export const config = {
     },
     allowedExtensions: {
         images: ['png', 'jpg', 'jpeg', 'bmp'],
-        videos: ['mkv', 'flv', 'ogg', 'avi', 'mov', 'wmv', 'amv', 'mp4', 'm4p', 'm4v', 'mpv', 'mpg', 'mpeg'],
+        videos: ['mkv', 'flv', 'ogg', 'avi', 'mov', 'wmv', 'mp4', 'm4v', 'mpg', 'mpeg'],
         previews: ['gif', 'png', 'jpg', 'jpeg', 'bmp'],
     },
     viewDebounceDuration: +(process.env.VIEW_DEBOUNCE_DURATION || 15), // minutes,
