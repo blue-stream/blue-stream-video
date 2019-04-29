@@ -4,7 +4,7 @@ const Elasticsearch = require('winston-elasticsearch');
 import { config } from '../config';
 
 const indexTemplateMapping = require('winston-elasticsearch/index-template-mapping.json');
-indexTemplateMapping.index_patterns = 'blue-stream-logs-*';
+indexTemplateMapping.index_patterns = `${config.logger.indexPrefix}-*`;
 
 export const logger = winston.createLogger({
     defaultMeta: { service: config.server.name, hostname: os.hostname() },
@@ -12,7 +12,7 @@ export const logger = winston.createLogger({
 
 if (config.logger.elasticsearch) {
     const elasticsearch = new Elasticsearch({
-        indexPrefix: 'blue-stream-logs',
+        indexPrefix: config.logger.indexPrefix,
         level: 'verbose',
         clientOpts: config.logger.elasticsearch,
         bufferLimit: 100,
