@@ -18,7 +18,7 @@ export class VideoController {
     }
 
     static async deleteById(req: Request, res: Response) {
-        const deleted = await VideoManager.deleteById(req.params.id);
+        const deleted = await VideoManager.deleteById(req.params.id, req.user.id);
         if (!deleted) {
             throw new VideoNotFoundError();
         }
