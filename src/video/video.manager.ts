@@ -26,14 +26,14 @@ export class VideoManager implements VideoRepository {
         return VideoRepository.updateById(id, video);
     }
 
-    static async deleteById(id: string) {
-        const deleted = await VideoRepository.deleteById(id);
+    static async deleteById(id: string, requestingUser?: string) {
+        const deletedVideo = await VideoRepository.deleteById(id);
 
-        if (deleted) {
-            VideoBroker.publishVideoDeleted(deleted.id!);
+        if (deletedVideo) {
+            VideoBroker.publishVideoDeleted(deletedVideo.id!, requestingUser || '', deletedVideo.contentPath!, deletedVideo.previewPath!, deletedVideo.thumbnailPath!);
         }
 
-        return deleted;
+        return deletedVideo;
     }
 
     static async getById(id: string, userId: string, isSysAdmin: boolean = false) {

@@ -53,12 +53,18 @@ export class VideoBroker {
         );
     }
 
-    public static publishVideoDeleted(id: string) {
+    public static publishVideoDeleted(id: string, userId: string, contentPath: string, previewPath: string, thumbnailPath: string) {
         rabbit.publish(
             'application',
             'topic',
             'videoService.video.remove.succeeded',
-            { id },
+            {
+                id,
+                userId,
+                contentPath,
+                previewPath,
+                thumbnailPath,
+            },
             { persistent: true },
         );
     }
