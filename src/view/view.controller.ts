@@ -10,7 +10,11 @@ export class ViewController {
     }
 
     static async getViewedVideos(req: Request, res: Response) {
-        return res.json(await ViewManager.getUserViewedVideos(req.user.id));
+        return res.json(await ViewManager.getUserViewedVideos(
+            req.user.id,
+            req.query.startIndex,
+            req.query.endIndex,
+            ));
     }
 
     static async getChannelViews(req: Request, res: Response) {
