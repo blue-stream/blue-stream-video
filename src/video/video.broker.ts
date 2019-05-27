@@ -92,7 +92,14 @@ export class VideoBroker {
         });
     }
 
-    private static deleteAfterCancellation(data: { id: string }) {
+    private static async deleteAfterCancellation(data: { id: string }) {
+        const isPublished = await VideoManager.isVideoPublished(data.id);
+
+        // Relevent for reuploades
+        if (isPublished) {
+            return VideoManager.updateById(data.id, { status: VideoStatus.READY });
+        }
+
         return VideoManager.deleteById(data.id);
     }
 
@@ -109,7 +116,7 @@ export class VideoBroker {
             previewPath: data.previewPath,
             status: VideoStatus.READY,
         },
-        data.userId);
+            data.userId);
     }
 
     public static updateStatusFailed(data: { id: string }) {

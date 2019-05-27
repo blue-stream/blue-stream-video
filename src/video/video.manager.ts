@@ -77,6 +77,12 @@ export class VideoManager implements VideoRepository {
         return video;
     }
 
+    static async isVideoPublished(videoId: string) {
+        const video = await VideoRepository.getById(videoId);
+
+        return (video && video.status === VideoStatus.READY);
+    }
+
     static getOne(videoFilter: Partial<IVideo>) {
         return VideoRepository.getOne(videoFilter);
     }
