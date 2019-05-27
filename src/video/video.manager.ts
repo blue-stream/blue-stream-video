@@ -20,8 +20,21 @@ export class VideoManager implements VideoRepository {
         return VideoRepository.createMany(videos);
     }
 
-    static async updateById(id: string, video: Partial<IVideo>) {
+    static async updateById(id: string, video: Partial<IVideo>, userId?: string) {
         await VideoManager.verifyClassifications(video.classificationSource as number, video.pp as number);
+
+        if (video.contentPath) {
+            const currentVideo = await VideoRepository.getById(id);
+
+            if (currentVideo && currentVideo.contentPath) {
+                VideoBroker.publishVideoFileReplaced(
+                    id,
+                    userId || '',
+                    currentVideo.contentPath,
+                    currentVideo.previewPath || '',
+                    currentVideo.thumbnailPath);
+            }
+        }
 
         return VideoRepository.updateById(id, video);
     }
@@ -62,6 +75,12 @@ export class VideoManager implements VideoRepository {
         }
 
         return video;
+    }
+
+    static async isVideoPublished(videoId: string) {
+        const video = await VideoRepository.getById(videoId);
+
+        return (video && video.status === VideoStatus.READY);
     }
 
     static getOne(videoFilter: Partial<IVideo>) {
