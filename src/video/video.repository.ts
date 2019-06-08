@@ -5,6 +5,7 @@ import { VideoAggregator } from './video.aggregator';
 import { IVideo } from './video.interface';
 import { VideoModel } from './video.model';
 import { IClassification } from '../classification/classification.interface';
+import * as mongoose from 'mongoose';
 
 export class VideoRepository {
     static create(video: IVideo): Promise<IVideo> {
@@ -39,6 +40,14 @@ export class VideoRepository {
     static getById(id: string): Promise<IVideo | null> {
         return VideoModel.findById(
             id,
+        ).populate('classificationSource pp').exec();
+    }
+
+    static getByIds(ids: string[]): Promise<IVideo[] | null> {
+        const objectIds: mongoose.Types.ObjectId[] = ids.map(id => mongoose.Types.ObjectId(id));
+
+        return VideoModel.find(
+            { _id: { $in: objectIds } },
         ).populate('classificationSource pp').exec();
     }
 
