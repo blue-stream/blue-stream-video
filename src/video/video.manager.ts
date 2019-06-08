@@ -77,6 +77,51 @@ export class VideoManager implements VideoRepository {
         return video;
     }
 
+    static async getByIds(ids: string[], userId: string, isSysAdmin: boolean = false) {
+        const videos = await VideoRepository.getByIds(ids);
+
+        if (isSysAdmin) return videos;
+
+        if (!videos) return [];
+
+        const videosToReturn: IVideo[] = [];
+        const userClassifications = await ClassificationManager.getClassifications(userId);
+
+        videos.forEach(video => {
+            let includeVideo: boolean = true;
+            let hasClassifications: boolean = true;
+            let hasPps: boolean = true;
+
+            if (video) {
+                if (video.classificationSource) {
+                    const videoClassification = video.classificationSource as IClassificationSource;
+                    hasClassifications = userClassifications.classifications.some((classification: IUserClassification) => {
+                        return (
+                            classification.classificationId === videoClassification.classificationId &&
+                            classification.layer >= videoClassification.layer
+                        );
+                    });
+                }
+
+                if (video.pp) {
+                    hasPps = userClassifications.pps.some(pp => pp.ppId === (video.pp as IPp)._id);
+                } else {
+                    hasPps = true;
+                }
+
+                if (!hasClassifications || !hasPps) {
+                    includeVideo = false;
+                }
+            }
+
+            if (includeVideo) {
+                videosToReturn.push(video);
+            }
+        });
+
+        return videosToReturn;
+    }
+
     static async isVideoPublished(videoId: string) {
         const video = await VideoRepository.getById(videoId);
 
