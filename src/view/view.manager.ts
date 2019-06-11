@@ -37,14 +37,8 @@ export class ViewManager {
         return minutesDiff >= config.viewDebounceDuration;
     }
 
-    static async getUserViewedVideos(user: string): Promise<string[]> {
-        const views = await ViewRepository.getMany({ user });
-
-        if (views) {
-            return views.map(view => view.video.toHexString());
-        }
-
-        return [];
+    static getUserViewedVideos(user: string, startIndex?: number, endIndex?: number): Promise<IView[]> {
+        return ViewRepository.getMany({ user }, startIndex, endIndex, true);
     }
 
     static async getChannelsViews(channelIds: string | string[]): Promise<{ [channel: string]: number }> {
