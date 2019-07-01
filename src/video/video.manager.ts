@@ -95,6 +95,9 @@ export class VideoManager implements VideoRepository {
             let hasPps: boolean = true;
 
             if (video) {
+                if (video.status !== VideoStatus.READY) includeVideo = false;
+                if (video.published === false && video.owner !== userId) includeVideo = false;
+
                 if (video.classificationSource) {
                     const videoClassification = video.classificationSource as IClassificationSource;
                     hasClassifications = userClassifications.classifications.some((classification: IUserClassification) => {
