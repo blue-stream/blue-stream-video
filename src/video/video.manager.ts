@@ -54,6 +54,8 @@ export class VideoManager implements VideoRepository {
 
         if (isSysAdmin) return video;
         if (video && video.classificationSource) {
+            if (video.published === false && video.owner !== userId) throw new UnauthorizedError();
+
             const videoClassification = video.classificationSource as IClassificationSource;
             const userClassifications = await ClassificationManager.getClassifications(userId);
             const hasClassifications = userClassifications.classifications.some((classification: IUserClassification) => {
