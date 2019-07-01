@@ -117,6 +117,8 @@ export class VideoManager implements VideoRepository {
                 if (!hasClassifications || !hasPps) {
                     includeVideo = false;
                 }
+            } else {
+                includeVideo = false;
             }
 
             if (includeVideo) {
