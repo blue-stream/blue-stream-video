@@ -139,6 +139,7 @@ describe('Video Manager', function () {
         context('When video is unclassified', function () {
             it('Should return video by id', async function () {
                 const newVideo = await VideoManager.create({ title: 'title', owner: 'owner@owner', channel: 'a' } as IVideo);
+                await VideoManager.updateById(newVideo.id!, { published: true });
 
                 const video = await VideoManager.getById(newVideo.id!, 'c@moreThenLittle');
                 expect(video).to.exist;
