@@ -8,6 +8,7 @@ import { ClassificationSourceModel } from '../classification/source/classificati
 import { ClassificationManager } from '../classification/classification.manager';
 import { PpModel } from '../classification/pp/pp.model';
 import { IPp } from '../classification/pp/pp.interface';
+import { config } from '../config';
 
 export class VideoManager implements VideoRepository {
     static async create(video: IVideo) {
@@ -84,9 +85,9 @@ export class VideoManager implements VideoRepository {
         return video;
     }
 
-    static async getByIds(ids: string[], userId: string, isSysAdmin: boolean = false) {
-        const videos = await VideoRepository.getByIds(ids);
+    static async getByIds(ids: string[], userId: string, isSysAdmin: boolean = false, maxAmountToReturn: number = config.pagination.maxVideosByIds) {
 
+        const videos = await VideoRepository.getByIds(ids);
         if (isSysAdmin) return videos;
 
         if (!videos) return [];
@@ -94,14 +95,15 @@ export class VideoManager implements VideoRepository {
         const videosToReturn: IVideo[] = [];
         const userClassifications = await ClassificationManager.getClassifications(userId);
 
-        videos.forEach(video => {
+        // Will break the loop when true is returned
+        videos.some((video: IVideo) => {
             let includeVideo: boolean = true;
             let hasClassifications: boolean = true;
             let hasPps: boolean = true;
 
             if (video) {
                 if (video.status !== VideoStatus.READY) includeVideo = false;
-                if (video.published === false && video.owner !== userId) includeVideo = false;
+                if (video.published === false) includeVideo = false;
 
                 if (video.classificationSource) {
                     const videoClassification = video.classificationSource as IClassificationSource;
@@ -128,7 +130,11 @@ export class VideoManager implements VideoRepository {
 
             if (includeVideo) {
                 videosToReturn.push(video);
+
+                return (videosToReturn.length >= maxAmountToReturn);
             }
+
+            return false;
         });
 
         return videosToReturn;
