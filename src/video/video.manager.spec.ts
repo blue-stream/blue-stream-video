@@ -139,6 +139,7 @@ describe('Video Manager', function () {
         context('When video is unclassified', function () {
             it('Should return video by id', async function () {
                 const newVideo = await VideoManager.create({ title: 'title', owner: 'owner@owner', channel: 'a' } as IVideo);
+                await VideoManager.updateById(newVideo.id!, { published: true });
 
                 const video = await VideoManager.getById(newVideo.id!, 'c@moreThenLittle');
                 expect(video).to.exist;
@@ -170,7 +171,22 @@ describe('Video Manager', function () {
                 }
             });
 
+            it('Should throw error when video is private and the user is not the owner even when it has required classifications', async function () {
+                let hasThrown = false;
+
+                try {
+                    await VideoManager.getById(classifiedVideo.id!, 'c@moreThenLittle');
+                } catch (err) {
+                    expect(err).to.exist;
+                    expect(err).to.be.instanceOf(UnauthorizedError);
+                    hasThrown = true;
+                } finally {
+                    expect(hasThrown).to.be.true;
+                }
+            });
+
             it('Should return video if user has required classifications', async function () {
+                await VideoManager.updateById(classifiedVideo.id!, { published: true });
                 const video = await VideoManager.getById(classifiedVideo.id!, 'c@moreThenLittle');
                 expect(video).to.exist;
                 expect(video).to.have.property('title');
@@ -256,6 +272,7 @@ describe('Video Manager', function () {
                 await PpModel.create({ _id: 5, name: 'pp', type: 'a' });
                 await ClassificationSourceModel.create({ _id: 100, name: 'test', layer: 2, classificationId: 7 });
                 const video = await VideoManager.create({ title: 'test', channel: 'abc', owner: 'test@user', pp: 5, classificationSource: 100 } as IVideo);
+                await VideoManager.updateById(video.id!, { published: true });
 
                 const fetchedVideo = await VideoManager.getById(video.id!, 'c@moreThenLittle');
 

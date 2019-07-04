@@ -40,6 +40,7 @@ export const config = {
         resultsPerPage: 20,
         startIndex: 0,
         endIndex: 20,
+        maxVideosByIds: 40,
     },
     classifications: {
         token: process.env.CLASSIFICATIONS_API_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.B3bRU1r3QAooc974CfHtGwQUYIUjEV4wywoO0bvOO0E',

@@ -3,11 +3,12 @@ import { VideoRepository } from './video.repository';
 import { VideoBroker } from './video.broker';
 import { IClassificationSource } from '../classification/source/classification-source.interface';
 import { IUserClassification } from '../classification/user-classification/user-classification.interface';
-import { UnauthorizedError, VideoValidationFailedError } from '../utils/errors/userErrors';
+import { UnauthorizedError, VideoValidationFailedError, VideoNotFoundError } from '../utils/errors/userErrors';
 import { ClassificationSourceModel } from '../classification/source/classification-source.model';
 import { ClassificationManager } from '../classification/classification.manager';
 import { PpModel } from '../classification/pp/pp.model';
 import { IPp } from '../classification/pp/pp.interface';
+import { config } from '../config';
 
 export class VideoManager implements VideoRepository {
     static async create(video: IVideo) {
@@ -52,29 +53,91 @@ export class VideoManager implements VideoRepository {
     static async getById(id: string, userId: string, isSysAdmin: boolean = false) {
         const video = await VideoRepository.getById(id);
 
-        if (isSysAdmin) return video;
-        if (video && video.classificationSource) {
-            const videoClassification = video.classificationSource as IClassificationSource;
-            const userClassifications = await ClassificationManager.getClassifications(userId);
-            const hasClassifications = userClassifications.classifications.some((classification: IUserClassification) => {
-                return (
-                    classification.classificationId === videoClassification.classificationId &&
-                    classification.layer >= videoClassification.layer
-                );
-            });
+        if (video) {
+            if (video.published === false && video.owner !== userId) throw new UnauthorizedError();
 
-            let hasPps: boolean;
+            if (isSysAdmin) return video;
+            if (video.classificationSource) {
 
-            if (!video.pp) {
-                hasPps = true;
-            } else {
-                hasPps = userClassifications.pps.some(pp => pp.ppId === (video.pp as IPp)._id);
+                const videoClassification = video.classificationSource as IClassificationSource;
+                const userClassifications = await ClassificationManager.getClassifications(userId);
+                const hasClassifications = userClassifications.classifications.some((classification: IUserClassification) => {
+                    return (
+                        classification.classificationId === videoClassification.classificationId &&
+                        classification.layer >= videoClassification.layer
+                    );
+                });
+
+                let hasPps: boolean;
+
+                if (!video.pp) {
+                    hasPps = true;
+                } else {
+                    hasPps = userClassifications.pps.some(pp => pp.ppId === (video.pp as IPp)._id);
+                }
+
+                if (!hasClassifications || !hasPps) throw new UnauthorizedError();
             }
-
-            if (!hasClassifications || !hasPps) throw new UnauthorizedError();
+        } else {
+            throw new VideoNotFoundError();
         }
 
         return video;
+    }
+
+    static async getByIds(ids: string[], userId: string, isSysAdmin: boolean = false, maxAmountToReturn: number = config.pagination.maxVideosByIds) {
+
+        const videos = await VideoRepository.getByIds(ids);
+        if (isSysAdmin) return videos;
+
+        if (!videos) return [];
+
+        const videosToReturn: IVideo[] = [];
+        const userClassifications = await ClassificationManager.getClassifications(userId);
+
+        // Will break the loop when true is returned
+        videos.some((video: IVideo) => {
+            let includeVideo: boolean = true;
+            let hasClassifications: boolean = true;
+            let hasPps: boolean = true;
+
+            if (video) {
+                if (video.status !== VideoStatus.READY) includeVideo = false;
+                if (video.published === false) includeVideo = false;
+
+                if (video.classificationSource) {
+                    const videoClassification = video.classificationSource as IClassificationSource;
+                    hasClassifications = userClassifications.classifications.some((classification: IUserClassification) => {
+                        return (
+                            classification.classificationId === videoClassification.classificationId &&
+                            classification.layer >= videoClassification.layer
+                        );
+                    });
+                }
+
+                if (video.pp) {
+                    hasPps = userClassifications.pps.some(pp => pp.ppId === (video.pp as IPp)._id);
+                } else {
+                    hasPps = true;
+                }
+
+                if (!hasClassifications || !hasPps) {
+                    includeVideo = false;
+                }
+            } else {
+                includeVideo = false;
+            }
+
+            if (includeVideo) {
+                videosToReturn.push(video);
+
+                return (videosToReturn.length >= maxAmountToReturn);
+            }
+
+            return false;
+        });
+
+        return videosToReturn;
     }
 
     static async isVideoPublished(videoId: string) {
